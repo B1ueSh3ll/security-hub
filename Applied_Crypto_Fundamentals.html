@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applied Cryptography Fundamentals - อบรม Cybersecurity & CTF Hands-on by Cyber Ratom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #070913;
+            --bg-surface: #0d1224;
+            --bg-card: #141a33;
+            --bg-card-hover: #1c2445;
+            --border: #232c52;
+            --border-color: #232c52;
+            --purple: #a855f7;
+            --violet: #8b5cf6;
+            --cyan: #06b6d4;
+            --blue: #3b82f6;
+            --gold: #f59e0b;
+            --green: #10b981;
+            --red: #ef4444;
+            --accent-purple: #c084fc;
+            --accent-cyan: #00f2fe;
+            --accent-gold: #fbbf24;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-dim: #64748b;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(168, 85, 247, 0.09) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(13, 18, 36, 0.8) 0%, rgba(7, 9, 19, 0.98) 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: rgba(13, 18, 36, 0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            background: linear-gradient(135deg, #7c3aed, #d97706);
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 16px rgba(124, 58, 237, 0.5);
+        }
+
+        .brand-text h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #c084fc, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-link-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-red {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+        .btn-red:hover { background: rgba(239, 68, 68, 0.25); transform: translateY(-1px); }
+
+        .btn-blue {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #93c5fd;
+        }
+        .btn-blue:hover { background: rgba(59, 130, 246, 0.25); transform: translateY(-1px); }
+
+        .btn-sound {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 7px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-sound:hover { border-color: var(--purple); }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 22px 20px 80px 20px;
+        }
+
+        /* Navigation Tabs */
+        .nav-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 2px 18px 2px;
+            scrollbar-width: thin;
+        }
+
+        .tab-btn {
+            background: var(--bg-surface);
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: var(--bg-card);
+            border-color: var(--purple);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(245, 158, 11, 0.15));
+            border-color: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 14px rgba(168, 85, 247, 0.35);
+        }
+
+        /* Views */
+        .module-view {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .module-view.active {
+            display: block;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #131733 0%, #1c183a 100%);
+            border: 1px solid #332759;
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--purple), var(--gold));
+        }
+
+        .hero-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-text {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Topic Card */
+        .topic-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 22px;
+            transition: border-color 0.2s;
+        }
+
+        .topic-card:hover {
+            border-color: #3b426b;
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topic-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topic-badge {
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            color: #d8b4fe;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .topic-content {
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
+        /* Visual Simulator Card */
+        .visual-model-card {
+            background: linear-gradient(135deg, #0b0e21 0%, #151433 100%);
+            border: 1px solid #2d2654;
+            border-radius: var(--radius-md);
+            padding: 22px;
+            margin: 20px 0;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+        }
+
+        .visual-model-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--accent-purple);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Controls */
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 14px 0;
+            background: #080a18;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #1f2347;
+        }
+
+        .ctrl-input {
+            background: #11142e;
+            color: #fff;
+            border: 1px solid #2f3460;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.88rem;
+            outline: none;
+            flex: 1;
+            min-width: 200px;
+        }
+        .ctrl-input:focus { border-color: var(--purple); }
+
+        .btn-action {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 12px rgba(124, 58, 237, 0.6);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #d97706, #b45309);
+        }
+        .btn-gold:hover {
+            box-shadow: 0 0 12px rgba(217, 119, 6, 0.6);
+        }
+
+        .btn-cyan {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+        }
+        .btn-cyan:hover {
+            box-shadow: 0 0 12px rgba(2, 132, 199, 0.6);
+        }
+
+        /* Result display box */
+        .res-display {
+            background: #050711;
+            border: 1px solid #1b2042;
+            border-radius: 8px;
+            padding: 14px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-top: 10px;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+
+        /* Bit & Byte visualizer */
+        .bit-strip {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .bit-box {
+            background: #151a38;
+            border: 1px solid #283063;
+            color: #a5b4fc;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .bit-box.highlight {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+        }
+        .bit-box.diff {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: var(--red);
+            color: #fca5a5;
+        }
+
+        /* Formula & Concept Callout */
+        .formula-card {
+            background: #090c1f;
+            border-left: 4px solid var(--gold);
+            border-radius: 0 8px 8px 0;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.88rem;
+            color: #fde68a;
+        }
+
+        /* CTF Trick Box */
+        .ctf-trick-box {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 14px 0;
+        }
+        .ctf-trick-title {
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Code box */
+        .code-box {
+            background: #050711;
+            border: 1px solid #1a2040;
+            border-radius: 8px;
+            padding: 14px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .code-kw { color: #c084fc; font-weight: bold; }
+        .code-fn { color: #60a5fa; }
+        .code-str { color: #34d399; }
+        .code-cmt { color: #64748b; font-style: italic; }
+
+        /* Stepper Flow */
+        .crypto-pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: #070a1a;
+            border: 1px solid #1d234a;
+            border-radius: 10px;
+            padding: 18px 14px;
+            margin: 14px 0;
+            overflow-x: auto;
+        }
+        .pipeline-step {
+            background: #101633;
+            border: 1px solid #273063;
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-align: center;
+            min-width: 130px;
+            position: relative;
+        }
+        .pipeline-step.active {
+            border-color: var(--purple);
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+        }
+        .pipeline-arrow {
+            color: var(--gold);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Quiz Box */
+        .quiz-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-top: 16px;
+        }
+        .quiz-card {
+            background: #0a0d21;
+            border: 1px solid #20274f;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+        .quiz-q {
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 12px;
+        }
+        .quiz-opts {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .quiz-opt {
+            background: #121738;
+            border: 1px solid #2b3366;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .quiz-opt:hover {
+            border-color: var(--purple);
+            background: #1a214d;
+        }
+        .quiz-opt.correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: var(--green) !important;
+            color: #6ee7b7 !important;
+            font-weight: bold;
+        }
+        .quiz-opt.wrong {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: var(--red) !important;
+            color: #fca5a5 !important;
+        }
+        .quiz-exp {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #060914;
+            border-radius: 6px;
+            font-size: 0.84rem;
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 12px 16px; }
+            .container { padding: 16px 12px 60px 12px; }
+            .controls-row { flex-direction: column; align-items: stretch; }
+            .crypto-pipeline { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-inner">
+            <div class="brand-group">
+                <div class="brand-logo">🔐</div>
+                <div class="brand-text">
+                    <h1>Applied Cryptography Fundamentals <span style="font-size:0.8rem;padding:3px 8px;border-radius:12px;background:rgba(168,85,247,0.2);color:#d8b4fe;border:1px solid #a855f7;margin-left:6px;">CRYPTO TRACK</span></h1>
+                    <p>อบรม Cybersecurity & CTF Hands-on by Cyber Ratom — ถอดรหัสคณิตศาสตร์ สู่การล่า Flag และป้องกันระบบ</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <a href="Web_Exploitation_Fundamentals.html" class="btn-link-pill btn-red">
+                    <span>⚔️</span> Red Team Lab ➔
+                </a>
+                <a href="Blue_Team_Defense_Lab.html" class="btn-link-pill btn-blue">
+                    <span>🛡️</span> Blue Team Lab ➔
+                </a>
+                <a href="System_Exploitation_Fundamentals.html" class="btn-link-pill" style="background:rgba(234,88,12,0.15);border:1px solid rgba(234,88,12,0.4);color:#fdba74;"><span>💥</span> PWN Lab ➔</a>
+                <button class="btn-sound" id="soundBtn" onclick="toggleAudio()">
+                    <span id="soundIcon">🔊</span> <span id="soundText">เสียง: เปิด</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Navigation Tabs -->
+        <div class="nav-bar" id="navBar">
+            <button class="tab-btn active" onclick="switchTab(0)">🔑 1. Encoding vs Hash vs Crypto</button>
+            <button class="tab-btn" onclick="switchTab(1)">📜 2. Classic Ciphers & CTF</button>
+            <button class="tab-btn" onclick="switchTab(2)">⚡ 3. XOR & One-Time Pad</button>
+            <button class="tab-btn" onclick="switchTab(3)">🧱 4. Modern Symmetric (AES & Modes)</button>
+            <button class="tab-btn" onclick="switchTab(4)">#️⃣ 5. Hashes, HMAC & Salt</button>
+            <button class="tab-btn" onclick="switchTab(5)">🗝️ 6. Asymmetric (RSA & Diffie-Hellman)</button>
+            <button class="tab-btn" onclick="switchTab(6)">🔏 7. Digital Signature & TLS</button>
+            <button class="tab-btn" onclick="switchTab(7)">🏆 8. Crypto CTF Arena (10 ข้อ)</button>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 0: Encoding vs Hashing vs Encryption                     -->
+        <!-- ============================================================= -->
+        <section class="module-view active" id="view0">
+            <div class="hero-banner">
+                <div class="hero-title">🔑 1. Encoding vs Hashing vs Encryption — แยกให้ออก ก่อนลงมือเจาะหรือสร้าง</div>
+                <div class="hero-text">
+                    ข้อผิดพลาดอันดับ 1 ของผู้เริ่มต้นในโลก Cybersecurity และโจทย์ CTF คือการสับสนระหว่าง <strong>Encoding (แปลงรูปแบบ)</strong>, 
+                    <strong>Hashing (ทางเดียว ตรวจความถูกต้อง)</strong> และ <strong>Encryption (เข้ารหัสลับ ต้องมีกุญแจ)</strong><br>
+                    จำสัจธรรมไว้เสมอ: <em>"Base64 ไม่ใช่การเข้ารหัสลับ (Not Encryption)! ใครๆ ก็แปลงกลับได้โดยไม่ต้องมีรหัสผ่าน"</em>
+                </div>
+            </div>
+
+            <!-- Comparison Table Card -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">📊 ตารางเปรียบเทียบคุณสมบัติ 3 เสาหลัก</div>
+                    <span class="topic-badge">NIST & RFC Concepts</span>
+                </div>
+                <div class="topic-content">
+                    <table style="width:100%; border-collapse: collapse; margin-top:10px; font-size:0.88rem;">
+                        <thead>
+                            <tr style="background:#111633; border-bottom:2px solid #2e3766; text-align:left;">
+                                <th style="padding:10px; color:#c084fc;">มิติเปรียบเทียบ</th>
+                                <th style="padding:10px; color:#38bdf8;">Encoding (การแปลงรูปแบบ)</th>
+                                <th style="padding:10px; color:#fbbf24;">Hashing (การย่อยข้อมูล)</th>
+                                <th style="padding:10px; color:#34d399;">Encryption (การเข้ารหัสลับ)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom:1px solid #1c234a;">
+                                <td style="padding:10px; font-weight:bold;">เป้าหมายหลัก</td>
+                                <td style="padding:10px;">ความเข้ากันได้ของระบบ (Data Usability)</td>
+                                <td style="padding:10px;">ความครบถ้วนถูกต้อง (Data Integrity)</td>
+                                <td style="padding:10px;">การรักษาความลับ (Confidentiality)</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #1c234a;">
+                                <td style="padding:10px; font-weight:bold;">ต้องการกุญแจ (Key)?</td>
+                                <td style="padding:10px; color:#f87171;">❌ ไม่ใช้ (แปลงกลับได้สาธารณะ)</td>
+                                <td style="padding:10px; color:#f87171;">❌ ไม่ใช้ (ยกเว้น HMAC)</td>
+                                <td style="padding:10px; color:#4ade80;">✅ ต้องใช้กุญแจลับ (Secret/Private Key)</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #1c234a;">
+                                <td style="padding:10px; font-weight:bold;">ย้อนกลับได้ไหม (Reversible)?</td>
+                                <td style="padding:10px; color:#4ade80;">✅ ย้อนกลับได้ 100%</td>
+                                <td style="padding:10px; color:#f87171;">❌ ทางเดียว (One-way Function)</td>
+                                <td style="padding:10px; color:#4ade80;">✅ ถอดรหัสได้หากมีกุญแจที่ถูกต้อง</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:10px; font-weight:bold;">ตัวอย่างใน CTF / ชีวิตจริง</td>
+                                <td style="padding:10px;">Base64, Hex, URL-Encode, ASCII</td>
+                                <td style="padding:10px;">SHA-256, MD5, bcrypt, Argon2</td>
+                                <td style="padding:10px;">AES-GCM, ChaCha20, RSA, ECC</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Visual Model 1: The Transformation Pipeline -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>🔬</span> แบบจำลองภาพ: Data Transformation Lab (ทดลองแปลงสด)
+                </div>
+                <p style="font-size:0.86rem; color:var(--text-sub); margin-bottom:10px;">
+                    พิมพ์ข้อความหรือ Flag ที่ต้องการ แล้วคลิกเพื่อดูการเปลี่ยนแปลงในแต่ละกระบวนการแบบ Real-time
+                </p>
+
+                <div class="controls-row">
+                    <label style="font-size:0.85rem; color:#fff;">ข้อความต้นฉบับ (Plaintext):</label>
+                    <input type="text" id="v0Input" class="ctrl-input" value="flag{cyber_ratom_crypto_2026}">
+                    <button class="btn-action" onclick="runTransformSim()">⚡ แปลงผลลัพธ์พร้อมกัน</button>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-top:14px;">
+                    <div style="background:#070a1a; border:1px solid #1e2854; border-radius:8px; padding:14px;">
+                        <div style="color:#38bdf8; font-weight:bold; font-size:0.9rem; margin-bottom:6px;">📦 1. Encoding (Base64)</div>
+                        <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:8px;">ไม่มีความปลอดภัย ใครๆ ก็ถอดได้ด้วย <code style="color:#a5b4fc;">atob()</code></div>
+                        <div id="v0Base64" class="res-display">--</div>
+                    </div>
+
+                    <div style="background:#070a1a; border:1px solid #1e2854; border-radius:8px; padding:14px;">
+                        <div style="color:#fbbf24; font-weight:bold; font-size:0.9rem; margin-bottom:6px;">#️⃣ 2. Hashing (SHA-256)</div>
+                        <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:8px;">ความยาวคงที่ 64 ตัวอักษร Hex (256-bit) ไม่มีฟังก์ชันถอดกลับ</div>
+                        <div id="v0Sha256" class="res-display">--</div>
+                    </div>
+
+                    <div style="background:#070a1a; border:1px solid #1e2854; border-radius:8px; padding:14px;">
+                        <div style="color:#34d399; font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🔐 3. Encryption (XOR w/ Key "RAT")</div>
+                        <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:8px;">ต้องใช้ Key ในการถอดกลับ หากไม่รู้ Key จะอ่านไม่รู้เรื่อง</div>
+                        <div id="v0XorHex" class="res-display">--</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 1: Classic Ciphers & CTF                                 -->
+        <!-- ============================================================= -->
+        <section class="module-view" id="view1">
+            <div class="hero-banner">
+                <div class="hero-title">📜 2. Classic Ciphers & CTF Warmups — จุดเริ่มต้นของประวัติศาสตร์การเข้ารหัส</div>
+                <div class="hero-text">
+                    ในสนามแข่ง CTF โจทย์ Warmup หรือข้อสอบระดับต้นมักจะหยิบยก <strong>Substitution Ciphers (การสับเปลี่ยนตัวอักษร)</strong> มาเป็นความท้าทายแรก<br>
+                    เช่น <strong>Caesar Cipher (ROT13)</strong>, <strong>Atbash</strong>, และ <strong>Vigenère Cipher</strong> ซึ่งทั้งหมดมีจุดอ่อนร้ายแรงคือ <em>"ไม่สามารถซ่อนการแจกแจงความถี่ของตัวอักษร (Frequency Analysis)"</em> ได้
+                </div>
+            </div>
+
+            <!-- Caesar / ROT Multi-Brute Visualizer -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>🏛️</span> Interactive Caesar & ROT Brute-Force Stepper
+                </div>
+                <p style="font-size:0.86rem; color:var(--text-sub); margin-bottom:12px;">
+                    Caesar Cipher หมุนตัวอักษรไปข้างหน้าตามค่า Shift (1 ถึง 25) โดย <strong>ROT13</strong> คือการหมุน 13 ตำแหน่งที่เป็นที่นิยมใน CTF
+                </p>
+
+                <div class="controls-row">
+                    <label style="font-size:0.85rem; color:#fff;">Ciphertext / Plaintext:</label>
+                    <input type="text" id="rotInput" class="ctrl-input" value="synt{plore_engbz_pelcgb_2026}">
+                    <label style="font-size:0.85rem; color:#fff;">Shift (0-25):</label>
+                    <input type="number" id="rotShift" style="width:70px; background:#101433; color:#fff; border:1px solid var(--border); padding:6px; border-radius:6px;" value="13" min="0" max="25" oninput="updateCaesar()">
+                    <button class="btn-action" onclick="bruteCaesar()">💥 รัน Brute-Force 25 ค่า</button>
+                </div>
+
+                <div style="background:#070a1a; border:1px solid #1c234a; border-radius:8px; padding:14px; margin-top:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-size:0.86rem; color:#a5b4fc; font-weight:bold;">ผลลัพธ์ตาม Shift ปัจจุบัน:</span>
+                        <span id="rotBadge" class="topic-badge">Shift = 13 (ROT13)</span>
+                    </div>
+                    <div id="rotOutput" class="res-display" style="font-size:1rem; color:#38ef7d; font-weight:bold;">flag{cyber_ratom_crypto_2026}</div>
+                </div>
+
+                <div id="rotAllList" style="margin-top:12px; max-height:180px; overflow-y:auto; display:none; background:#04060e; border:1px solid #181d3d; border-radius:6px; padding:10px; font-family:'Fira Code', monospace; font-size:0.8rem;"></div>
+            </div>
+
+            <!-- Vigenere & Frequency Analysis Explainer -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🔑 Vigenère Cipher & ทำไม Classic Ciphers จึงพังง่าย?</div>
+                    <span class="topic-badge">Polyalphabetic</span>
+                </div>
+                <div class="topic-content">
+                    Vigenère ใช้คำคีย์เวิร์ด (เช่น "KEY") ในการเปลี่ยนค่า Shift ซ้ำๆ ทีละตัวอักษร:
+                    <div class="formula-card">
+                        Ci = (Pi + Ki) mod 26 &nbsp;&nbsp;|&nbsp;&nbsp; Pi = (Ci - Ki) mod 26
+                    </div>
+                    <div class="ctf-trick-title" style="margin-top:12px;">🚩 เทคนิคการถอดรหัสใน CTF (CTF Attack Tactics):</div>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>Frequency Analysis:</strong> ในภาษาอังกฤษ ตัวอักษร <code style="color:#f59e0b;">E (12.7%)</code>, <code style="color:#f59e0b;">T (9.1%)</code>, <code style="color:#f59e0b;">A (8.2%)</code> จะปรากฏบ่อยที่สุด การนับสถิติจะเปิดเผยตารางสับเปลี่ยนทันที</li>
+                        <li><strong>Kasiski Examination:</strong> หาคำหรือลำดับอักษรที่ซ้ำกันเพื่อคำนวณหา "ความยาวของ Key" (Key Length) ใน Vigenère แล้วแยกแก้ด้วย Caesar ทีละชุด</li>
+                        <li><strong>เครื่องมือประจำตัว CTF:</strong> CyberChef (เมนู Magic / Vigenere Decode), dcode.fr, และ Python script</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 2: XOR & One-Time Pad                                    -->
+        <!-- ============================================================= -->
+        <section class="module-view" id="view2">
+            <div class="hero-banner">
+                <div class="hero-title">⚡ 3. The Power of XOR & One-Time Pad (OTP) — รากฐานของระบบ Crypto ยุคใหม่</div>
+                <div class="hero-text">
+                    การดำเนินการทางตรรกศาสตร์ที่สำคัญที่สุดในโลกของการเข้ารหัสลับคือ <strong>Bitwise XOR (Exclusive OR หรือเครื่องหมาย ⊕ / ^)</strong><br>
+                    XOR มีคุณสมบัติวิเศษที่เป็นรากฐานของทั้ง <em>Stream Ciphers</em>, <em>One-Time Pad</em>, และ <em>Block Cipher Modes</em>
+                </div>
+            </div>
+
+            <!-- Interactive XOR Bitwise Engine -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>🔬</span> Bitwise XOR Visual Lab: สังเกตคุณสมบัติ Self-Inverting
+                </div>
+                <div class="formula-card">
+                    กฎมหัศจรรย์ของ XOR:<br>
+                    1) A ⊕ 0 = A<br>
+                    2) A ⊕ A = 0<br>
+                    3) (A ⊕ B) ⊕ B = A &nbsp;&nbsp;<span style="color:#38ef7d;">&lt;-- ใช้ Key เดียวกัน XOR ซ้ำ ได้ค่าเดิมคืนทันที! (Symmetric)</span>
+                </div>
+
+                <div class="controls-row">
+                    <label style="font-size:0.85rem; color:#fff;">ไบต์ A (Char):</label>
+                    <input type="text" id="xorA" style="width:60px; text-align:center;" class="ctrl-input" value="F" maxlength="1" oninput="calcXorVisual()">
+                    
+                    <label style="font-size:0.85rem; color:#fff;">ไบต์ Key (Char):</label>
+                    <input type="text" id="xorK" style="width:60px; text-align:center;" class="ctrl-input" value="K" maxlength="1" oninput="calcXorVisual()">
+                </div>
+
+                <div id="xorVisualContainer" style="background:#070a19; border:1px solid #1f2752; border-radius:8px; padding:14px; margin-top:10px;">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <!-- OTP & Key Reuse Attack -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">💣 ช่องโหว่ยอดฮิตใน CTF: One-Time Pad Key Reuse (การใช้ Key ซ้ำ)</div>
+                    <span class="topic-badge">CWE-321 / Many-Time Pad</span>
+                </div>
+                <div class="topic-content">
+                    <strong>One-Time Pad (OTP)</strong> ได้รับการพิสูจน์ทางคณิตศาสตร์โดย Claude Shannon ว่ามีความปลอดภัยระดับสมบูรณ์แบบ (Perfect Secrecy) 
+                    <em>แต่มีเงื่อนไขเหล็ก 3 ข้อ: 1. Key ต้องสุ่มแท้ (True Random), 2. Key ต้องยาวเท่าข้อความ, 3. ห้ามใช้ Key ซ้ำเด็ดขาด!</em>
+                    
+                    <div class="ctf-trick-box">
+                        <div class="ctf-trick-title">🚩 จะเกิดอะไรขึ้นถ้าแฮกเกอร์เจอการใช้ Key ซ้ำ (C1 ⊕ C2)?</div>
+                        สมมติผู้ส่งส่ง 2 ข้อความด้วย Key เดียวกัน:<br>
+                        <code style="color:#c084fc;">C1 = P1 ⊕ Key</code> &nbsp;&nbsp;และ&nbsp;&nbsp; <code style="color:#c084fc;">C2 = P2 ⊕ Key</code><br>
+                        เมื่อแฮกเกอร์นำ Ciphertext ทั้งสองมา XOR กัน:<br>
+                        <code style="color:#38ef7d; font-weight:bold;">C1 ⊕ C2 = (P1 ⊕ Key) ⊕ (P2 ⊕ Key) = P1 ⊕ P2</code><br>
+                        <strong>ผลลัพธ์คือ Key หายไปอย่างสิ้นเชิง!</strong> เหลือเพียง Plaintext สองข้อความ XOR กัน แฮกเกอร์สามารถใช้เทคนิค <em>Crib Dragging</em> หรือช่องว่าง (Space 0x20) เพื่อกู้ข้อความทั้งสองกลับมาได้ 100%!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 3: Modern Symmetric (AES & Modes)                        -->
+        <!-- ============================================================= -->
+        <section class="module-view" id="view3">
+            <div class="hero-banner">
+                <div class="hero-title">🧱 4. Modern Symmetric Ciphers — AES & The Trap of Modes (ECB vs CBC vs GCM)</div>
+                <div class="hero-text">
+                    <strong>AES (Advanced Encryption Standard)</strong> คืออัลกอริทึมมาตรฐานโลก ทำงานครั้งละ 1 บล็อก (128-bit / 16 bytes)<br>
+                    แต่ความปลอดภัยที่แท้จริงไม่ได้ขึ้นอยู่กับตัวอัลกอริทึม AES เพียงอย่างเดียว แต่ขึ้นอยู่กับ <strong>Mode of Operation</strong> ที่ใช้ห่อหุ้มบล็อกเหล่านั้น!
+                </div>
+            </div>
+
+            <!-- The Infamous ECB Penguin Simulation -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>🐧</span> The ECB Penguin Trap: ทำไมห้ามใช้ AES-ECB ในชีวิตจริง?
+                </div>
+                <p style="font-size:0.86rem; color:var(--text-sub); margin-bottom:12px;">
+                    <strong>ECB (Electronic Codebook)</strong> เข้ารหัสทีละบล็อก 16 ไบต์แบบแยกอิสระจากกัน: <em>"บล็อก Plaintext ที่เหมือนกัน ย่อมได้บล็อก Ciphertext ที่หน้าตาเหมือนกัน 100%!"</em>
+                </p>
+
+                <div class="controls-row">
+                    <label style="font-size:0.85rem; color:#fff;">เลือกโหมดการเข้ารหัส:</label>
+                    <select id="aesModeSelect" style="background:#111533; color:#fff; border:1px solid var(--border); padding:8px 12px; border-radius:6px;" onchange="simAesMode()">
+                        <option value="ECB">⚠️ AES-ECB (อันตราย! เผยแพตเทิร์นซ้ำซ้อน)</option>
+                        <option value="CBC">🛡️ AES-CBC (ปลอดภัยขึ้น ใช้ IV และลูกโซ่ XOR)</option>
+                        <option value="GCM">🔒 AES-GCM (มาตรฐานปัจจุบัน Authenticated Encryption)</option>
+                    </select>
+                    <button class="btn-action" onclick="simAesMode()">จำลองการเข้ารหัสบล็อก</button>
+                </div>
+
+                <div id="aesBlocksContainer" style="background:#070a1a; border:1px solid #1c244d; border-radius:8px; padding:16px; margin-top:12px;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- CBC Bit-Flipping & Padding Oracle -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">⚔️ การโจมตีขั้นสูงในโหมด CBC (CBC Bit-Flipping & Padding Oracle)</div>
+                    <span class="topic-badge">CWE-326 / CTF Classic</span>
+                </div>
+                <div class="topic-content">
+                    ในโหมด <strong>AES-CBC</strong> ก่อนที่บล็อกถัดไปจะถูกถอดรหัส มันจะถูกนำไป XOR กับ <em>Ciphertext ของบล็อกก่อนหน้า (หรือ IV สำหรับบล็อกแรก)</em>:
+                    <div class="formula-card">
+                        P2 = Decrypt(C2) ⊕ C1
+                    </div>
+                    <div class="ctf-trick-box">
+                        <div class="ctf-trick-title">🎯 เทคนิค CBC Bit-Flipping Attack (เสกสิทธิ์ Admin โดยไม่ต้องรู้ Key!):</div>
+                        สมมติคุ้กกี้เซสชันถูกเข้ารหัสด้วย CBC และมีค่าว่า: <code style="color:#f59e0b;">user=koon;role=guest</code><br>
+                        หากแฮกเกอร์เปลี่ยนบิตใน <code style="color:#c084fc;">C1</code> ตรงตำแหน่งของคำว่า 'g' ค่าใน <code style="color:#38ef7d;">P2</code> จะเปลี่ยนตามสมการ XOR!<br>
+                        แฮกเกอร์สามารถคำนวณบิตส่วนต่างเพื่อพลิกคำว่า <code style="color:#f87171;">guest</code> ให้กลายเป็น <code style="color:#4ade80;">admin</code> ได้สำเร็จ แม้บล็อก C1 จะพัง แต่บล็อก P2 จะกลายเป็นสิทธิ์แอดมินทันที!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 4: Hashes, HMAC & Salt                                   -->
+        <!-- ============================================================= -->
+        <section class="module-view" id="view4">
+            <div class="hero-banner">
+                <div class="hero-title">#️⃣ 5. Cryptographic Hash Functions & The Salt Defense — การเก็บรหัสผ่านที่ถูกต้อง</div>
+                <div class="hero-text">
+                    ฟังก์ชันแฮชทางวิทยาการรหัสลับ (Cryptographic Hash) ต้องมีคุณสมบัติ: <strong>Pre-image Resistance (ถอดกลับไม่ได้)</strong>, 
+                    <strong>Second Pre-image Resistance</strong>, และ <strong>Collision Resistance (ไม่มีสองข้อความใดได้ค่าแฮชชนกัน)</strong><br>
+                    รวมถึงการสังเกตปรากฏการณ์ <em>Avalanche Effect</em> (เปลี่ยนแค่ 1 บิต ค่าแฮชเปลี่ยนสิ้นเชิง)
+                </div>
+            </div>
+
+            <!-- Avalanche Effect Visualizer -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>❄️</span> Avalanche Effect Simulator: ปรากฏการณ์หิมะถล่ม
+                </div>
+                <p style="font-size:0.86rem; color:var(--text-sub); margin-bottom:12px;">
+                    สังเกตว่าการเปลี่ยนตัวอักษรเพียงตัวเดียว ทำให้ผลลัพธ์แฮช SHA-256 แตกต่างกันมากกว่า 50% ของจำนวนบิตทั้งหมดอย่างไร
+                </p>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div>
+                        <label style="font-size:0.82rem; color:#94a3b8;">ข้อความที่ 1:</label>
+                        <input type="text" id="av1" class="ctrl-input" style="width:100%; margin-top:4px;" value="Password123" oninput="calcAvalanche()">
+                        <div id="avHash1" class="res-display" style="font-size:0.75rem; margin-top:6px;">--</div>
+                    </div>
+                    <div>
+                        <label style="font-size:0.82rem; color:#94a3b8;">ข้อความที่ 2 (เปลี่ยนแค่ 1 ตัวอักษร):</label>
+                        <input type="text" id="av2" class="ctrl-input" style="width:100%; margin-top:4px;" value="Password124" oninput="calcAvalanche()">
+                        <div id="avHash2" class="res-display" style="font-size:0.75rem; margin-top:6px;">--</div>
+                    </div>
+                </div>
+
+                <div id="avDiffMetric" style="margin-top:12px; background:#060914; border:1px solid #1f2752; padding:10px 14px; border-radius:6px; font-size:0.85rem; color:#38bdf8;">
+                    กำลังคำนวณความแตกต่าง...
+                </div>
+            </div>
+
+            <!-- Password Storage: Rainbow Table vs Salt vs Slow Hashes -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🛡️ ทำไมห้ามใช้ MD5 / SHA-256 เก็บ Password ตรงๆ?</div>
+                    <span class="topic-badge">OWASP Authentication</span>
+                </div>
+                <div class="topic-content">
+                    <ul style="margin-left:20px; line-height:1.8;">
+                        <li><strong>MD5 / SHA-1 พังแล้ว:</strong> มีช่องโหว่ Hash Collision ที่สร้างไฟล์สองไฟล์ให้ได้ค่าแฮชเท่ากันได้จริง (SHAttered attack)</li>
+                        <li><strong>SHA-256 เร็วเกินไป!:</strong> การ์ดจอสมัยใหม่ (RTX 4090) สามารถคำนวณ SHA-256 ได้นับหมื่นล้านครั้งต่อวินาที แฮกเกอร์ใช้ <em>Rainbow Tables</em> และ Hashcat ถอดรหัสผ่านได้ในเสี้ยววินาที</li>
+                        <li><strong>The Salt Defense:</strong> การเติม Salt (สตริงสุ่มอย่างน้อย 16 ไบต์เฉพาะของแต่ละ User) ทำให้ตาราง Rainbow Table ไร้ประโยชน์ทันที</li>
+                        <li><strong>วิธีที่ได้มาตรฐานอุตสาหกรรม:</strong> ต้องใช้ฟังก์ชันแฮชแบบหน่วงเวลา (Memory-Hard / Slow Hashes) เช่น <strong>Argon2id</strong> (ชนะเลิศ Password Hashing Competition), <strong>bcrypt</strong>, หรือ <strong>PBKDF2</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 5: Asymmetric (RSA & Diffie-Hellman)                     -->
+        <!-- ============================================================= -->
+        <section class="module-view" id="view5">
+            <div class="hero-banner">
+                <div class="hero-title">🗝️ 6. Asymmetric Cryptography — กุญแจคู่ RSA & Diffie-Hellman Key Exchange</div>
+                <div class="hero-text">
+                    วิทยาการรหัสลับแบบอสมมาตร (Public-Key Cryptography) แก้ปัญหาใหญ่ที่สุดในประวัติศาสตร์: 
+                    <strong>"คนสองคนที่ไม่เคยพบกันมาก่อน จะส่งกุญแจลับหากันอย่างปลอดภัยผ่านช่องทางที่ไม่ปลอดภัยได้อย่างไร?"</strong><br>
+                    ด้วยพลังของคณิตศาสตร์ทางเดียว (Trapdoor One-Way Functions) และ Prime Factorization
+                </div>
+            </div>
+
+            <!-- Interactive RSA Calculator (Small Primes for Education) -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>📐</span> Interactive Mini-RSA Simulator (คำนวณคณิตศาสตร์สด)
+                </div>
+                <p style="font-size:0.86rem; color:var(--text-sub); margin-bottom:12px;">
+                    จำลองขั้นตอนสร้างกุญแจ RSA ด้วยจำนวนเฉพาะขนาดเล็ก เพื่อให้เห็นสูตรคณิตศาสตร์: <code>n = p * q</code>, <code>φ(n) = (p-1)*(q-1)</code>, <code>d ≡ e⁻¹ (mod φ(n))</code>
+                </p>
+
+                <div class="controls-row">
+                    <label style="font-size:0.85rem; color:#fff;">Prime p:</label>
+                    <input type="number" id="rsaP" style="width:70px;" class="ctrl-input" value="61">
+                    <label style="font-size:0.85rem; color:#fff;">Prime q:</label>
+                    <input type="number" id="rsaQ" style="width:70px;" class="ctrl-input" value="53">
+                    <label style="font-size:0.85rem; color:#fff;">Public Exponent e:</label>
+                    <input type="number" id="rsaE" style="width:70px;" class="ctrl-input" value="17">
+                    <button class="btn-action" onclick="calcRsaKeys()">🔑 คำนวณคู่กุญแจ</button>
+                </div>
+
+                <div id="rsaResults" style="background:#070a1a; border:1px solid #1e254e; border-radius:8px; padding:14px; margin-top:12px; font-family:'Fira Code', monospace; font-size:0.85rem;">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <!-- CTF RSA Attacks Reference -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🚩 คลังช่องโหว่ RSA ยอดฮิตในสนามแข่งขัน CTF</div>
+                    <span class="topic-badge">Crypto CTF Essentials</span>
+                </div>
+                <div class="topic-content">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-top:8px;">
+                        <div style="background:#070a19; border:1px solid #1f2752; padding:12px; border-radius:6px;">
+                            <div style="color:#fbbf24; font-weight:bold;">1. Small N Factorization</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">หาก n มีค่าน้อยเกินไป (เช่น &lt; 1024-bit) สามารถนำไปค้นหาตัวประกอบแยก p, q ได้ทันทีผ่านเว็บไซต์ <strong>factordb.com</strong></div>
+                        </div>
+                        <div style="background:#070a19; border:1px solid #1f2752; padding:12px; border-radius:6px;">
+                            <div style="color:#fbbf24; font-weight:bold;">2. Wiener's Attack</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">หากผู้สร้างใช้กุญแจลับ d เล็กเกินไป (d &lt; 1/3 * n^(1/4)) สามารถใช้ Continued Fractions ถอดรหัสได้ในเสี้ยววินาที</div>
+                        </div>
+                        <div style="background:#070a19; border:1px solid #1f2752; padding:12px; border-radius:6px;">
+                            <div style="color:#fbbf24; font-weight:bold;">3. Small Exponent e = 3</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">หาก e = 3 และไม่มีการทำ Padding (m^3 &lt; n) สามารถถอดรหัสได้ง่ายๆ เพียงแค่หา <strong>รากที่สาม (Cube Root)</strong> ของ Ciphertext ตรงๆ</div>
+                        </div>
+                        <div style="background:#070a19; border:1px solid #1f2752; padding:12px; border-radius:6px;">
+                            <div style="color:#fbbf24; font-weight:bold;">4. Common Modulus Attack</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">หากใช้ Modulus n เดียวกัน ส่งข้อความเดียวกันด้วยค่า e1, e2 ที่เป็น Co-prime สามารถใช้ Extended Euclidean กู้ข้อความได้โดยไม่ต้องรู้ Private Key</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 6: Digital Signatures & TLS                              -->
+        <!-- ============================================================= -->
+        <section class="module-view" id="view6">
+            <div class="hero-banner">
+                <div class="hero-title">🔏 7. Digital Signatures, PKI & TLS 1.3 — สถาปัตยกรรมกุญแจบนโลกอินเทอร์เน็ต</div>
+                <div class="hero-text">
+                    การเข้ารหัสช่วยรักษา <em>ความลับ (Confidentiality)</em> แต่ <strong>ลายมือชื่อดิจิทัล (Digital Signature)</strong> 
+                    ทำหน้าที่รักษา <em>ความถูกต้องแท้จริง (Authenticity) และการปฏิเสธความรับผิดไม่ได้ (Non-Repudiation)</em><br>
+                    ซึ่งนำไปสู่โครงสร้าง <strong>HTTPS / TLS 1.3</strong> ที่รักษาความปลอดภัยให้ทุกลิงก์บนเว็บที่เราใช้งาน
+                </div>
+            </div>
+
+            <!-- Signature Flow Stepper -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>✍️</span> ลำดับการทำงานของ Digital Signature & Verification
+                </div>
+                <div class="crypto-pipeline">
+                    <div class="pipeline-step">
+                        <div style="font-size:1.4rem;">📄</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#fff;">1. เอกสารต้นฉบับ</div>
+                        <div style="font-size:0.75rem; color:#94a3b8;">Plain Document</div>
+                    </div>
+                    <div class="pipeline-arrow">➔</div>
+                    <div class="pipeline-step">
+                        <div style="font-size:1.4rem;">#️⃣</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#fbbf24;">2. ทำการแฮช</div>
+                        <div style="font-size:0.75rem; color:#94a3b8;">SHA-256 Digest</div>
+                    </div>
+                    <div class="pipeline-arrow">➔</div>
+                    <div class="pipeline-step">
+                        <div style="font-size:1.4rem;">🗝️</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#f87171;">3. เซ็นด้วย Private Key</div>
+                        <div style="font-size:0.75rem; color:#94a3b8;">Sign(Hash, PrivKey)</div>
+                    </div>
+                    <div class="pipeline-arrow">➔</div>
+                    <div class="pipeline-step active">
+                        <div style="font-size:1.4rem;">📜</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#38ef7d;">4. ตรวจด้วย Public Key</div>
+                        <div style="font-size:0.75rem; color:#94a3b8;">Verify(Sig, PubKey) == Hash</div>
+                    </div>
+                </div>
+                <p style="font-size:0.85rem; color:#cbd5e1; margin-top:10px;">
+                    💡 <strong>หัวใจสำคัญ:</strong> หากผู้ส่งเปลี่ยนเนื้อหาในเอกสารแม้แต่ตัวอักษรเดียว ค่า Hash จะเปลี่ยน ส่งผลให้ลายมือชื่อตรวจสอบไม่ผ่านทันที!
+                </p>
+            </div>
+
+            <!-- TLS 1.3 Handshake Card -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🌐 ส่องการทำงานของ TLS 1.3 (1-RTT Fast Handshake & Forward Secrecy)</div>
+                    <span class="topic-badge">RFC 8446</span>
+                </div>
+                <div class="topic-content">
+                    TLS 1.3 ยกเลิกอัลกอริทึมล้าสมัยทั้งหมด (ตัด RSA Key Exchange, ตัด RC4, ตัด CBC) และบังคับใช้เฉพาะ:
+                    <ul style="margin-left:20px; margin-top:8px; line-height:1.7;">
+                        <li><strong>Ephemeral Diffie-Hellman (ECDHE):</strong> สร้างกุญแจชั่วคราวทิ้งทุกเซสชัน เพื่อให้ได้คุณสมบัติ <strong>Perfect Forward Secrecy (PFS)</strong> — ต่อให้ในอนาคต Server โดนแฮก Private Key หลุด ข้อมูลแพ็กเก็ตที่บันทึกไว้ในอดีตก็ยังถอดรหัสไม่ได้!</li>
+                        <li><strong>Authenticated Encryption (AEAD):</strong> บังคับใช้เฉพาะโหมดที่ยืนยันความถูกต้องในตัว เช่น AES-GCM, AES-CCM, และ ChaCha20-Poly1305</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- VIEW 7: Crypto CTF Arena (10 Questions Exam)                  -->
+        <!-- ============================================================= -->
+        <section class="module-view" id="view7">
+            <div class="hero-banner">
+                <div class="hero-title">🏆 8. Applied Crypto & CTF Hands-on Exam (10 สถานการณ์ประลองความรู้)</div>
+                <div class="hero-text">
+                    แบบทดสอบวัดผลความเข้าใจวิทยาการรหัสลับประยุกต์และการแก้โจทย์ CTF ทั้งหมด 10 ข้อ<br>
+                    วิเคราะห์สถานการณ์จริง และเลือกลำดับคำตอบที่ถูกต้องเพื่อคว้าเกียรติบัตร 100 คะแนนเต็ม!
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div style="font-size:1.1rem; font-weight:700; color:#c084fc;">📝 แบบทดสอบความรู้ Applied Cryptography (10 ข้อ)</div>
+                    <div id="cryptoScoreDisplay" style="font-size:1rem; font-weight:700; color:#fbbf24; font-family:'Fira Code', monospace;">คะแนน: 0 / 10</div>
+                </div>
+
+                <div id="quizListContainer">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Audio FX & Interactive Scripts -->
+    <script>
+        // Web Audio API Synth SFX
+        let audioCtx = null;
+        let audioEnabled = true;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playTone(freq, type, duration, gainVal=0.08) {
+            if (!audioEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function playClick() { playTone(800, 'sine', 0.08, 0.05); }
+        function playSuccess() { playTone(523.25, 'triangle', 0.12, 0.08); setTimeout(() => playTone(659.25, 'triangle', 0.15, 0.08), 80); }
+        function playWrong() { playTone(220, 'sawtooth', 0.25, 0.08); }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('soundIcon').innerText = audioEnabled ? '🔊' : '🔇';
+            document.getElementById('soundText').innerText = audioEnabled ? 'เสียง: เปิด' : 'เสียง: ปิด';
+            if (audioEnabled) playClick();
+        }
+
+        // Tab Navigation
+        function switchTab(index) {
+            playClick();
+            const tabs = document.querySelectorAll('.tab-btn');
+            const views = document.querySelectorAll('.module-view');
+            tabs.forEach((t, i) => t.classList.toggle('active', i === index));
+            views.forEach((v, i) => v.classList.toggle('active', i === index));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- SIMULATOR 0: Data Transformation ---
+        async function sha256Hex(str) {
+            const buffer = new TextEncoder().encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function runTransformSim() {
+            playClick();
+            const input = document.getElementById('v0Input').value;
+            // 1. Base64
+            try {
+                const b64 = btoa(unescape(encodeURIComponent(input)));
+                document.getElementById('v0Base64').innerText = b64;
+            } catch(e) {
+                document.getElementById('v0Base64').innerText = "Error encoding Base64";
+            }
+
+            // 2. SHA-256
+            const hash = await sha256Hex(input);
+            document.getElementById('v0Sha256').innerText = hash;
+
+            // 3. XOR with 'RAT'
+            const key = "RAT";
+            let xorHex = "";
+            for (let i = 0; i < input.length; i++) {
+                const xored = input.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+                xorHex += xored.toString(16).padStart(2, '0') + " ";
+            }
+            document.getElementById('v0XorHex').innerText = xorHex.trim();
+        }
+
+        // --- SIMULATOR 1: Caesar Cipher ---
+        function updateCaesar() {
+            const text = document.getElementById('rotInput').value;
+            const shift = parseInt(document.getElementById('rotShift').value) || 0;
+            document.getElementById('rotBadge').innerText = `Shift = ${shift} ${shift === 13 ? '(ROT13)' : ''}`;
+
+            let res = "";
+            for (let i = 0; i < text.length; i++) {
+                const c = text.charCodeAt(i);
+                if (c >= 65 && c <= 90) {
+                    res += String.fromCharCode(((c - 65 + shift) % 26) + 65);
+                } else if (c >= 97 && c <= 122) {
+                    res += String.fromCharCode(((c - 97 + shift) % 26) + 97);
+                } else {
+                    res += text[i];
+                }
+            }
+            document.getElementById('rotOutput').innerText = res;
+        }
+
+        function bruteCaesar() {
+            playClick();
+            const text = document.getElementById('rotInput').value;
+            const container = document.getElementById('rotAllList');
+            container.style.display = 'block';
+            let html = '<div style="font-weight:bold; color:#fbbf24; margin-bottom:6px;">ผลลัพธ์การ Brute-Force ทั้ง 25 ค่า Shift:</div>';
+            for (let s = 1; s <= 25; s++) {
+                let shifted = "";
+                for (let i = 0; i < text.length; i++) {
+                    const c = text.charCodeAt(i);
+                    if (c >= 65 && c <= 90) {
+                        shifted += String.fromCharCode(((c - 65 + s) % 26) + 65);
+                    } else if (c >= 97 && c <= 122) {
+                        shifted += String.fromCharCode(((c - 97 + s) % 26) + 97);
+                    } else {
+                        shifted += text[i];
+                    }
+                }
+                const isFlag = shifted.toLowerCase().includes('flag{');
+                html += `<div style="padding:2px 0; ${isFlag ? 'color:#34d399; font-weight:bold; background:rgba(16,185,129,0.15); border-radius:3px;' : 'color:#cbd5e1;'}">
+                    [Shift ${s.toString().padStart(2, '0')}] ${shifted} ${isFlag ? ' 🚩 &lt;-- DETECTED FLAG!' : ''}
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        // --- SIMULATOR 2: Bitwise XOR ---
+        function toBin(c) {
+            return c.charCodeAt(0).toString(2).padStart(8, '0');
+        }
+
+        function calcXorVisual() {
+            const charA = document.getElementById('xorA').value || 'A';
+            const charK = document.getElementById('xorK').value || 'K';
+            const binA = toBin(charA);
+            const binK = toBin(charK);
+            let binRes = "";
+            for (let i = 0; i < 8; i++) {
+                binRes += (binA[i] !== binK[i]) ? '1' : '0';
+            }
+            const resChar = String.fromCharCode(parseInt(binRes, 2));
+
+            const container = document.getElementById('xorVisualContainer');
+            container.innerHTML = `
+                <div style="display:flex; flex-direction:column; gap:8px; font-family:'Fira Code', monospace; font-size:0.88rem;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:140px; color:#38bdf8;">Byte A ('${charA}'):</span>
+                        <span style="letter-spacing:3px; color:#fff;">${binA}</span>
+                        <span style="color:#64748b;">(0x${charA.charCodeAt(0).toString(16).toUpperCase()})</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:140px; color:#fbbf24;">Key Byte ('${charK}'):</span>
+                        <span style="letter-spacing:3px; color:#fff;">${binK}</span>
+                        <span style="color:#64748b;">(0x${charK.charCodeAt(0).toString(16).toUpperCase()})</span>
+                    </div>
+                    <div style="border-bottom:1px dashed #2a3563; margin:4px 0;"></div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:140px; color:#34d399; font-weight:bold;">A ⊕ Key (Result):</span>
+                        <span style="letter-spacing:3px; color:#34d399; font-weight:bold;">${binRes}</span>
+                        <span style="color:#38ef7d; font-weight:bold;">(Hex: 0x${parseInt(binRes, 2).toString(16).padStart(2,'0').toUpperCase()})</span>
+                    </div>
+                    <div style="margin-top:8px; padding:8px; background:#0c102b; border-radius:6px; font-size:0.8rem; color:#a5b4fc;">
+                        🔄 ตรวจสอบ Self-Invert: นำผลลัพธ์ (0x${parseInt(binRes, 2).toString(16).padStart(2,'0')}) ⊕ '${charK}' ➔ ได้กลับมาเป็น '${String.fromCharCode(parseInt(binRes, 2) ^ charK.charCodeAt(0))}' ทันที!
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- SIMULATOR 3: AES Block Modes ---
+        function simAesMode() {
+            playClick();
+            const mode = document.getElementById('aesModeSelect').value;
+            const container = document.getElementById('aesBlocksContainer');
+
+            // Plaintext has 2 identical blocks (e.g. repeated data)
+            const b1 = "CONFIDENTIAL_DOC";
+            const b2 = "CONFIDENTIAL_DOC"; // Repeated!
+            const b3 = "USER_PERMIT_0001";
+
+            if (mode === "ECB") {
+                container.innerHTML = `
+                    <div style="color:#ef4444; font-weight:bold; margin-bottom:8px;">⚠️ ผลลัพธ์โหมด AES-ECB:</div>
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; font-family:'Fira Code', monospace; font-size:0.8rem;">
+                        <div style="background:#151838; border:2px solid #ef4444; border-radius:6px; padding:10px;">
+                            <div style="color:#94a3b8;">Block 1 (Plain): "${b1}"</div>
+                            <div style="color:#fca5a5; font-weight:bold; margin-top:6px;">Cipher: 8a4f91b2e34c...</div>
+                        </div>
+                        <div style="background:#151838; border:2px solid #ef4444; border-radius:6px; padding:10px;">
+                            <div style="color:#94a3b8;">Block 2 (Plain): "${b2}"</div>
+                            <div style="color:#fca5a5; font-weight:bold; margin-top:6px;">Cipher: 8a4f91b2e34c...</div>
+                        </div>
+                        <div style="background:#151838; border:1px solid #2d3466; border-radius:6px; padding:10px;">
+                            <div style="color:#94a3b8;">Block 3 (Plain): "${b3}"</div>
+                            <div style="color:#38bdf8; margin-top:6px;">Cipher: 17fc80e59a11...</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; color:#fca5a5; font-size:0.82rem;">
+                        🚨 <strong>ตรวจพบช่องโหว่:</strong> บล็อก 1 และ บล็อก 2 ได้ค่า Cipher เหมือนกันเป๊ะ! แฮกเกอร์มองเห็นโครงสร้างรูปภาพหรือข้อความซ้ำได้โดยไม่ต้องถอดรหัส
+                    </div>
+                `;
+            } else if (mode === "CBC") {
+                container.innerHTML = `
+                    <div style="color:#38bdf8; font-weight:bold; margin-bottom:8px;">🛡️ ผลลัพธ์โหมด AES-CBC (XOR Chaining with IV):</div>
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; font-family:'Fira Code', monospace; font-size:0.8rem;">
+                        <div style="background:#151838; border:1px solid #38bdf8; border-radius:6px; padding:10px;">
+                            <div style="color:#94a3b8;">Block 1 ⊕ IV</div>
+                            <div style="color:#38bdf8; margin-top:6px;">Cipher: 9c2b48fa017e...</div>
+                        </div>
+                        <div style="background:#151838; border:1px solid #38bdf8; border-radius:6px; padding:10px;">
+                            <div style="color:#94a3b8;">Block 2 ⊕ Cipher 1</div>
+                            <div style="color:#a78bfa; margin-top:6px;">Cipher: f58309a471ec...</div>
+                        </div>
+                        <div style="background:#151838; border:1px solid #38bdf8; border-radius:6px; padding:10px;">
+                            <div style="color:#94a3b8;">Block 3 ⊕ Cipher 2</div>
+                            <div style="color:#34d399; margin-top:6px;">Cipher: 33e1ba7209ff...</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; color:#93c5fd; font-size:0.82rem;">
+                        ✅ แม้ข้อความบล็อก 1 กับ 2 จะเหมือนกัน แต่ Ciphertext แตกต่างกันสิ้นเชิง เพราะถูกลูกโซ่ XOR ซ้ำ
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div style="color:#34d399; font-weight:bold; margin-bottom:8px;">🔒 ผลลัพธ์โหมด AES-GCM (AEAD - Encryption + GMAC Tag):</div>
+                    <div style="background:#0c112e; border:1px solid #10b981; border-radius:6px; padding:12px; font-family:'Fira Code', monospace; font-size:0.82rem;">
+                        <div style="color:#cbd5e1;">Ciphertext: 4fa817bc930e84b2e817... (Stream Counter)</div>
+                        <div style="color:#34d399; font-weight:bold; margin-top:6px;">Authentication Tag: a3f88c2190e54b17... (128-bit Integrity Check)</div>
+                    </div>
+                    <div style="margin-top:10px; color:#6ee7b7; font-size:0.82rem;">
+                        🌟 <strong>สมบูรณ์แบบ:</strong> หากแฮกเกอร์พยายามทำ Bit-Flipping แก้ข้อมูลแม้แต่ 1 บิต ค่า Auth Tag จะไม่ตรง และระบบจะปฏิเสธคำขอทันที!
+                    </div>
+                `;
+            }
+        }
+
+        // --- SIMULATOR 4: Avalanche Effect ---
+        async function calcAvalanche() {
+            const t1 = document.getElementById('av1').value;
+            const t2 = document.getElementById('av2').value;
+            const h1 = await sha256Hex(t1);
+            const h2 = await sha256Hex(t2);
+
+            document.getElementById('avHash1').innerText = h1;
+            document.getElementById('avHash2').innerText = h2;
+
+            // Count differing bits
+            let diffBits = 0;
+            for (let i = 0; i < h1.length; i += 2) {
+                const b1 = parseInt(h1.substr(i, 2), 16);
+                const b2 = parseInt(h2.substr(i, 2), 16);
+                let xor = b1 ^ b2;
+                while (xor > 0) {
+                    if (xor & 1) diffBits++;
+                    xor >>= 1;
+                }
+            }
+            const pct = ((diffBits / 256) * 100).toFixed(1);
+            document.getElementById('avDiffMetric').innerHTML = `
+                📊 ผลการวิเคราะห์: มีจำนวนบิตที่เปลี่ยนไป <strong>${diffBits} จาก 256 บิต (${pct}%)</strong><br>
+                <span style="color:${pct >= 45 && pct <= 55 ? '#34d399' : '#fbbf24'};">
+                    ${pct >= 45 && pct <= 55 ? '✅ ตรงตามมาตรฐาน Avalanche Effect (ประมาณ 50% ของบิตทั้งหมดเปลี่ยน)' : '⚡ มีการเปลี่ยนแปลงอย่างมีนัยสำคัญ'}
+                </span>
+            `;
+        }
+
+        // --- SIMULATOR 5: RSA Calculator ---
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+        function modInverse(e, phi) {
+            let m0 = phi, t, q;
+            let x0 = 0, x1 = 1;
+            if (phi === 1) return 0;
+            while (e > 1) {
+                q = Math.floor(e / phi);
+                t = phi;
+                phi = e % phi;
+                e = t;
+                t = x0;
+                x0 = x1 - q * x0;
+                x1 = t;
+            }
+            if (x1 < 0) x1 += m0;
+            return x1;
+        }
+
+        function calcRsaKeys() {
+            playClick();
+            const p = parseInt(document.getElementById('rsaP').value);
+            const q = parseInt(document.getElementById('rsaQ').value);
+            const e = parseInt(document.getElementById('rsaE').value);
+
+            const n = p * q;
+            const phi = (p - 1) * (q - 1);
+
+            if (gcd(e, phi) !== 1) {
+                document.getElementById('rsaResults').innerHTML = `<span style="color:#ef4444;">❌ ค่า e = ${e} ไม่เป็น Co-prime กับ φ(n) = ${phi} กรุณาเลือกค่า e ใหม่</span>`;
+                return;
+            }
+
+            const d = modInverse(e, phi);
+
+            // Demonstration encryption of small message M = 42
+            const m = 42;
+            // c = m^e mod n
+            let c = 1;
+            for (let i = 0; i < e; i++) {
+                c = (c * m) % n;
+            }
+
+            // decrypted m = c^d mod n
+            let decM = 1;
+            for (let i = 0; i < d; i++) {
+                decM = (decM * c) % n;
+            }
+
+            document.getElementById('rsaResults').innerHTML = `
+                <div style="color:#38bdf8;">1. คำนวณ Modulus (n): <strong>${p} × ${q} = ${n}</strong></div>
+                <div style="color:#fbbf24;">2. คำนวณ Euler's Totient (φ(n)): <strong>(${p}-1) × (${q}-1) = ${phi}</strong></div>
+                <div style="color:#a855f7;">3. คำนวณ Private Key (d): <strong>${d}</strong> &nbsp;(เพราะ ${e} × ${d} ≡ 1 mod ${phi})</div>
+                <div style="margin:8px 0; border-bottom:1px dashed #26315c;"></div>
+                <div style="color:#34d399; font-weight:bold;">คู่กุญแจที่ได้:</div>
+                <div>• Public Key: (e = ${e}, n = ${n})</div>
+                <div>• Private Key: (d = ${d}, n = ${n})</div>
+                <div style="margin-top:8px; padding:8px; background:#0e1333; border-radius:6px; color:#cbd5e1;">
+                    🧪 ทดสอบตัวเลข M = ${m}:<br>
+                    • Encrypt: ${m}^${e} mod ${n} ➔ Cipher C = <strong style="color:#f59e0b;">${c}</strong><br>
+                    • Decrypt: ${c}^${d} mod ${n} ➔ Plaintext M = <strong style="color:#38ef7d;">${decM}</strong>
+                </div>
+            `;
+        }
+
+        // --- QUIZ DATA (10 SCENARIOS) ---
+        const cryptoQuestions = [
+            {
+                q: "1. ในการแข่งขัน CTF คุณพบข้อความ 'ZmxhZ3t4b3JfaXNfYXdlc29tZX0=' ลงท้ายด้วยเครื่องหมาย '=' ข้อความนี้ถูกจัดการด้วยกระบวนการใด?",
+                options: [
+                    "A) ถูกเข้ารหัสลับแบบสมมาตรด้วย AES-256",
+                    "B) เป็นการ Encoding ด้วย Base64 (สามารถถอดกลับได้ทันทีโดยไม่ต้องใช้รหัสผ่าน)",
+                    "C) เป็นการแฮชแบบ One-way ด้วย MD5",
+                    "D) เป็นลายมือชื่อดิจิทัลแบบ RSA Signature"
+                ],
+                ans: 1,
+                exp: "เครื่องหมาย '=' ท้ายข้อความคือ Padding ของ Base64 ซึ่งเป็นการ Encoding เพื่อความสะดวกในการส่งข้อมูล ไม่ใช่ Encryption และไม่มีความปลอดภัย"
+            },
+            {
+                q: "2. คุณสมบัติข้อใดของ Bitwise XOR (⊕) ที่ทำให้มันถูกนำมาใช้เป็นหัวใจของ Symmetric Cipher และ One-Time Pad?",
+                options: [
+                    "A) ให้ผลลัพธ์เป็น 1 เสมอไม่ว่าจะใส่ค่าใด",
+                    "B) คุณสมบัติ Self-Inverting: (A ⊕ Key) ⊕ Key = A ทำให้ใช้คีย์เดิมทั้งเข้ารหัสและถอดรหัสได้",
+                    "C) ทำให้ขนาดข้อมูลเล็กลงครึ่งหนึ่งเสมอ",
+                    "D) ไม่สามารถย้อนกลับได้ จึงใช้ทำหน้าที่แฮชทางเดียว"
+                ],
+                ans: 1,
+                exp: "(A ⊕ K) ⊕ K = A คือคุณสมบัติพื้นฐานที่วิเศษที่สุดของ XOR ใช้กุญแจ K เดิมถอดข้อมูลกลับคืนมาได้ 100%"
+            },
+            {
+                q: "3. หากนักพัฒนาส่งข้อความสองข้อความ C1 และ C2 ด้วยระบบ One-Time Pad (OTP) โดย 'ใช้กุญแจ Key ซ้ำกัน' แฮกเกอร์สามารถทำอะไรได้?",
+                options: [
+                    "A) ไม่สามารถทำอะไรได้เลย เพราะ OTP มีความปลอดภัยสมบูรณ์แบบเสมอ",
+                    "B) นำ C1 ⊕ C2 จะได้ผลลัพธ์เป็น P1 ⊕ P2 ซึ่ง Key หายไป และสามารถกู้ข้อความได้ด้วย Crib Dragging",
+                    "C) ต้องใช้ซูเปอร์คอมพิวเตอร์ถอดรหัสนานนับล้านปี",
+                    "D) คีย์จะทำลายตัวเองอัตโนมัติ"
+                ],
+                ans: 1,
+                exp: "การใช้ One-Time Pad ซ้ำ (Two-time Pad) จะทำให้ C1 ⊕ C2 = P1 ⊕ P2 กุญแจลับหลุดหายไปทันที เป็นช่องโหว่ร้ายแรงที่พบบ่อยใน CTF"
+            },
+            {
+                q: "4. เหตุใดโหมดการเข้ารหัส AES-ECB (Electronic Codebook) จึงถูกห้ามใช้ในการส่งข้อมูลความลับในมาตรฐานสากล?",
+                options: [
+                    "A) เพราะใช้เวลาประมวลผลช้าเกินไปเมื่อเทียบกับโหมดอื่น",
+                    "B) เพราะบล็อกข้อมูล Plaintext ที่เหมือนกัน จะได้ Ciphertext ที่หน้าตาเหมือนกันเสมอ ทำให้เปิดเผย Pattern ของข้อมูล",
+                    "C) เพราะต้องใช้ขนาดกุญแจยาวถึง 4096-bit",
+                    "D) เพราะไม่รองรับภาษาอังกฤษ"
+                ],
+                ans: 1,
+                exp: "AES-ECB เข้ารหัสทีละบล็อกอิสระ ไม่มีการใช้ IV หรือ Chaining ทำให้ข้อมูลที่ซ้ำกันแสดงผลเหมือนกัน (ตัวอย่างคลาสสิกคือรูปภาพเพนกวิน ECB Penguin)"
+            },
+            {
+                q: "5. ในระบบจัดเก็บรหัสผ่านผู้ใช้งาน ทำไมการใช้ฟังก์ชัน SHA-256 ธรรมดาจึง 'ไม่ปลอดภัย' แม้จะไม่มีสูตรถอดกลับ?",
+                options: [
+                    "A) เพราะ SHA-256 มีช่องโหว่ทางคณิตศาสตร์ที่ถอดกลับเป็น Plaintext ได้ใน 1 วินาที",
+                    "B) เพราะ SHA-256 ทำงานเร็วเกินไป ทำให้แฮกเกอร์ใช้ GPU Brute-Force ได้หลายหมื่นล้านรอบ/วินาที ร่วมกับ Rainbow Table",
+                    "C) เพราะค่าแฮชมีความยาวสั้นเกินไปเพียง 8 ตัวอักษร",
+                    "D) เพราะ SHA-256 ไม่รองรับการเชื่อมต่อแบบ HTTPS"
+                ],
+                ans: 1,
+                exp: "Fast Hash อย่าง SHA-256 ออกแบบมาเพื่อความเร็วในการตรวจสอบไฟล์ แต่สำหรับรหัสผ่านต้องใช้ Slow Hash (เช่น Argon2, bcrypt) ร่วมกับ Salt เพื่อต้านทาน GPU Brute-Force"
+            },
+            {
+                q: "6. การเติม Salt ในการเก็บรหัสผ่านมีวัตถุประสงค์หลักเพื่ออะไร?",
+                options: [
+                    "A) บีบอัดขนาดของรหัสผ่านในฐานข้อมูลให้เล็กลง",
+                    "B) ทำลายประสิทธิภาพของตาราง Rainbow Table ที่คำนวณไว้ล่วงหน้า และป้องกันไม่ให้ผู้ใช้ที่ตั้งรหัสเหมือนกันได้ค่าแฮชตรงกัน",
+                    "C) ทำให้รหัสผ่านสามารถส่งกู้คืนกลับมาได้เมื่อผู้ใช้ลืมรหัส",
+                    "D) บังคับให้ผู้ใช้ต้องเปลี่ยนรหัสผ่านทุก 90 วัน"
+                ],
+                ans: 1,
+                exp: "Salt คือสตริงสุ่มเฉพาะของผู้ใช้แต่ละคน ทำให้แฮกเกอร์ไม่สามารถใช้ตารางสำเร็จรูป (Rainbow Table) และต้องเริ่ม Brute-Force ใหม่ทีละคน"
+            },
+            {
+                q: "7. ในโจทย์ RSA CTF หากคุณได้รับค่า Public Exponent e = 3 และ Modulus n ขนาดใหญ่มาก โดยไม่ได้ใส่ Padding (m^3 < n) คุณจะหา Plaintext m ได้อย่างไร?",
+                options: [
+                    "A) แยกตัวประกอบหาค่า p และ q จาก n",
+                    "B) ถอดรากที่สาม (Cube Root) ของค่า Ciphertext c ตรงๆ ในทางคณิตศาสตร์",
+                    "C) ใช้ตาราง MD5 Rainbow Table",
+                    "D) สุ่มถอดรหัสด้วย Brute-Force 2^256 ครั้ง"
+                ],
+                ans: 1,
+                exp: "เมื่อ m^e < n ค่า Ciphertext c จะเท่ากับ m^3 ตรงๆ โดยไม่มีการ Modulo จึงสามารถหาค่า m ได้ทันทีด้วยการถอดรากที่ 3 (Integer Cube Root)"
+            },
+            {
+                q: "8. อะไรคือความแตกต่างที่สำคัญที่สุดระหว่าง Digital Signature และ Message Encryption?",
+                options: [
+                    "A) Encryption เน้นรักษาความลับ (Confidentiality) ส่วน Digital Signature เน้นพิสูจน์ผู้ส่งและความถูกต้อง (Authenticity & Integrity)",
+                    "B) Encryption ใช้กุญแจสาธารณะอย่างเดียว ส่วน Digital Signature ไม่ต้องใช้กุญแจ",
+                    "C) Digital Signature สามารถทำได้เฉพาะบนไฟล์ PDF เท่านั้น",
+                    "D) ทั้งสองอย่างคือสิ่งเดียวกัน ไม่มีข้อแตกต่าง"
+                ],
+                ans: 0,
+                exp: "Encryption ป้องกันไม่ให้คนอื่นแอบอ่าน ส่วน Digital Signature ใช้ Private Key ของผู้ส่งเซ็นทับ Hash เพื่อพิสูจน์ว่าผู้ส่งเป็นตัวจริงและข้อมูลไม่ถูกแก้ไข"
+            },
+            {
+                q: "9. คุณสมบัติ Perfect Forward Secrecy (PFS) ในโพรโทคอล TLS 1.3 ให้ประโยชน์ด้านความปลอดภัยอย่างไร?",
+                options: [
+                    "A) ทำให้หน้าเว็บโหลดเร็วกว่า HTTP แบบไม่มีการเข้ารหัส 10 เท่า",
+                    "B) แม้กุญแจ Private Key ของเซิร์ฟเวอร์จะถูกแฮกขโมยไปในอนาคต แฮกเกอร์ก็ไม่สามารถนำไปถอดรหัสย้อนหลังของ Session ในอดีตได้",
+                    "C) ป้องกันไม่ให้คอมพิวเตอร์ติดไวรัสหรือมัลแวร์",
+                    "D) บล็อกการโจมตี SQL Injection ได้ 100%"
+                ],
+                ans: 1,
+                exp: "PFS สร้างขึ้นด้วยการแลกเปลี่ยนกุญแจชั่วคราว (Ephemeral Diffie-Hellman) ทิ้งทุกครั้งเมื่อจบเซสชัน ทำให้การหลุดของ Long-term Key ในอนาคตไม่กระทบข้อมูลในอดีต"
+            },
+            {
+                q: "10. หากคุณพบการเข้ารหัสแบบ AES-CBC ในคุ้กกี้ และต้องการเปลี่ยนสิทธิ์จาก 'role=user' เป็น 'role=root' โดยไม่มี Key คุณควรใช้เทคนิคการโจมตีใด?",
+                options: [
+                    "A) SQL Injection",
+                    "B) CBC Bit-Flipping Attack โดยแก้ไขไบต์ในบล็อก Ciphertext ก่อนหน้า (หรือ IV)",
+                    "C) Cross-Site Scripting (XSS)",
+                    "D) Slowloris DDoS"
+                ],
+                ans: 1,
+                exp: "CBC Bit-Flipping อาศัยธรรมชาติของสมการ P(i) = Decrypt(C(i)) ⊕ C(i-1) การแก้บิตใน C(i-1) จะส่งผลกระทบต่อตำแหน่งเดียวกันใน P(i) แบบคาดเดาผลลัพธ์ได้"
+            }
+        ];
+
+        let userAnswers = {};
+
+        function renderQuiz() {
+            const container = document.getElementById('quizListContainer');
+            let html = "";
+            cryptoQuestions.forEach((item, idx) => {
+                html += `
+                    <div class="quiz-card" id="qCard${idx}">
+                        <div class="quiz-q">${item.q}</div>
+                        <div class="quiz-opts">
+                            ${item.options.map((opt, oIdx) => `
+                                <div class="quiz-opt" id="opt_${idx}_${oIdx}" onclick="selectAnswer(${idx}, ${oIdx})">
+                                    ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="quiz-exp" id="exp${idx}">${item.exp}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function selectAnswer(qIdx, oIdx) {
+            if (userAnswers[qIdx] !== undefined) return; // Prevent change
+            userAnswers[qIdx] = oIdx;
+
+            const correct = cryptoQuestions[qIdx].ans;
+            const card = document.getElementById(`qCard${qIdx}`);
+            const chosenDiv = document.getElementById(`opt_${qIdx}_${oIdx}`);
+            const correctDiv = document.getElementById(`opt_${qIdx}_${correct}`);
+            const expDiv = document.getElementById(`exp${qIdx}`);
+
+            if (oIdx === correct) {
+                playSuccess();
+                chosenDiv.classList.add('correct');
+            } else {
+                playWrong();
+                chosenDiv.classList.add('wrong');
+                correctDiv.classList.add('correct');
+            }
+
+            expDiv.style.display = 'block';
+            expDiv.innerHTML = `<strong>💡 คำอธิบายเฉลย:</strong> ` + cryptoQuestions[qIdx].exp;
+
+            // Recalculate score
+            let score = 0;
+            for (let q in userAnswers) {
+                if (userAnswers[q] === cryptoQuestions[q].ans) score++;
+            }
+            document.getElementById('cryptoScoreDisplay').innerText = `คะแนน: ${score} / 10`;
+            if (score === 10) {
+                document.getElementById('cryptoScoreDisplay').innerHTML = `🎉 คะแนน: 10 / 10 (ยอดเยี่ยม! ผ่านหลักสูตร Crypto Track)`;
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            runTransformSim();
+            updateCaesar();
+            calcXorVisual();
+            simAesMode();
+            calcAvalanche();
+            calcRsaKeys();
+            renderQuiz();
+        });
+    </script>
+</body>
+</html>

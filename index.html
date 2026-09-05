@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Security Learning Portal</title>
+  <title>Cybersecurity & Exploitation Learning Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -12,6 +12,9 @@
       --border-color: rgba(255, 255, 255, 0.08);
       --accent-cyan: #00f0ff;
       --accent-purple: #9d4edd;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
       --text-main: #f0f4f8;
       --text-dim: #94a3b8;
     }
@@ -34,17 +37,17 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem 1.5rem;
+      padding: 3rem 1.5rem;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       width: 100%;
       text-align: center;
     }
 
     header {
-      margin-bottom: 3rem;
+      margin-bottom: 2.5rem;
     }
 
     .badge {
@@ -72,14 +75,14 @@
 
     p.subtitle {
       color: var(--text-dim);
-      font-size: 1.1rem;
-      max-width: 600px;
+      font-size: 1.05rem;
+      max-width: 650px;
       margin: 0 auto;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
       gap: 1.5rem;
       margin-bottom: 3rem;
     }
@@ -88,7 +91,7 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 16px;
-      padding: 2rem;
+      padding: 1.75rem;
       text-align: left;
       text-decoration: none;
       color: inherit;
@@ -107,33 +110,44 @@
       box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
     }
 
-    .card.primary:hover {
+    .card.kids:hover {
       border-color: var(--accent-cyan);
       box-shadow: 0 16px 32px rgba(0, 240, 255, 0.15);
     }
-
-    .card.secondary:hover {
+    .card.web:hover {
       border-color: var(--accent-purple);
       box-shadow: 0 16px 32px rgba(157, 78, 221, 0.15);
+    }
+    .card.system:hover {
+      border-color: var(--accent-amber);
+      box-shadow: 0 16px 32px rgba(245, 158, 11, 0.15);
+    }
+    .card.crypto:hover {
+      border-color: var(--accent-green);
+      box-shadow: 0 16px 32px rgba(16, 185, 129, 0.15);
+    }
+    .card.pwn:hover {
+      border-color: var(--accent-rose);
+      box-shadow: 0 16px 32px rgba(244, 63, 94, 0.15);
     }
 
     .card-icon {
       font-size: 2.2rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
 
     .card h2 {
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       font-weight: 600;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.5rem;
       color: #ffffff;
     }
 
     .card p {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       color: var(--text-dim);
-      line-height: 1.6;
-      margin-bottom: 1.5rem;
+      line-height: 1.55;
+      margin-bottom: 1.25rem;
       flex-grow: 1;
     }
 
@@ -142,16 +156,14 @@
       align-items: center;
       gap: 0.5rem;
       font-weight: 500;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
-    .card.primary .card-footer {
-      color: var(--accent-cyan);
-    }
-
-    .card.secondary .card-footer {
-      color: var(--accent-purple);
-    }
+    .card.kids .card-footer { color: var(--accent-cyan); }
+    .card.web .card-footer { color: var(--accent-purple); }
+    .card.system .card-footer { color: var(--accent-amber); }
+    .card.crypto .card-footer { color: var(--accent-green); }
+    .card.pwn .card-footer { color: var(--accent-rose); }
 
     .card-footer span.arrow {
       transition: transform 0.2s ease;
@@ -170,39 +182,75 @@
 <body>
   <div class="container">
     <header>
-      <div class="badge">SECURITY HUB</div>
-      <h1>คลังบทเรียนความปลอดภัยเว็บ</h1>
-      <p class="subtitle">เลือกบทเรียนหรือสื่อการเรียนรู้แบบ Interactive ที่ต้องการเริ่มต้น</p>
+      <div class="badge">CYBERSECURITY LEARNING PORTAL</div>
+      <h1>คลังบทเรียนความปลอดภัย & Exploitation</h1>
+      <p class="subtitle">เลือกโมดูลบทเรียนแบบ Interactive ที่ต้องการศึกษา</p>
     </header>
 
     <main class="grid">
-      <a href="Web_Security_For_Kids_Interactive_v2.html" class="card primary">
+      <a href="Web_Security_For_Kids_Interactive_v2.html" class="card kids">
         <div>
           <div class="card-icon">🛡️</div>
           <h2>Web Security For Kids</h2>
-          <p>สื่อการเรียนรู้ความปลอดภัยทางเว็บสำหรับผู้เริ่มต้นและเด็ก แบบ Interactive จำลองสถานการณ์เข้าใจง่าย</p>
+          <p>สื่อการเรียนรู้ความปลอดภัยทางเว็บแบบ Interactive สำหรับผู้เริ่มต้นและเยาวชน</p>
         </div>
         <div class="card-footer">
-          <span>เริ่มเรียนรู้บทนี้</span>
+          <span>เริ่มเรียนรู้</span>
           <span class="arrow">→</span>
         </div>
       </a>
 
-      <a href="Web_Exploitation_Fundamentals.html" class="card secondary">
+      <a href="Web_Exploitation_Fundamentals.html" class="card web">
         <div>
-          <div class="card-icon">⚡</div>
-          <h2>Web Exploitation Fundamentals</h2>
-          <p>เจาะลึกพื้นฐานและกลไกช่องโหว่ทางเว็บ พร้อมตัวอย่างและการป้องกันระดับโครงสร้าง</p>
+          <div class="card-icon">🌐</div>
+          <h2>Web Exploitation</h2>
+          <p>พื้นฐานและกลไกช่องโหว่ทางเว็บยอดนิยม การวิเคราะห์เจาะระบบ และแนวทางป้องกัน</p>
         </div>
         <div class="card-footer">
-          <span>เริ่มเรียนรู้บทนี้</span>
+          <span>เริ่มเรียนรู้</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="System_Exploitation_Fundamentals.html" class="card system">
+        <div>
+          <div class="card-icon">💻</div>
+          <h2>System Exploitation</h2>
+          <p>เจาะลึกช่องโหว่ระดับระบบปฏิบัติการ Linux/Windows, Privilege Escalation และ Post-Exploitation</p>
+        </div>
+        <div class="card-footer">
+          <span>เริ่มเรียนรู้</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="Applied_Crypto_Fundamentals.html" class="card crypto">
+        <div>
+          <div class="card-icon">🔐</div>
+          <h2>Applied Cryptography</h2>
+          <p>รากฐานการเข้ารหัสลับ Cipher, Hashing, RSA, ECC และการวิเคราะห์โจมตี Crypto</p>
+        </div>
+        <div class="card-footer">
+          <span>เริ่มเรียนรู้</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="Binary_Exploit_Pwn_Fundamentals.html" class="card pwn">
+        <div>
+          <div class="card-icon">💥</div>
+          <h2>Binary Exploit (Pwn)</h2>
+          <p>เจาะลึกหน่วยความจำ Buffer Overflow, ROP, Shellcoding และการ Bypass Mitigations</p>
+        </div>
+        <div class="card-footer">
+          <span>เริ่มเรียนรู้</span>
           <span class="arrow">→</span>
         </div>
       </a>
     </main>
 
     <footer>
-      Hosted with GitHub Pages
+      Hosted with GitHub Pages • <a href="https://github.com/B1ueSh3ll/security-hub" style="color: inherit; text-decoration: underline;">GitHub Repository</a>
     </footer>
   </div>
 </body>
