@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Team 1: Network & Log Analysis - อบรม Cybersecurity & CTF Hands-on by Cyber Ratom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #050b18;
+            --bg-surface: #0a1329;
+            --bg-card: #0f1c3d;
+            --bg-card-hover: #162754;
+            --border: #1d3263;
+            --border-color: #1d3263;
+            --blue: #38bdf8;
+            --cyan: #06b6d4;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --purple: #8b5cf6;
+            --accent-blue: #0284c7;
+            --accent-cyan: #22d3ee;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-dim: #64748b;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(10, 19, 41, 0.8) 0%, rgba(5, 11, 24, 0.98) 100%);
+            min-height: 100vh;
+        }
+
+        header {
+            background: rgba(10, 19, 41, 0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .brand-group { display: flex; align-items: center; gap: 12px; }
+
+        .brand-logo {
+            background: linear-gradient(135deg, #0284c7, #06b6d4);
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 16px rgba(2, 132, 199, 0.5);
+        }
+
+        .brand-text h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #38bdf8, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p { font-size: 0.8rem; color: var(--text-sub); }
+
+        .header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+        .btn-link-pill {
+            padding: 6px 12px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        .btn-red { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; }
+        .btn-purple { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #d8b4fe; }
+        .btn-green { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; }
+
+        .btn-sound {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-sound:hover { border-color: var(--blue); }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 22px 20px 80px 20px; }
+
+        .nav-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 2px 18px 2px;
+            scrollbar-width: thin;
+        }
+
+        .tab-btn {
+            background: var(--bg-surface);
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--text-main); background: var(--bg-card); border-color: var(--blue); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(6, 182, 212, 0.2));
+            border-color: var(--blue);
+            color: #fff;
+            box-shadow: 0 0 14px rgba(2, 132, 199, 0.4);
+        }
+
+        .module-view { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .module-view.active { display: block; }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #0c1836 0%, #0c203b 100%);
+            border: 1px solid #1a3c6e;
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-banner::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+        }
+
+        .hero-title { font-size: 1.35rem; font-weight: 700; color: #f1f5f9; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .hero-text { color: var(--text-sub); font-size: 0.95rem; line-height: 1.6; }
+
+        .topic-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 22px;
+            transition: border-color 0.2s;
+        }
+        .topic-card:hover { border-color: #2b4985; }
+
+        .topic-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+        .topic-title { font-size: 1.15rem; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
+        .topic-badge {
+            background: rgba(2, 132, 199, 0.15);
+            border: 1px solid rgba(2, 132, 199, 0.4);
+            color: #7dd3fc;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .visual-model-card {
+            background: linear-gradient(135deg, #091226 0%, #0d1a38 100%);
+            border: 1px solid #1c3666;
+            border-radius: var(--radius-md);
+            padding: 22px;
+            margin: 20px 0;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+        }
+        .visual-model-title { font-size: 1.05rem; font-weight: 700; color: var(--blue); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+
+        .controls-row {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0;
+            background: #050b18; padding: 12px 16px; border-radius: 8px; border: 1px solid #162a52;
+        }
+
+        .ctrl-input {
+            background: #0b152d; color: #fff; border: 1px solid #233c70; border-radius: 6px;
+            padding: 8px 12px; font-family: 'Fira Code', monospace; font-size: 0.88rem; outline: none; flex: 1; min-width: 200px;
+        }
+        .ctrl-input:focus { border-color: var(--blue); }
+
+        .btn-action {
+            background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none;
+            padding: 8px 18px; border-radius: 6px; cursor: pointer; font-family: 'Kanit', sans-serif;
+            font-size: 0.88rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-action:hover { transform: translateY(-1px); box-shadow: 0 0 12px rgba(2, 132, 199, 0.6); }
+
+        /* Wireshark Packet Table */
+        .wireshark-table {
+            width: 100%; border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 0.8rem; margin: 12px 0;
+        }
+        .wireshark-table th { background: #0c1836; color: #38bdf8; text-align: left; padding: 8px 10px; border-bottom: 1px solid #1f3c73; }
+        .wireshark-table td { padding: 8px 10px; border-bottom: 1px solid #132447; cursor: pointer; transition: background 0.2s; }
+        .wireshark-table tr:hover td { background: #132752; }
+        .wireshark-table tr.selected td { background: #1b3875; color: #fff; font-weight: bold; }
+        .proto-http { color: #34d399; }
+        .proto-tcp { color: #94a3b8; }
+        .proto-dns { color: #38bdf8; }
+
+        /* CLI Terminal Simulator */
+        .terminal-box {
+            background: #020612; border: 1px solid #15284f; border-radius: 8px; padding: 14px;
+            font-family: 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.7; color: #cbd5e1; margin: 10px 0; overflow-x: auto;
+        }
+        .term-prompt { color: #34d399; font-weight: bold; }
+        .term-cmd { color: #f8fafc; font-weight: bold; }
+        .term-pipe { color: #f59e0b; font-weight: bold; }
+
+        /* Quiz */
+        .quiz-container { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px; margin-top: 16px; }
+        .quiz-card { background: #081024; border: 1px solid #1a2f59; border-radius: 8px; padding: 18px; margin-bottom: 16px; }
+        .quiz-q { font-size: 0.98rem; font-weight: 600; color: #f1f5f9; margin-bottom: 12px; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-opt {
+            background: #0f1c3d; border: 1px solid #203a6e; padding: 10px 14px; border-radius: 6px;
+            cursor: pointer; font-size: 0.88rem; color: #cbd5e1; transition: all 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--blue); background: #182c59; }
+        .quiz-opt.correct { background: rgba(16, 185, 129, 0.2) !important; border-color: var(--green) !important; color: #6ee7b7 !important; font-weight: bold; }
+        .quiz-opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: var(--red) !important; color: #fca5a5 !important; }
+        .quiz-exp { margin-top: 10px; padding: 10px 14px; background: #040817; border-radius: 6px; font-size: 0.84rem; display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) {
+            header { padding: 12px 16px; }
+            .container { padding: 16px 12px 60px 12px; }
+            .controls-row { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <div class="brand-group">
+                <div class="brand-logo">📡</div>
+                <div class="brand-text">
+                    <h1>Blue Team 1: Network & Log Analysis <span style="font-size:0.8rem;padding:3px 8px;border-radius:12px;background:rgba(2,132,199,0.2);color:#7dd3fc;border:1px solid #0284c7;margin-left:6px;">NETWORK & SOC</span></h1>
+                    <p>อบรม Cybersecurity & CTF Hands-on by Cyber Ratom — วิเคราะห์แพ็กเก็ต Wireshark, แกะรอยรหัสผ่าน Cleartext, และใช้ CLI ไล่ล่าคนร้าย</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <a href="Blue_Team_Forensics_Incident_Response.html" class="btn-link-pill btn-green"><span>🧠</span> Blue Team 2: Forensics ➔</a>
+                <a href="Blue_Team_Defense_Lab.html" class="btn-link-pill btn-red"><span>🛡️</span> Blue Defense WAF ➔</a>
+                <a href="Web_Exploitation_Fundamentals.html" class="btn-link-pill btn-purple"><span>⚔️</span> Red Team Lab ➔</a>
+                <button class="btn-sound" id="soundBtn" onclick="toggleAudio()">
+                    <span id="soundIcon">🔊</span> <span id="soundText">เสียง: เปิด</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Navigation Tabs -->
+        <div class="nav-bar" id="navBar">
+            <button class="tab-btn active" onclick="switchTab(0)">🦈 1. Wireshark PCAP & TCP Stream</button>
+            <button class="tab-btn" onclick="switchTab(1)">🔓 2. Sniffing Cleartext Credentials</button>
+            <button class="tab-btn" onclick="switchTab(2)">🐧 3. CLI Log Hunting (grep, awk, sort)</button>
+            <button class="tab-btn" onclick="switchTab(3)">🚨 4. Web & Auth Log Forensics</button>
+            <button class="tab-btn" onclick="switchTab(4)">🏆 5. Network & Log Exam (10 ข้อ)</button>
+        </div>
+
+        <!-- VIEW 0: Wireshark PCAP & TCP Stream -->
+        <section class="module-view active" id="view0">
+            <div class="hero-banner">
+                <div class="hero-title">🦈 1. การวิเคราะห์ไฟล์ Packet Capture (PCAP) ด้วย Wireshark</div>
+                <div class="hero-text">
+                    ในการแข่งขัน CTF และงานสืบสวนศูนย์ SOC ไฟล์ <strong>.pcap / .pcapng</strong> คือบันทึกการเดินทางของทุกแพ็กเก็ตในเครือข่าย<br>
+                    ทักษะสำคัญที่สุดคือการใช้ <strong>Display Filters</strong> เพื่อกรองสัญญาณรบกวน และคลิกขวาทำ <strong>"Follow TCP Stream"</strong> เพื่ออ่านบทสนทนาเต็ม
+                </div>
+            </div>
+
+            <!-- Interactive Wireshark Packet Inspector -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>🔬</span> Interactive Wireshark Packet Capture Simulator
+                </div>
+                <p style="font-size:0.86rem; color:var(--text-sub); margin-bottom:12px;">
+                    พิมพ์ Display Filter เช่น <code>http</code>, <code>http.request.method == "POST"</code> หรือคลิกเลือกแพ็กเก็ตเพื่อส่องดู TCP Stream
+                </p>
+
+                <div class="controls-row">
+                    <label style="font-size:0.85rem; color:#fff;">Display Filter:</label>
+                    <input type="text" id="wsFilter" class="ctrl-input" value="http" oninput="filterPackets()">
+                    <button class="btn-action" onclick="resetFilter()">ล้าง Filter</button>
+                </div>
+
+                <div style="max-height:220px; overflow-y:auto; border:1px solid #1a3261; border-radius:6px;">
+                    <table class="wireshark-table" id="packetTable">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Time</th>
+                                <th>Source</th>
+                                <th>Destination</th>
+                                <th>Protocol</th>
+                                <th>Info</th>
+                            </tr>
+                        </thead>
+                        <tbody id="packetTbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Stream Details Window -->
+                <div style="margin-top:14px; background:#020612; border:1px solid #172a54; border-radius:8px; padding:14px;">
+                    <div style="font-weight:bold; color:#38bdf8; font-size:0.88rem; margin-bottom:6px;">
+                        📄 Follow TCP Stream (Reconstructed Session):
+                    </div>
+                    <div id="tcpStreamBox" style="font-family:'Fira Code', monospace; font-size:0.82rem; white-space:pre-wrap; color:#cbd5e1;">
+                        คลิกเลือกแพ็กเก็ต No. 4 (HTTP POST /login) เพื่อดูข้อมูลการล็อกอิน...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Wireshark Filters -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🔍 รวม Display Filters ที่ต้องใช้ให้เป็นใน CTF</div>
+                    <span class="topic-badge">Cheat Sheet</span>
+                </div>
+                <div class="topic-content">
+                    <ul style="margin-left:20px; line-height:1.8;">
+                        <li><code style="color:#38bdf8;">http.request.method == "POST"</code>: กรองหาคำขอที่ผู้ใช้ส่งข้อมูลเข้าระบบ (เช่น Login form, File Upload)</li>
+                        <li><code style="color:#38bdf8;">ip.addr == 192.168.1.100</code>: กรองดูเฉพาะการสื่อสารของเครื่องเป้าหมาย</li>
+                        <li><code style="color:#38bdf8;">tcp contains "flag{"</code> หรือ <code style="color:#38bdf8;">frame contains "password"</code>: ค้นหาคำสำคัญในเนื้อแพ็กเก็ต</li>
+                        <li><code style="color:#38bdf8;">dns.flags.response == 0</code>: ส่องดูการส่ง DNS Query (ตรวจหา DNS Exfiltration / C2 Tunneling)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 1: Sniffing Cleartext Credentials -->
+        <section class="module-view" id="view1">
+            <div class="hero-banner">
+                <div class="hero-title">🔓 2. อันตรายของ Unencrypted Protocols & การดักจับ Cleartext Password</div>
+                <div class="hero-text">
+                    เมื่อข้อมูลวิ่งผ่านเครือข่ายด้วยโปรโตคอลที่ไม่มีการเข้ารหัส เช่น <strong>HTTP</strong>, <strong>FTP</strong>, <strong>Telnet</strong>, หรือ <strong>SNMP v1/v2</strong><br>
+                    ผู้ดักฟัง (Attacker หรือ Blue Team Sniffer) สามารถดึง <strong>Username และ Password ออกมาเป็นข้อความอ่านได้ทันที!</strong>
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">📡 ส่องรหัสผ่านหลุดในแต่ละโปรโตคอลคลาสสิก</div>
+                    <span class="topic-badge">Plaintext Protocols</span>
+                </div>
+                <div class="topic-content">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-top:10px;">
+                        <div style="background:#060b17; border:1px solid #16284d; padding:12px; border-radius:6px;">
+                            <div style="color:#f87171; font-weight:bold;">1. HTTP (พอร์ต 80)</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">ฟอร์มล็อกอินส่ง Body: <code>uname=admin&pwd=P@ssw0rd2026</code> ในแพ็กเก็ต POST</div>
+                        </div>
+                        <div style="background:#060b17; border:1px solid #16284d; padding:12px; border-radius:6px;">
+                            <div style="color:#f87171; font-weight:bold;">2. FTP (พอร์ต 21)</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">ส่งคำสั่ง <code>USER root</code> และ <code>PASS SuperSecret123</code> เป็น Plaintext ตัวอักษรตรงๆ</div>
+                        </div>
+                        <div style="background:#060b17; border:1px solid #16284d; padding:12px; border-radius:6px;">
+                            <div style="color:#f87171; font-weight:bold;">3. Telnet (พอร์ต 23)</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">ส่งตัวอักษรทีละคีย์สโตรก แฮกเกอร์ร้อยเรียงคำอ่านรหัสผ่านทั้งชุดได้ 100%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: CLI Log Hunting (grep, awk, sort, uniq) -->
+        <section class="module-view" id="view2">
+            <div class="hero-banner">
+                <div class="hero-title">🐧 3. CLI Log Hunting — บรรทัดคำสั่ง Linux ตรวจสอบคนร้ายจาก Web & Auth Log</div>
+                <div class="hero-text">
+                    เมื่อเกิดเหตุบุกรุก เซิร์ฟเวอร์ขนาดใหญ่อาจมี Log นับล้านบรรทัด การเปิดดูด้วยตาเปล่าเป็นไปไม่ได้!<br>
+                    อาวุธคู่กายของ SOC Analyst และ Blue Team คือการผสมคำสั่ง <strong>grep</strong>, <strong>awk</strong>, <strong>sort</strong>, <strong>uniq</strong>, และ <strong>cut</strong> เพื่อบีบหา IP คนร้ายใน 5 วินาที
+                </div>
+            </div>
+
+            <!-- Interactive Terminal Pipeline Simulator -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>⚡</span> Interactive Command-Line Log Investigation Pipeline
+                </div>
+                <p style="font-size:0.86rem; color:var(--text-sub); margin-bottom:12px;">
+                    คลิกเลือกคำสั่ง CLI ด้านล่างเพื่อดูผลลัพธ์การคัดกรอง IP แฮกเกอร์ที่พยายามโจมตี Web Server
+                </p>
+
+                <div class="controls-row">
+                    <button class="btn-action" onclick="runCliSim(1)">1. ดึงเฉพาะ IP ที่เจาะ SQLi (grep + awk)</button>
+                    <button class="btn-action" onclick="runCliSim(2)">2. นับจำนวนครั้งที่แต่ละ IP โจมตี (sort | uniq -c)</button>
+                    <button class="btn-action" onclick="runCliSim(3)">3. เรียงลำดับตัวการสูงสุด (sort -nr | head -5)</button>
+                </div>
+
+                <div class="terminal-box" id="termOutput">
+                    <span class="term-prompt">analyst@soc-desk:~$</span> <span class="term-cmd">head -n 5 /var/log/nginx/access.log</span><br>
+                    192.168.1.50 - - [05/Sep/2026:01:10:02] "GET /index.html HTTP/1.1" 200 4520<br>
+                    203.0.113.88 - - [05/Sep/2026:01:10:15] "GET /product.php?id=1%27%20OR%201=1-- HTTP/1.1" 200 8920<br>
+                    203.0.113.88 - - [05/Sep/2026:01:10:18] "GET /product.php?id=1%20UNION%20SELECT%20user,pass HTTP/1.1" 200 12040<br>
+                    198.51.100.22 - - [05/Sep/2026:01:10:22] "POST /login.php HTTP/1.1" 401 512<br>
+                    203.0.113.88 - - [05/Sep/2026:01:10:25] "GET /shell.php?cmd=id HTTP/1.1" 404 150
+                </div>
+            </div>
+
+            <!-- Essential Linux Log Commands Table -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">📚 คัมภีร์ Pipeline อมตะ 5 สเต็ปของ Blue Team</div>
+                    <span class="topic-badge">One-Liner Mastery</span>
+                </div>
+                <div class="topic-content">
+                    <div class="code-box">
+                        <span class="code-cmt"># นับจำนวน Request แยกตาม IP และเรียงจากมากไปน้อย:</span><br>
+                        <span class="code-kw">cat</span> access.log | <span class="code-kw">awk</span> '{print $1}' | <span class="code-kw">sort</span> | <span class="code-kw">uniq -c</span> | <span class="code-kw">sort -nr</span> | <span class="code-kw">head -n 10</span><br><br>
+                        <span class="code-cmt"># หาคนร้ายที่พยายามสแกนรหัสผ่าน SSH ล้มเหลว (Failed password):</span><br>
+                        <span class="code-kw">grep</span> "Failed password" /var/log/auth.log | <span class="code-kw">awk</span> '{print $(NF-3)}' | <span class="code-kw">sort</span> | <span class="code-kw">uniq -c</span> | <span class="code-kw">sort -nr</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: Web & Auth Log Forensics -->
+        <section class="module-view" id="view3">
+            <div class="hero-banner">
+                <div class="hero-title">🚨 4. Web & Auth Log Forensics — การแกะรอยการโจมตีจริงผ่าน Log</div>
+                <div class="hero-text">
+                    Log เปรียบเสมือนรอยเท้าของคนร้ายในที่เกิดเหตุ การเข้าใจรูปแบบการบันทึกของ <strong>Nginx / Apache (access.log)</strong> 
+                    และ <strong>Linux Authentication (auth.log)</strong> ช่วยให้เราระบุเวลาเกิดเหตุ (Timeline) และผลกระทบได้อย่างแม่นยำ
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">📊 สัญญาณเตือนภัยใน Log แต่ละประเภท</div>
+                    <span class="topic-badge">Attack Signatures</span>
+                </div>
+                <div class="topic-content">
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>SSH Brute Force:</strong> พบคำว่า <code>Failed password for invalid user</code> หรือ <code>Failed password for root</code> นับพันครั้งในเวลาไม่กี่นาทีจาก IP เดิม</li>
+                        <li><strong>SQL Injection:</strong> พบตัวอักษร <code>%27 (' )</code>, <code>UNION+SELECT</code>, หรือ <code>SLEEP(5)</code> ใน URL Query String</li>
+                        <li><strong>Directory Fuzzing:</strong> พบคำขอเข้าถึงไฟล์แปลกๆ <code>/admin/</code>, <code>/config.php.bak</code>, <code>/.git/</code> ติดต่อกันรัวๆ พร้อม Status 404</li>
+                        <li><strong>Web Shell Execution:</strong> พบคำขอเข้าถึงไฟล์แปลกปลอมในโฟลเดอร์อัปโหลด เช่น <code>GET /uploads/avatar.php?cmd=whoami</code> พร้อม Status 200</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: Exam (10 Questions) -->
+        <section class="module-view" id="view4">
+            <div class="hero-banner">
+                <div class="hero-title">🏆 5. Network & Log Analysis Exam (10 ข้อสอบจำลองสถานการณ์ SOC)</div>
+                <div class="hero-text">
+                    แบบทดสอบวัดผลการวิเคราะห์แพ็กเก็ตและการสืบสวน Log ระดับ Tier-1/Tier-2 SOC Analyst<br>
+                    ตอบถูกทุกข้อเพื่อยืนยันความเชี่ยวชาญในหลักสูตร Blue Team 1!
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div style="font-size:1.1rem; font-weight:700; color:#38bdf8;">📝 ข้อสอบ Network & Log Analysis (10 ข้อ)</div>
+                    <div id="netScoreDisplay" style="font-size:1rem; font-weight:700; color:#fbbf24; font-family:'Fira Code', monospace;">คะแนน: 0 / 10</div>
+                </div>
+
+                <div id="netQuizContainer"></div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        let audioCtx = null;
+        let audioEnabled = true;
+
+        function getAudioContext() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        function playTone(freq, type, duration, gainVal=0.08) {
+            if (!audioEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function playClick() { playTone(900, 'sine', 0.07, 0.05); }
+        function playSuccess() { playTone(523.25, 'triangle', 0.12, 0.08); setTimeout(() => playTone(659.25, 'triangle', 0.15, 0.08), 80); }
+        function playWrong() { playTone(180, 'sawtooth', 0.25, 0.08); }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('soundIcon').innerText = audioEnabled ? '🔊' : '🔇';
+            document.getElementById('soundText').innerText = audioEnabled ? 'เสียง: เปิด' : 'เสียง: ปิด';
+            if (audioEnabled) playClick();
+        }
+
+        function switchTab(index) {
+            playClick();
+            const tabs = document.querySelectorAll('.tab-btn');
+            const views = document.querySelectorAll('.module-view');
+            tabs.forEach((t, i) => t.classList.toggle('active', i === index));
+            views.forEach((v, i) => v.classList.toggle('active', i === index));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Wireshark Sim Packets
+        const packets = [
+            { no: 1, time: "0.000", src: "192.168.1.45", dst: "192.168.1.1", proto: "DNS", info: "Standard query 0x12a4 A bank.lab" },
+            { no: 2, time: "0.012", src: "192.168.1.1", dst: "192.168.1.45", proto: "DNS", info: "Standard query response 0x12a4 A 10.0.0.5" },
+            { no: 3, time: "0.025", src: "192.168.1.45", dst: "10.0.0.5", proto: "TCP", info: "49214 → 80 [SYN] Seq=0 Win=64240" },
+            { no: 4, time: "0.054", src: "192.168.1.45", dst: "10.0.0.5", proto: "HTTP", info: "POST /login HTTP/1.1 (application/x-www-form-urlencoded)" },
+            { no: 5, time: "0.088", src: "10.0.0.5", dst: "192.168.1.45", proto: "HTTP", info: "HTTP/1.1 302 Found (Set-Cookie: session=xyz987)" },
+            { no: 6, time: "0.110", src: "192.168.1.45", dst: "10.0.0.5", proto: "HTTP", info: "GET /dashboard HTTP/1.1" }
+        ];
+
+        function renderPackets(filterText = "") {
+            const tbody = document.getElementById('packetTbody');
+            tbody.innerHTML = "";
+            packets.forEach(p => {
+                const searchStr = `${p.proto} ${p.src} ${p.dst} ${p.info}`.toLowerCase();
+                if (filterText && !searchStr.includes(filterText.toLowerCase())) return;
+
+                const tr = document.createElement('tr');
+                tr.onclick = () => selectPacket(p.no);
+                tr.id = `pkt_row_${p.no}`;
+                tr.innerHTML = `
+                    <td>${p.no}</td>
+                    <td>${p.time}</td>
+                    <td>${p.src}</td>
+                    <td>${p.dst}</td>
+                    <td class="proto-${p.proto.toLowerCase()}">${p.proto}</td>
+                    <td>${p.info}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterPackets() {
+            const f = document.getElementById('wsFilter').value;
+            renderPackets(f);
+        }
+
+        function resetFilter() {
+            playClick();
+            document.getElementById('wsFilter').value = "";
+            renderPackets("");
+        }
+
+        function selectPacket(no) {
+            playClick();
+            document.querySelectorAll('.wireshark-table tr').forEach(r => r.classList.remove('selected'));
+            const row = document.getElementById(`pkt_row_${no}`);
+            if (row) row.classList.add('selected');
+
+            const streamBox = document.getElementById('tcpStreamBox');
+            if (no === 4 || no === 5) {
+                streamBox.innerHTML = `
+<span style="color:#f87171;">POST /login HTTP/1.1
+Host: bank.lab
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 42
+
+username=admin&password=CyberRatomP@ss2026</span>
+
+<span style="color:#38bdf8;">HTTP/1.1 302 Found
+Date: Fri, 05 Sep 2026 01:10:02 GMT
+Set-Cookie: session=xyz987; Path=/
+Location: /dashboard</span>
+<span style="color:#34d399; font-weight:bold;">\n[!] CLEARTEXT CREDENTIAL LEAK DETECTED: username="admin" password="CyberRatomP@ss2026"</span>
+`;
+            } else {
+                streamBox.innerHTML = `แพ็กเก็ต No. ${no}: [TCP Payload Stream Data - No Credentials in this frame]`;
+            }
+        }
+
+        // CLI Simulator
+        function runCliSim(step) {
+            playClick();
+            const term = document.getElementById('termOutput');
+            if (step === 1) {
+                term.innerHTML = `
+<span class="term-prompt">analyst@soc-desk:~$</span> <span class="term-cmd">grep -i "union\|select\|OR " access.log | awk '{print $1}'</span><br>
+203.0.113.88<br>
+203.0.113.88<br>
+<span style="color:#38bdf8;">[+] กรองพบ IP 203.0.113.88 พยายามยิง SQL Injection เข้ามาที่ระบบ</span>
+`;
+            } else if (step === 2) {
+                term.innerHTML = `
+<span class="term-prompt">analyst@soc-desk:~$</span> <span class="term-cmd">awk '{print $1}' access.log | sort | uniq -c</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 192.168.1.50<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 198.51.100.22<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3 203.0.113.88<br>
+<span style="color:#f59e0b;">[+] IP 203.0.113.88 มีความถี่ในการส่งคำขอสูงสุด</span>
+`;
+            } else {
+                term.innerHTML = `
+<span class="term-prompt">analyst@soc-desk:~$</span> <span class="term-cmd">awk '{print $1}' access.log | sort | uniq -c | sort -nr | head -n 1</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3 203.0.113.88<br>
+<span style="color:#34d399; font-weight:bold;">[+] สรุปผลวิเคราะห์: IP 203.0.113.88 คือผู้โจมตีหลักที่ส่งทั้ง SQLi และพยายามเข้าถึง Webshell (/shell.php)!</span>
+`;
+            }
+        }
+
+        // Quiz Data
+        const netQuestions = [
+            {
+                q: "1. หากคุณต้องการกรองเฉพาะแพ็กเก็ตที่มีการส่งข้อมูลผ่าน HTTP Method POST บน Wireshark คุณควรใช้ Display Filter ใด?",
+                options: ["A) tcp.port == 80", "B) http.request.method == \"POST\"", "C) ip.addr == 127.0.0.1", "D) ping -t"],
+                ans: 1,
+                exp: "http.request.method == 'POST' คือตัวกรองตรงจุดที่เจาะจงเฉพาะคำขอส่งข้อมูลแบบ POST บนเลเยอร์ HTTP"
+            },
+            {
+                q: "2. ฟีเจอร์ใดใน Wireshark ที่ใช้รวบรวมแพ็กเก็ต TCP หลายๆ ตัวมาต่อกันเป็นข้อความสนทนาเต็ม (Full Conversation) เพื่ออ่านง่าย?",
+                options: ["A) Follow TCP Stream", "B) Export as CSV", "C) Ping Sweep", "D) DNS Lookup"],
+                ans: 0,
+                exp: "Follow TCP Stream ทำหน้าที่ Reassemble ข้อมูลทุกแพ็กเก็ตในเซสชันนั้นมาแสดงผลเป็นข้อความก่อนและหลังส่ง"
+            },
+            {
+                q: "3. ทำไมการเข้าสู่ระบบผ่านโพรโทคอล HTTP จึงเสี่ยงต่อการถูกดักจับรหัสผ่าน (Sniffing) มากกว่า HTTPS?",
+                options: [
+                    "A) เพราะ HTTP ช้ากว่า",
+                    "B) เพราะ HTTP ไม่มีการเข้ารหัสข้อมูล (Plaintext) ทำให้ใครที่อยู่ในเน็ตเวิร์กทางผ่านอ่านรหัสได้ทันที",
+                    "C) เพราะ HTTP ไม่รองรับภาษาไทย",
+                    "D) เพราะ HTTP ทำงานเฉพาะบน Windows"
+                ],
+                ans: 1,
+                exp: "HTTP ส่งทุกอย่างเป็น Cleartext ในขณะที่ HTTPS มีชั้น TLS คอยเข้ารหัสข้อมูลหัวและท้าย"
+            },
+            {
+                q: "4. คำสั่ง Linux ใดใช้สำหรับดึงคอลัมน์แรก (ซึ่งมักเป็น IP Address) ออกมาจากไฟล์ access.log?",
+                options: ["A) awk '{print $1}' access.log", "B) rm -rf access.log", "C) ping access.log", "D) touch access.log"],
+                ans: 0,
+                exp: "awk '{print $1}' เป็นคำสั่งมาตรฐานสำหรับดึง Field แรกของแต่ละบรรทัด"
+            },
+            {
+                q: "5. การใช้คำสั่ง 'uniq -c' ใน Linux มีเงื่อนไขสำคัญข้อใดที่ต้องทำก่อนเสมอเพื่อให้ได้ผลลัพธ์ที่ถูกต้อง?",
+                options: ["A) ต้องรีบูตเครื่องก่อน", "B) ข้อมูลจะต้องถูกจัดเรียงด้วยคำสั่ง 'sort' มาก่อนเสมอ", "C) ต้องใส่รหัสผ่าน root", "D) ต้องต่ออินเทอร์เน็ต"],
+                ans: 1,
+                exp: "uniq จะนับเฉพาะบรรทัดที่ซ้ำกันติดๆ กันเท่านั้น จึงต้องผ่านการ sort มาก่อนเสมอ"
+            },
+            {
+                q: "6. ในไฟล์ /var/log/auth.log ข้อความใดบ่งบอกถึงการพยายามเดารหัสผ่าน SSH จากแฮกเกอร์?",
+                options: ["A) Accepted publickey", "B) Failed password for invalid user", "C) session closed", "D) CRON opened"],
+                ans: 1,
+                exp: "Failed password for invalid user คือสัญญาณเตือนภัยของการทำ Brute Force / Dictionary Attack บนพอร์ต SSH"
+            },
+            {
+                q: "7. Display Filter 'frame contains \"flag{\"' ใน Wireshark ทำหน้าที่อะไร?",
+                options: [
+                    "A) บล็อกการเชื่อมต่อของแฮกเกอร์",
+                    "B) ค้นหาทุกแพ็กเก็ตที่มีสตริงคำว่า 'flag{' ซ่อนอยู่ในเนื้อหาข้อมูล",
+                    "C) เปลี่ยนไอพีของเครื่องตนเอง",
+                    "D) ปิดโปรแกรม Wireshark"
+                ],
+                ans: 1,
+                exp: "frame contains ใช้ค้นหา Pattern สตริงใดๆ ในทุกส่วนของเฟรมแพ็กเก็ต เป็นเทคนิคยอดนิยมใน CTF"
+            },
+            {
+                q: "8. ในไฟล์ Nginx access.log หากพบคำขอ 'GET /admin/../../../../etc/passwd HTTP/1.1' 200 บ่งบอกถึงการโจมตีใด?",
+                options: ["A) DDoS", "B) Path Traversal / LFI", "C) ARP Spoofing", "D) Phishing"],
+                ans: 1,
+                exp: "การใช้ ../ ไต่ระดับโฟลเดอร์เพื่ออ่านไฟล์ระบบ /etc/passwd คือลักษณะเฉพาะของ Path Traversal"
+            },
+            {
+                q: "9. หากต้องการนับหา 5 อันดับ IP แรกที่ยิงคำขอมากที่สุด คำสั่ง Pipeline ใดถูกต้องที่สุด?",
+                options: [
+                    "A) awk '{print $1}' access.log | sort | uniq -c | sort -nr | head -n 5",
+                    "B) cat access.log | grep 5",
+                    "C) ls -l | head -n 5",
+                    "D) echo 5"
+                ],
+                ans: 0,
+                exp: "awk ดึง IP ➔ sort เรียง ➔ uniq -c นับจำนวน ➔ sort -nr เรียงจากมากไปน้อย ➔ head -n 5 ดึง 5 ตัวแรก"
+            },
+            {
+                q: "10. โปรโตคอลใดต่อไปนี้ส่งรหัสผ่านแบบ Cleartext เป็นค่าเริ่มต้น?",
+                options: ["A) SSH", "B) HTTPS", "C) FTP", "D) SFTP"],
+                ans: 2,
+                exp: "FTP (พอร์ต 21) ส่งคำสั่ง USER และ PASS เป็น Plaintext ที่ไม่มีการเข้ารหัสเลย"
+            }
+        ];
+
+        let netAnswers = {};
+        function renderNetQuiz() {
+            const container = document.getElementById('netQuizContainer');
+            let html = "";
+            netQuestions.forEach((item, idx) => {
+                html += `
+                    <div class="quiz-card" id="nCard${idx}">
+                        <div class="quiz-q">${item.q}</div>
+                        <div class="quiz-opts">
+                            ${item.options.map((opt, oIdx) => `
+                                <div class="quiz-opt" id="nopt_${idx}_${oIdx}" onclick="selectNetAnswer(${idx}, ${oIdx})">
+                                    ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="quiz-exp" id="nexp${idx}">${item.exp}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function selectNetAnswer(qIdx, oIdx) {
+            if (netAnswers[qIdx] !== undefined) return;
+            netAnswers[qIdx] = oIdx;
+
+            const correct = netQuestions[qIdx].ans;
+            const chosen = document.getElementById(`nopt_${qIdx}_${oIdx}`);
+            const correctDiv = document.getElementById(`nopt_${qIdx}_${correct}`);
+            const exp = document.getElementById(`nexp${qIdx}`);
+
+            if (oIdx === correct) {
+                playSuccess();
+                chosen.classList.add('correct');
+            } else {
+                playWrong();
+                chosen.classList.add('wrong');
+                correctDiv.classList.add('correct');
+            }
+
+            exp.style.display = 'block';
+            exp.innerHTML = `<strong>💡 เฉลยละเอียด:</strong> ` + netQuestions[qIdx].exp;
+
+            let score = 0;
+            for (let q in netAnswers) {
+                if (netAnswers[q] === netQuestions[q].ans) score++;
+            }
+            document.getElementById('netScoreDisplay').innerText = `คะแนน: ${score} / 10`;
+            if (score === 10) {
+                document.getElementById('netScoreDisplay').innerHTML = `🎉 คะแนน: 10 / 10 (ยอดเยี่ยม! ผ่านหลักสูตร Network & Log Analysis)`;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderPackets("http");
+            selectPacket(4);
+            renderNetQuiz();
+        });
+    </script>
+</body>
+</html>

